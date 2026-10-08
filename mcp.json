@@ -1,0 +1,20 @@
+
+{
+  "mcpServers": {
+    "appwrite": {
+      "type": "http",
+      "url": "https://mcp.appwrite.io/"
+    },
+    "postman-remote": {
+      "type": "http",
+      "url": "https://mcp.postman.com/mcp",
+      "headers": {
+        "Authorization": "Bearer ${POSTMAN_API_KEY}"
+      }
+    },
+    "aevon-postman-bridge": {
+      "type": "http",
+      "url": "http://127.0.0.1:3100/mcp"
+    }
+  }
+}

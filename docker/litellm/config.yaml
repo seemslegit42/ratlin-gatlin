@@ -1,0 +1,69 @@
+# BEEP Dominion — LiteLLM gateway (OpenAI-compatible)
+# Local GGUF via Ollama + OpenRouter cloud fallbacks
+
+model_list:
+  # --- Local GGUF (Ollama) ---
+  - model_name: beep-granite
+    litellm_params:
+      model: ollama/beep-granite-4.1-3b
+      api_base: http://ollama:11434
+      timeout: 120
+      max_retries: 2
+
+  - model_name: beep-gemma
+    litellm_params:
+      model: ollama/beep-gemma-4-12b
+      api_base: http://ollama:11434
+      timeout: 180
+      max_retries: 2
+
+  - model_name: beep-primary
+    litellm_params:
+      model: ollama/beep-granite-4.1-3b
+      api_base: http://ollama:11434
+      timeout: 120
+
+  # --- OpenRouter cloud (Sovereign AI: set OPENROUTER_REGION=eu + OPENROUTER_API_BASE) ---
+  - model_name: beep-cloud-fast
+    litellm_params:
+      model: openrouter/meta-llama/llama-3.3-70b-instruct
+      api_key: os.environ/OPENROUTER_API_KEY
+      api_base: os.environ/OPENROUTER_API_BASE
+      timeout: 120
+      extra_body:
+        provider:
+          zdr: true
+          data_collection: deny
+
+  - model_name: beep-cloud-architect
+    litellm_params:
+      model: openrouter/meta-llama/llama-3.3-70b-instruct
+      api_key: os.environ/OPENROUTER_API_KEY
+      api_base: os.environ/OPENROUTER_API_BASE
+      timeout: 180
+      extra_body:
+        provider:
+          zdr: true
+          data_collection: deny
+
+router_settings:
+  routing_strategy: simple-shuffle
+  num_retries: 3
+  timeout: 180
+  cooldown_time: 60
+  fallbacks:
+    - beep-granite: [beep-cloud-fast, beep-gemma, beep-cloud-architect]
+    - beep-gemma: [beep-cloud-architect, beep-granite, beep-cloud-fast]
+    - beep-primary: [beep-cloud-fast, beep-gemma]
+    - beep-cloud-fast: [beep-cloud-architect]
+    - beep-cloud-architect: [beep-cloud-fast]
+
+general_settings:
+  master_key: os.environ/LITELLM_MASTER_KEY
+  background_health_checks: true
+  health_check_interval: 45
+  enable_health_check_routing: true
+
+litellm_settings:
+  drop_params: true
+  set_verbose: false

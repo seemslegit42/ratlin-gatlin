@@ -1,0 +1,24 @@
+# TODO
+
+- [x] Complete missing Chronos (PLM) stage-gate lifecycle tab in FinanceView.
+- [x] Align AuthContext session check with official Appwrite account.get() spec.
+- [x] Audit and harden authentication error handling (429, 401, offline/CORS, and client validation).
+- [x] Enhance GeneralLedger to query and subscribe to Appwrite treasury transactions.
+- [x] Integrate live Appwrite TablesDB federation status and table counts into VaultView.
+- [x] Connect Security Behavioral Baselines to authenticated Appwrite user session.
+- [x] Provide unit tests for core module Appwrite integration and PLM stage gates.
+- [x] Automate scheduled Appwrite database backups via cloud cron.
+- [x] Expand multi-region edge sync telemetry for distributed swarms.
+- [x] Remove hardcoded Appwrite endpoint and project IDs, enforcing pure environment variable resolution.
+- [x] Implement high-density layout mode across main cockpit, Xi treasury, CRM, operations, and HUD views.
+- [x] Apply high-density layout class across ALL modules, views, components, and root shells, with tightened CSS spacing variables.
+- [x] Fix Appwrite regional endpoint mismatch by routing to Toronto cloud substrate and provisioning wildcard origins.
+- [x] Harden AuthContext login lifecycle against stale session conflicts with positional SDK fallbacks.
+- [x] Remove forced /help redirect loop in RouteGuardContext and restore unrestricted navigation.
+- [x] Set default user onboarding state to true and assign database collection permissions on Appwrite.
+- [x] Expand BEEP (Behavioral Event & Execution Processor) toolset with business-grade operational capabilities (tasks, metrics, security, workflows).
+- [x] Implement interactive business widgets (Morning Brief, Task Draft, Security Alert) with direct BEEP interaction and module navigation hooks.
+- [ ] Connect `getOperationalMetrics` and `getBusinessInsights` BEEP tools to real-time aggregate data from Appwrite collections.
+- [ ] Implement automated anomaly detection triggers for BEEP based on historical baseline deviations.
+- [ ] Implement quantum-resistant payload signatures for edge replication streams.
+- [ ] Expand automated load balancing across heterogeneous LLM edge clusters.

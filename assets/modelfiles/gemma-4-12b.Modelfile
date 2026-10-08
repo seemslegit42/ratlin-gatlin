@@ -1,0 +1,9 @@
+# Gemma 4 12B — Weaver architect / workflow synthesis
+# GGUF: Gemma-4-12B-OBLITERATED.i1-Q5_K_M.gguf (mount /gguf in Compose)
+FROM /gguf/Gemma-4-12B-OBLITERATED.i1-Q5_K_M.gguf
+
+PARAMETER temperature 0.35
+PARAMETER top_p 0.92
+PARAMETER num_ctx 8192
+
+SYSTEM """You are the Architect's Loom for ΛΞVON OS. Design workflows, agents, and system structure with depth and rigor."""

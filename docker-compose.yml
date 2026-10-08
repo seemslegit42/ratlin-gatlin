@@ -1,0 +1,141 @@
+# BEEP Dominion — production Compose (Dokploy / enterprise SaaS)
+# Local dev: bun cast  (merges docker-compose.dev.yml for host ports)
+# Validate: docker compose -f docker-compose.yml config
+
+name: beep-dominion
+
+networks:
+  beep_internal:
+    driver: bridge
+    name: beep_internal
+
+services:
+  ollama:
+    image: ollama/ollama:${OLLAMA_IMAGE_TAG:-latest}
+    container_name: beep-ollama
+    restart: unless-stopped
+    networks:
+      - beep_internal
+    volumes:
+      - ollama_models:/root/.ollama
+      - ./docker/ollama/entrypoint.sh:/entrypoint.sh:ro
+      - ./assets/modelfiles:/modelfiles:ro
+      - ./assets:/assets:ro
+      - ${GGUF_HOST_PATH:-../gguf}:/gguf:ro
+    environment:
+      OLLAMA_HOST: 0.0.0.0:11434
+      OLLAMA_ORIGINS: ${OLLAMA_ORIGINS:-*}
+      OLLAMA_MODEL_NAME: ${OLLAMA_MODEL:-beep-qwen3p5-0.8b-iq2-xxs}
+      BEEP_GRANITE_MODEL: ${BEEP_GRANITE_MODEL:-beep-granite-4.1-3b}
+      BEEP_GEMMA_MODEL: ${BEEP_GEMMA_MODEL:-beep-gemma-4-12b}
+      OLLAMA_NUM_PARALLEL: ${OLLAMA_NUM_PARALLEL:-2}
+      OLLAMA_MAX_LOADED_MODELS: ${OLLAMA_MAX_LOADED_MODELS:-2}
+    entrypoint: ["/bin/sh", "/entrypoint.sh"]
+    healthcheck:
+      test: ["CMD-SHELL", "ollama list >/dev/null 2>&1 || wget -qO- http://127.0.0.1:11434/api/tags >/dev/null 2>&1"]
+      interval: 15s
+      timeout: 10s
+      retries: 10
+      start_period: 180s
+    deploy:
+      resources:
+        limits:
+          cpus: "${OLLAMA_CPU_LIMIT:-8.0}"
+          memory: ${OLLAMA_MEMORY_LIMIT:-20G}
+        reservations:
+          memory: ${OLLAMA_MEMORY_RESERVATION:-8G}
+    logging:
+      driver: json-file
+      options:
+        max-size: "50m"
+        max-file: "5"
+    security_opt:
+      - no-new-privileges:true
+
+  litellm:
+    image: ghcr.io/berriai/litellm:main-stable
+    container_name: beep-litellm
+    restart: unless-stopped
+    networks:
+      - beep_internal
+    depends_on:
+      ollama:
+        condition: service_healthy
+    volumes:
+      - ./docker/litellm/config.yaml:/app/config.yaml:ro
+    environment:
+      LITELLM_MASTER_KEY: ${LITELLM_MASTER_KEY:-sk-beep-local}
+      LITELLM_LOG: ${LITELLM_LOG:-INFO}
+      OPENROUTER_API_KEY: ${OPENROUTER_API_KEY:-}
+      OPENROUTER_API_BASE: ${OPENROUTER_API_BASE:-https://openrouter.ai/api/v1}
+      OPENROUTER_REGION: ${OPENROUTER_REGION:-global}
+      OPENROUTER_SITE_URL: ${OPENROUTER_SITE_URL:-https://beep.local}
+      OPENROUTER_APP_NAME: ${OPENROUTER_APP_NAME:-BEEP Command}
+    command: ["--config", "/app/config.yaml", "--port", "4000", "--num_workers", "4"]
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:4000/health/liveliness"]
+      interval: 15s
+      timeout: 8s
+      retries: 8
+      start_period: 45s
+    deploy:
+      resources:
+        limits:
+          cpus: "${LITELLM_CPU_LIMIT:-2.0}"
+          memory: ${LITELLM_MEMORY_LIMIT:-1G}
+    logging:
+      driver: json-file
+      options:
+        max-size: "20m"
+        max-file: "3"
+    security_opt:
+      - no-new-privileges:true
+
+  postman-mcp:
+    build:
+      context: .
+      dockerfile: Dockerfile.mcp
+    image: ${BEEP_MCP_IMAGE:-beep-mcp:local}
+    container_name: beep-postman-mcp
+    restart: unless-stopped
+    networks:
+      - beep_internal
+    depends_on:
+      litellm:
+        condition: service_healthy
+      ollama:
+        condition: service_healthy
+    environment:
+      MCP_SERVER_PORT: "3100"
+      MCP_SERVER_HOST: 0.0.0.0
+      MCP_ALLOWED_HOSTS: ${MCP_ALLOWED_HOSTS:-*}
+      POSTMAN_API_KEY: ${POSTMAN_API_KEY:-}
+      POSTMAN_API_BASE_URL: ${POSTMAN_API_BASE_URL:-https://api.getpostman.com}
+      NODE_ENV: production
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+    volumes:
+      - mcp_logs:/app/logs
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://127.0.0.1:3100/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 6
+      start_period: 20s
+    deploy:
+      resources:
+        limits:
+          cpus: "${MCP_CPU_LIMIT:-1.0}"
+          memory: ${MCP_MEMORY_LIMIT:-512M}
+    logging:
+      driver: json-file
+      options:
+        max-size: "20m"
+        max-file: "3"
+    security_opt:
+      - no-new-privileges:true
+
+volumes:
+  ollama_models:
+    name: beep_ollama_models
+  mcp_logs:
+    name: beep_mcp_logs

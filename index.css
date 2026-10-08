@@ -1,0 +1,1994 @@
+
+/*
+ * Variable-font imports give the browser a continuous weight axis (100–900),
+ * which is the only way to request non-standard weights such as 225.
+ * Comfortaa is also a variable font; loading its full range costs the same
+ * bandwidth as a single weight and lets us use any future heading variants.
+ */
+@import url('https://fonts.googleapis.com/css2?family=Comfortaa:wght@300..700&family=Lexend:wght@100..900&display=swap&font-display=swap');
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Martian+Mono:wght@400;700&display=swap&font-display=swap');
+
+/* ═══════════════════════════════════════════════════════════
+   THE VERDIGRIS PROTOCOL — DESIGN TOKENS v2
+   Single source of truth for the ΛΞVON OS visual language.
+   WCAG 2.1 AA/AAA compliant. Responsive. Accessible.
+   ═══════════════════════════════════════════════════════════ */
+:root {
+  /* ── Sacred Palette (Book I §1.4) ───────────────────────── */
+  --color-primary-purple:   #6A0DAD;   /* Authority, Sovereignty */
+  --color-primary-purple-l: #8B2FCF;   /* Lighter variant for contrast on dark */
+  --color-accent-green:     #3EB991;   /* Growth, Health, Success */
+  --color-accent-aqua:      #20B2AA;   /* Clarity, Information, Flow */
+  --color-accent-gilded:    #FFD700;   /* Legacy, Achievement (use sparingly) */
+  --color-neutral-obsidian: #09090b;   /* Background base */
+  --color-neutral-vitreous: #F0F2F5;   /* Foreground text — 14.5:1 on obsidian */
+
+  /* ── Semantic Text Scale (WCAG AA+ contrast ratios on obsidian) ── */
+  --text-on-dark-primary:   #F0F2F5;   /* 14.5:1 – headings, critical labels */
+  --text-on-dark-secondary: #B8C0CC;   /* 7.2:1  – body copy, descriptive text */
+  --text-on-dark-tertiary:  #8896A8;   /* 4.6:1  – hints, placeholders (AA) */
+  --text-on-dark-disabled:  #4A5568;   /* decorative only – not for real content */
+
+  /* ── Interactive / Brand Accent Colours ─────────────────── */
+  --color-interactive:      #3EC6C0;   /* 3.2:1 on obsidian — large text / UI chrome */
+  --color-interactive-text: #2DD4CB;   /* 4.5:1 on dark – meets AA for normal text */
+  --color-focus-ring:       #5BCFCA;   /* Highly visible keyboard focus indicator */
+  --color-focus-ring-offset:#09090b;   /* Matches body background for clear ring */
+
+  /* Legacy aliases for backward compat */
+  --obsidian-black:    var(--color-neutral-obsidian);
+  --charcoal:          #121212;
+  --imperial-purple:   var(--color-primary-purple);
+  --roman-aqua:        var(--color-accent-aqua);
+  --patina-green:      var(--color-accent-green);
+  --gilded-accent:     var(--color-accent-gilded);
+  --glass-shadow:      rgba(0, 0, 0, 0.6);
+
+  /* ── Animation Duration Tokens (Book II §2.2) ────────────── */
+  --duration-instant:  80ms;
+  --duration-fast:     120ms;
+  --duration-moderate: 300ms;   /* Component Duality cross-fade */
+  --duration-slow:     600ms;
+  --duration-enter:    220ms;
+  --duration-exit:     180ms;
+  --ease-sovereign:    cubic-bezier(0.4, 0, 0.2, 1); /* Material Design 3 emphasis */
+  --ease-spring:       cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-decelerate:   cubic-bezier(0, 0, 0.2, 1);
+  --ease-accelerate:   cubic-bezier(0.4, 0, 1, 1);
+
+  /* ── Ancient Roman Glass — Component Duality (Table 2) ──── */
+  /* Live Mode: opaque glass, full frosted effect */
+  --glass-live-bg:         rgba(30, 30, 30, 0.60);
+  --glass-live-blur:       24px;
+  --glass-live-border:     rgba(255, 255, 255, 0.10);
+  --glass-live-shadow:     0 0 0 1px rgba(255,255,255,0.08), 0 8px 32px rgba(0,0,0,0.5);
+
+  /* Architect Mode: translucent glass, reveals logic beneath */
+  --glass-arch-bg:         rgba(30, 30, 30, 0.30);
+  --glass-arch-blur:       12px;
+  --glass-arch-border:     rgba(255, 255, 255, 0.06);
+  --glass-arch-shadow:     0 0 0 1px rgba(32,178,170,0.15), 0 4px 16px rgba(0,0,0,0.3);
+
+  /* Generic glass layers */
+  --glass-bg:          rgba(12, 12, 18, 0.65);
+  --glass-border:      rgba(255, 255, 255, 0.08);
+  --glass-blur:        20px;
+
+  /* ── Veil-Peel Palette ───────────────────────────────────── */
+  --veil-colour:       rgba(106, 13, 173, 0.18);
+  --veil-border:       rgba(106, 13, 173, 0.55);
+  --peel-glow:         rgba(32, 178, 170, 0.70);
+
+  /* ── Port / Connector Colours ───────────────────────────── */
+  --port-input-colour:  var(--color-accent-green);
+  --port-output-colour: var(--color-accent-aqua);
+
+  /* ── Aetheric Sigil State Colours (Book III §3.3) ────────── */
+  --sigil-dormant:     rgba(255, 255, 255, 0.20);
+  --sigil-aware:       var(--color-accent-aqua);
+  --sigil-active:      var(--color-accent-aqua);
+  --sigil-success:     var(--color-accent-green);
+  --sigil-warning:     #F97316;
+  --sigil-error:       #EF4444;
+
+  /* ── Status label text (accessible on dark surfaces) ─────── */
+  --status-success-text:   #4ADE80;   /* WCAG AA on dark */
+  --status-warning-text:   #FBBF24;   /* WCAG AA on dark */
+  --status-error-text:     #F87171;   /* WCAG AA on dark */
+  --status-info-text:      #60A5FA;   /* WCAG AA on dark */
+
+  /* ── Tall-screen safe-area ──────────────────────────────── */
+  --safe-bottom:       env(safe-area-inset-bottom, 0px);
+  --safe-top:          env(safe-area-inset-top, 0px);
+  --safe-left:         env(safe-area-inset-left, 0px);
+  --safe-right:        env(safe-area-inset-right, 0px);
+
+  /* ── HUD sizing ─────────────────────────────────────────── */
+  --hud-bar-h:         4rem;
+  --mobile-nav-h:      5rem;
+  --chat-dock-h:       3.5rem;
+
+  /* ── Spacing Scale (compact high-density grid) ───────────── */
+  --space-1:  0.25rem;   /* 4px  */
+  --space-2:  0.375rem;  /* 6px  - tightened from 0.5rem */
+  --space-3:  0.5rem;    /* 8px  - tightened from 0.75rem */
+  --space-4:  0.75rem;   /* 12px - tightened from 1rem */
+  --space-5:  1rem;      /* 16px - tightened from 1.25rem */
+  --space-6:  1.25rem;   /* 20px - tightened from 1.5rem */
+  --space-8:  1.5rem;    /* 24px - tightened from 2rem */
+  --space-10: 2rem;      /* 32px - tightened from 2.5rem */
+  --space-12: 2.5rem;    /* 40px - tightened from 3rem */
+  --space-16: 3rem;      /* 48px - tightened from 4rem */
+
+  /* ── High-density UI layout tokens ───────────────────────── */
+  --density-gap-xs:    0.1875rem; /* 3px  */
+  --density-gap:       0.25rem;   /* 4px  - tightened from 0.375rem */
+  --density-gap-md:    0.375rem;  /* 6px  - tightened from 0.5rem */
+  --density-gap-lg:    0.5rem;    /* 8px  - tightened from 0.75rem */
+  --density-pad-xs:    0.1875rem; /* 3px  */
+  --density-pad:       0.25rem;   /* 4px  - tightened from 0.375rem */
+  --density-pad-sm:    0.375rem;  /* 6px  - tightened from 0.5rem */
+  --density-pad-md:    0.5rem;    /* 8px  - tightened from 0.75rem */
+  --density-pad-lg:    0.75rem;   /* 12px - tightened from 1rem */
+
+  /* ── Touch Targets (WCAG 2.5.5 — 44×44px minimum) ────────── */
+  --tap-min:           44px;
+  --tap-comfortable:   48px;
+  --tap-spacious:      56px;
+
+  /* ── Typography (WCAG 1.4.4 — readable at any zoom) ─────── */
+  --text-xs:    0.6875rem;   /* 11px – labels only */
+  --text-sm:    0.8125rem;   /* 13px – secondary UI */
+  --text-body:  0.9375rem;   /* 15px – primary body text (mobile) */
+  --text-md:    1rem;        /* 16px – body md+ */
+  --text-lg:    1.125rem;    /* 18px */
+  --text-xl:    1.25rem;     /* 20px */
+  --text-2xl:   1.5rem;      /* 24px */
+
+  /* ── Font Weight Scale ───────────────────────────────────── */
+  /*
+   * 225 is a continuous variable-font axis value between ExtraLight (200)
+   * and Light (300). It renders with exceptional elegance at display sizes
+   * and remains highly readable against dark backgrounds.
+   */
+  --font-weight-body:    225;   /* Lexend — ultra-light body copy */
+  --font-weight-ui:      350;   /* Lexend — UI labels, slightly heavier for clarity */
+  --font-weight-medium:  500;   /* Lexend Medium — inline emphasis */
+  --font-weight-ui-bold: 700;   /* Lexend Bold — buttons, badges, CTAs */
+  --font-weight-heading: 700;   /* Comfortaa Bold — all titles & headers */
+
+  /* ── Font Family Tokens ──────────────────────────────────── */
+  --font-heading: 'Comfortaa', cursive;
+  --font-body:    'Lexend', sans-serif;
+  --font-mono:    'JetBrains Mono', 'Martian Mono', monospace;
+
+  /* ── Line Heights (WCAG 1.4.12 — min 1.5 for body text) ─── */
+  --leading-tight:   1.25;
+  --leading-snug:    1.375;
+  --leading-body:    1.55;   /* WCAG 1.4.12 requires ≥1.5 */
+  --leading-relaxed: 1.7;
+  --leading-heading: 1.2;
+
+  /* ── Letter Spacing ─────────────────────────────────────── */
+  /*
+   * At weight 225, slightly positive tracking compensates for the
+   * reduced stroke width, keeping inter-character rhythm comfortable.
+   */
+  --tracking-tightest: -0.03em;
+  --tracking-tight:    -0.01em;
+  --tracking-normal:    0.01em;   /* +1% open — optimal for ultra-light body */
+  --tracking-wide:      0.06em;
+  --tracking-wider:     0.10em;
+  --tracking-widest:    0.14em;
+
+  /* ── Variable Font Rendering ─────────────────────────────── */
+  --font-optical-sizing: auto;   /* Browser optimises glyph shapes per size */
+
+  /* ── Border Radius Scale ────────────────────────────────── */
+  --radius-sm:   0.375rem;   /* 6px  */
+  --radius-md:   0.625rem;   /* 10px */
+  --radius-lg:   0.875rem;   /* 14px */
+  --radius-xl:   1.25rem;    /* 20px */
+  --radius-full: 9999px;
+
+  /* ── Z-Index Scale ──────────────────────────────────────── */
+  --z-base:       0;
+  --z-raised:     10;
+  --z-dropdown:   100;
+  --z-sticky:     200;
+  --z-overlay:    300;
+  --z-modal:      400;
+  --z-popover:    500;
+  --z-tooltip:    600;
+  --z-toast:      700;
+  --z-skip-link:  9999;
+}
+
+/* ── Fluid typography: scale up on larger viewports ────────── */
+@media (min-width: 768px) {
+  :root {
+    --text-body:      1rem;        /* 16px on md+ */
+    --density-gap:    var(--space-2);
+    --density-gap-md: var(--space-3);
+    --density-pad:    var(--space-2);
+    --density-pad-md: var(--space-4);
+  }
+}
+
+@media (min-width: 1280px) {
+  :root {
+    --density-gap:    var(--space-3);
+    --density-gap-md: var(--space-4);
+    --density-pad:    var(--space-3);
+    --density-pad-md: var(--space-5);
+  }
+}
+
+/* ── High-DPI glass border refinement ─────────────────────── */
+@media (min-resolution: 2dppx) {
+  :root {
+    --glass-border: rgba(255, 255, 255, 0.10);
+  }
+  .hud-border-retina { border-width: 0.5px; }
+  .scanlines          { background-size: 100% 2px; }
+}
+@media (min-resolution: 3dppx) {
+  .scanlines { background-size: 100% 1px; }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   REDUCED MOTION — WCAG 2.3.3 / prefers-reduced-motion
+   Respect users who have vestibular/motion sensitivities.
+   All cosmetic animations are suppressed; functional
+   transitions are shortened to instant.
+   ═══════════════════════════════════════════════════════════ */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration:   0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration:  0.01ms !important;
+    scroll-behavior:      auto !important;
+  }
+
+  /* Preserve layout-critical transitions but strip decorative ones */
+  .glass-live,
+  .glass-architect {
+    transition: none !important;
+  }
+
+  /* Halt all background grain / aurora drift */
+  .wabi-grain,
+  .iridescent-sweep::after,
+  .holo-flicker,
+  .animate-pulse-slow,
+  .sigil-aware,
+  .sigil-active,
+  .sigil-warning,
+  .sigil-error {
+    animation: none !important;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   BASE RESET & BOX MODEL
+   ═══════════════════════════════════════════════════════════ */
+*, *::before, *::after { box-sizing: border-box; }
+
+html {
+  /* Dynamic viewport — handles iOS toolbar collapse */
+  height: -webkit-fill-available;
+  height: 100dvh;
+  /* Smooth scrolling unless motion-reduced */
+  scroll-behavior: smooth;
+  /* Prevent text size adjustments on orientation change */
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body {
+  font-family: var(--font-body);
+  font-size: var(--text-body);
+  font-weight: var(--font-weight-body);       /* Lexend 225 — ultra-light body */
+  font-optical-sizing: var(--font-optical-sizing);
+  /* Variable font axis — weight 225 rendered via wght axis */
+  font-variation-settings: 'wght' var(--font-weight-body);
+  letter-spacing: var(--tracking-normal);     /* +0.01em open at ultra-light */
+  line-height: var(--leading-body);
+  background-color: var(--obsidian-black);
+  background-image: radial-gradient(ellipse 80% 50% at 50% -10%, rgba(106, 13, 173, 0.18) 0%, transparent 70%),
+                    radial-gradient(ellipse 60% 40% at 100% 100%, rgba(32, 178, 170, 0.06) 0%, transparent 60%);
+  color: var(--text-on-dark-primary);
+  margin: 0;
+  overflow: hidden;
+  scrollbar-gutter: stable;
+  /* Subpixel smoothing — critical for ultra-light weights on dark backgrounds */
+  -webkit-font-smoothing: subpixel-antialiased;
+  -moz-osx-font-smoothing: auto;
+  /* Ligatures & kerning — improve visual quality at any weight */
+  font-feature-settings: 'kern' 1, 'liga' 1, 'calt' 1;
+  text-rendering: optimizeLegibility;
+  touch-action: pan-x pan-y;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   SKIP NAVIGATION LINK — WCAG 2.4.1
+   Allows keyboard users to jump past repeated nav blocks.
+   ═══════════════════════════════════════════════════════════ */
+.skip-link {
+  position: fixed;
+  top: var(--space-4);
+  left: var(--space-4);
+  z-index: var(--z-skip-link);
+  padding: var(--space-3) var(--space-6);
+  background: var(--color-primary-purple-l);
+  color: #ffffff;
+  font-family: var(--font-body);
+  font-size: var(--text-body);
+  font-weight: var(--font-weight-ui-bold);
+  border-radius: var(--radius-md);
+  border: 2px solid var(--color-focus-ring);
+  text-decoration: none;
+  white-space: nowrap;
+  /* Hidden off-screen until focused */
+  transform: translateY(calc(-100% - var(--space-8)));
+  transition: transform var(--duration-fast) var(--ease-decelerate);
+  outline: none;
+}
+
+.skip-link:focus,
+.skip-link:focus-visible {
+  transform: translateY(0);
+  box-shadow: 0 0 0 3px var(--color-focus-ring-offset), 0 0 0 5px var(--color-focus-ring);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   SCREEN-READER UTILITIES — WCAG 1.3.1 / 1.3.3
+   ═══════════════════════════════════════════════════════════ */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+.not-sr-only {
+  position: static;
+  width: auto;
+  height: auto;
+  padding: 0;
+  margin: 0;
+  overflow: visible;
+  clip: auto;
+  white-space: normal;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   GLOBAL FOCUS STYLES — WCAG 2.4.7 / 2.4.11
+   Consistent, highly-visible keyboard focus indicator.
+   Uses :focus-visible to avoid showing rings on click.
+   ═══════════════════════════════════════════════════════════ */
+
+/* Remove default outlines — we handle focus ourselves */
+*:focus {
+  outline: none;
+}
+
+/* High-visibility keyboard focus ring */
+*:focus-visible {
+  outline: 2px solid var(--color-focus-ring);
+  outline-offset: 3px;
+  border-radius: var(--radius-sm);
+}
+
+/* Inputs & textareas — inset ring for contained look */
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline: none;
+  box-shadow:
+    0 0 0 1px var(--color-focus-ring-offset),
+    0 0 0 3px var(--color-focus-ring);
+}
+
+/* Buttons and interactive tiles — ring with offset gap */
+button:focus-visible,
+a:focus-visible,
+[role="button"]:focus-visible,
+[role="tab"]:focus-visible,
+[role="menuitem"]:focus-visible,
+[role="option"]:focus-visible,
+[role="checkbox"]:focus-visible,
+[role="radio"]:focus-visible,
+[role="switch"]:focus-visible {
+  outline: 2px solid var(--color-focus-ring);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+  box-shadow: 0 0 0 4px rgba(91, 207, 202, 0.15);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   TYPOGRAPHY SYSTEM
+   • Comfortaa 700  — every title, heading, section header
+   • Lexend 300     — every body copy, paragraph, description
+   • Lexend 400+    — UI controls (explicit font-weight class)
+   • Mono           — code, logs, data
+   WCAG 1.4.4, 1.4.8, 1.4.12 compliant
+   ═══════════════════════════════════════════════════════════ */
+
+/* ── Heading elements — always Comfortaa 700 ────────────── */
+h1, h2, h3, h4, h5, h6,
+.app-heading {
+  font-family: var(--font-heading);
+  font-weight: var(--font-weight-heading);
+  font-variation-settings: 'wght' var(--font-weight-heading);
+  font-optical-sizing: var(--font-optical-sizing);
+  font-feature-settings: 'kern' 1, 'liga' 1;
+  line-height: var(--leading-heading);
+  letter-spacing: var(--tracking-tight);
+  color: var(--text-on-dark-primary);
+  text-wrap: balance;
+}
+
+/* Modular type scale */
+h1 { font-size: clamp(var(--text-2xl), 4vw, 2.5rem); }
+h2 { font-size: clamp(var(--text-xl),  3vw, 2rem); }
+h3 { font-size: clamp(var(--text-lg),  2.5vw, 1.5rem); }
+h4 { font-size: clamp(var(--text-md),  2vw, 1.25rem); }
+h5 { font-size: var(--text-body); }
+h6 { font-size: var(--text-sm); }
+
+/* ── Body elements — Lexend 225 ─────────────────────────── */
+p, li, blockquote, figcaption,
+label, input, textarea, select, option,
+td, th {
+  font-family: var(--font-body);
+  font-weight: var(--font-weight-body);
+  font-variation-settings: 'wght' var(--font-weight-body);
+  letter-spacing: var(--tracking-normal);
+  line-height: var(--leading-body);
+}
+
+/* Form inputs use slightly heavier weight for legibility at small sizes */
+input, textarea, select {
+  font-weight: var(--font-weight-ui);
+  font-variation-settings: 'wght' var(--font-weight-ui);
+  letter-spacing: var(--tracking-tight);
+}
+
+/* Paragraph spacing for readability */
+p + p { margin-top: var(--space-4); }
+
+/* Prevent long strings from overflowing containers */
+p, li, td, th {
+  overflow-wrap: break-word;
+  word-break: break-word;
+}
+
+/* ── Monospace — code, logs, metrics ────────────────────── */
+code, pre, kbd, samp,
+.font-mono {
+  font-family: var(--font-mono);
+  font-size: 0.9em;
+  font-weight: var(--font-weight-ui);  /* Mono at 400 — matches code editor default */
+}
+
+/* ── Links — visually distinct ──────────────────────────── */
+a {
+  color: var(--color-interactive-text);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+  transition: color var(--duration-fast) var(--ease-sovereign);
+}
+a:hover {
+  color: var(--text-on-dark-primary);
+  text-decoration-thickness: 2px;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   TYPOGRAPHY UTILITY CLASSES
+   Drop these on any element to enforce the correct typeface
+   without relying on the element cascade.
+   ═══════════════════════════════════════════════════════════ */
+
+/* Any heading/title — Comfortaa Bold */
+.heading,
+.font-heading,
+.title-text {
+  font-family: var(--font-heading) !important;
+  font-weight: var(--font-weight-heading) !important;
+  font-variation-settings: 'wght' var(--font-weight-heading) !important;
+  line-height: var(--leading-heading);
+  letter-spacing: var(--tracking-tight);
+}
+
+/* Section header pill — Comfortaa 700, all-caps */
+.section-heading {
+  font-family: var(--font-heading);
+  font-weight: var(--font-weight-heading);
+  font-variation-settings: 'wght' var(--font-weight-heading);
+  font-size: var(--text-xs);
+  letter-spacing: var(--tracking-widest);
+  text-transform: uppercase;
+  line-height: 1;
+}
+
+/* Running body copy — Lexend 225 */
+.body-text,
+.font-body {
+  font-family: var(--font-body) !important;
+  font-weight: var(--font-weight-body) !important;
+  font-variation-settings: 'wght' var(--font-weight-body) !important;
+  letter-spacing: var(--tracking-normal);
+  line-height: var(--leading-body);
+}
+
+/* UI label — Lexend 350 (readable at small sizes) */
+.ui-label {
+  font-family: var(--font-body);
+  font-weight: var(--font-weight-ui);
+  font-variation-settings: 'wght' var(--font-weight-ui);
+  letter-spacing: var(--tracking-tight);
+  line-height: 1;
+}
+
+/* UI label medium — Lexend 500 */
+.ui-label--medium {
+  font-family: var(--font-body);
+  font-weight: var(--font-weight-medium);
+  font-variation-settings: 'wght' var(--font-weight-medium);
+  line-height: 1;
+}
+
+/* CTA / badge / button text — Lexend 700 */
+.ui-label--bold {
+  font-family: var(--font-body);
+  font-weight: var(--font-weight-ui-bold);
+  font-variation-settings: 'wght' var(--font-weight-ui-bold);
+  line-height: 1;
+}
+
+/*
+ * Tailwind font-family class reinforcements.
+ * Weight is intentionally NOT overridden here so that Tailwind's
+ * font-bold / font-medium / font-normal utilities remain composable.
+ * Weight is set by the body cascade (225) or explicit Tailwind classes.
+ */
+.font-comfortaa { font-family: var(--font-heading); }
+.font-lexend    { font-family: var(--font-body); }
+.font-heading   { font-family: var(--font-heading); }
+.font-body      { font-family: var(--font-body); }
+
+/* ═══════════════════════════════════════════════════════════
+   TEXT SELECTION — branded, readable
+   ═══════════════════════════════════════════════════════════ */
+::selection {
+  background: rgba(106, 13, 173, 0.45);   /* imperial purple at 45% */
+  color: #ffffff;
+  text-shadow: none;
+}
+
+::-moz-selection {
+  background: rgba(106, 13, 173, 0.45);
+  color: #ffffff;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   SCROLL ANCHOR OFFSET — ensure headings aren't hidden behind
+   the fixed header when navigated to via in-page links
+   ═══════════════════════════════════════════════════════════ */
+[id] { scroll-margin-top: calc(var(--hud-bar-h) + var(--space-4)); }
+
+/* ═══════════════════════════════════════════════════════════
+   ELEVATION / SHADOW SCALE
+   Named depth layers replace ad-hoc box-shadow values.
+   ═══════════════════════════════════════════════════════════ */
+:root {
+  --shadow-sm:   0 1px  2px rgba(0,0,0,0.3),  0 0 0 1px rgba(255,255,255,0.04);
+  --shadow-md:   0 4px  8px rgba(0,0,0,0.4),  0 0 0 1px rgba(255,255,255,0.05);
+  --shadow-lg:   0 8px 24px rgba(0,0,0,0.5),  0 0 0 1px rgba(255,255,255,0.06);
+  --shadow-xl:   0 16px 40px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.07);
+  --shadow-2xl:  0 24px 60px rgba(0,0,0,0.7), 0 0 0 1px rgba(255,255,255,0.08);
+  /* Brand-tinted glow shadows */
+  --shadow-glow-purple: 0 0 20px rgba(106,13,173,0.35), 0 0 60px rgba(106,13,173,0.15);
+  --shadow-glow-aqua:   0 0 20px rgba(32,178,170,0.30), 0 0 60px rgba(32,178,170,0.10);
+  --shadow-glow-green:  0 0 20px rgba(62,185,145,0.30), 0 0 60px rgba(62,185,145,0.10);
+}
+
+/* Utility classes */
+.shadow-sm  { box-shadow: var(--shadow-sm); }
+.shadow-md  { box-shadow: var(--shadow-md); }
+.shadow-lg  { box-shadow: var(--shadow-lg); }
+.shadow-xl  { box-shadow: var(--shadow-xl); }
+.shadow-2xl { box-shadow: var(--shadow-2xl); }
+
+.shadow-glow-purple { box-shadow: var(--shadow-glow-purple); }
+.shadow-glow-aqua   { box-shadow: var(--shadow-glow-aqua); }
+.shadow-glow-green  { box-shadow: var(--shadow-glow-green); }
+
+/* ═══════════════════════════════════════════════════════════
+   GLASS SURFACE SYSTEM — refined for variable-font legibility
+   Higher saturation in the backdrop filter makes ultra-light
+   text more readable against complex backgrounds.
+   ═══════════════════════════════════════════════════════════ */
+:root {
+  /* Refined glass tokens — more saturation boost for ultra-light text legibility */
+  --glass-saturation:      1.5;
+  --glass-live-saturation: 1.4;
+  --glass-arch-saturation: 1.2;
+
+  /* Inner luminance — subtle top highlight on glass surfaces */
+  --glass-inset-highlight: inset 0 1px 0 rgba(255,255,255,0.07);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   GRADIENT BORDER UTILITIES
+   Render luminous hairline accents on glass panels.
+   ═══════════════════════════════════════════════════════════ */
+.border-gradient-purple {
+  border: 1px solid transparent;
+  background-clip: padding-box;
+  position: relative;
+}
+.border-gradient-purple::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  background: linear-gradient(135deg, rgba(106,13,173,0.5), rgba(32,178,170,0.3));
+  z-index: -1;
+  pointer-events: none;
+}
+
+.border-gradient-aqua {
+  border: 1px solid transparent;
+  background-clip: padding-box;
+  position: relative;
+}
+.border-gradient-aqua::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  background: linear-gradient(135deg, rgba(32,178,170,0.5), rgba(62,185,145,0.3));
+  z-index: -1;
+  pointer-events: none;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   FOCUS RING — refined for ultra-light text context
+   The ring is slightly thicker (3px) when body text is ultra-
+   light, compensating for reduced visual weight overall.
+   ═══════════════════════════════════════════════════════════ */
+*:focus-visible {
+  outline: 3px solid var(--color-focus-ring);
+  outline-offset: 3px;
+  border-radius: var(--radius-sm);
+}
+
+button:focus-visible,
+a:focus-visible,
+[role="button"]:focus-visible,
+[role="tab"]:focus-visible,
+[role="menuitem"]:focus-visible,
+[role="option"]:focus-visible,
+[role="checkbox"]:focus-visible,
+[role="radio"]:focus-visible,
+[role="switch"]:focus-visible {
+  outline: 3px solid var(--color-focus-ring);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+  box-shadow: 0 0 0 6px rgba(91, 207, 202, 0.12);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   INTERACTIVE ELEMENT BASE STYLES
+   Shared foundation for buttons, tabs, interactive rows.
+   ═══════════════════════════════════════════════════════════ */
+
+/* Generic interactive surface */
+.interactive {
+  cursor: pointer;
+  user-select: none;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    background-color var(--duration-fast) var(--ease-sovereign),
+    border-color     var(--duration-fast) var(--ease-sovereign),
+    color            var(--duration-fast) var(--ease-sovereign),
+    box-shadow       var(--duration-fast) var(--ease-sovereign),
+    opacity          var(--duration-fast) var(--ease-sovereign);
+}
+
+.interactive:disabled,
+.interactive[aria-disabled="true"] {
+  opacity: 0.4;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   APP SHELL — mobile-first, high-density, one-tap ready
+   ═══════════════════════════════════════════════════════════ */
+.app-shell {
+  font-family: var(--font-body);
+  font-weight: var(--font-weight-body);
+  font-variation-settings: 'wght' var(--font-weight-body);
+  font-optical-sizing: var(--font-optical-sizing);
+}
+
+/* ── Density Section ────────────────────────────────────── */
+.density-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--density-gap);
+}
+
+.density-section__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--density-gap);
+  padding-block-end: 0.375rem;
+  border-bottom: 1px solid var(--glass-border);
+}
+
+.density-section__title {
+  font-family: var(--font-heading);
+  font-size: var(--text-xs);
+  font-weight: var(--font-weight-heading);
+  letter-spacing: var(--tracking-widest);
+  text-transform: uppercase;
+  color: var(--text-on-dark-secondary);
+}
+
+/* ── Density Grid (responsive columns) ──────────────────── */
+.density-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--density-gap);
+}
+
+@media (min-width: 480px) {
+  .density-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+
+@media (min-width: 640px) {
+  .density-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: var(--density-gap-md);
+  }
+}
+
+@media (min-width: 1280px) {
+  .density-grid {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: var(--density-gap-lg);
+  }
+}
+
+/* ── High-Density Data Display Utilities ──────────────────── */
+.density-ultra,
+.high-density {
+  --density-gap-xs: 0.1875rem; /* 3px  */
+  --density-gap:    0.25rem;   /* 4px  */
+  --density-gap-md: 0.375rem;  /* 6px  */
+  --density-gap-lg: 0.5rem;    /* 8px  */
+  --density-pad-xs: 0.1875rem; /* 3px  */
+  --density-pad:    0.25rem;   /* 4px  */
+  --density-pad-sm: 0.3125rem; /* 5px  */
+  --density-pad-md: 0.5rem;    /* 8px  */
+  --density-pad-lg: 0.625rem;  /* 10px */
+
+  --space-1: 0.25rem;   /* 4px  */
+  --space-2: 0.375rem;  /* 6px  */
+  --space-3: 0.5rem;    /* 8px  */
+  --space-4: 0.625rem;  /* 10px */
+  --space-5: 0.875rem;  /* 14px */
+  --space-6: 1rem;      /* 16px */
+  --space-8: 1.25rem;   /* 20px */
+}
+
+@media (min-width: 768px) {
+  .high-density,
+  .density-ultra {
+    --density-gap:    0.25rem;
+    --density-gap-md: 0.375rem;
+    --density-gap-lg: 0.5rem;
+    --density-pad:    0.25rem;
+    --density-pad-md: 0.5rem;
+    --density-pad-lg: 0.625rem;
+  }
+}
+
+@media (min-width: 1280px) {
+  .high-density,
+  .density-ultra {
+    --density-gap:    0.25rem;
+    --density-gap-md: 0.375rem;
+    --density-gap-lg: 0.5rem;
+    --density-pad:    0.25rem;
+    --density-pad-md: 0.5rem;
+    --density-pad-lg: 0.625rem;
+  }
+}
+
+/* Global tightening under high-density layout mode across ALL modules, views, and components */
+.high-density .glass-panel {
+  padding: var(--density-pad-md);
+}
+
+.high-density .glass-card {
+  padding: var(--density-pad-md);
+}
+
+.high-density .glass-card__header {
+  padding-block-end: var(--space-2);
+  margin-block-end: var(--space-2);
+  gap: var(--space-2);
+}
+
+.high-density .density-section {
+  gap: var(--density-gap);
+}
+
+.high-density .density-section__header {
+  gap: var(--density-gap);
+  padding-block-end: 0.25rem;
+}
+
+/* Modules, Views & Container Layout Tightening */
+.high-density .module-view,
+.high-density .view-container,
+.high-density .cockpit-container,
+.high-density .dashboard-container {
+  padding: var(--density-pad-md);
+  gap: var(--density-gap-md);
+}
+
+.high-density .hud-card,
+.high-density .stat-card,
+.high-density .telemetry-card,
+.high-density .widget-card {
+  padding: var(--density-pad-sm) var(--density-pad-md);
+}
+
+/* Tables & Data Grids */
+.high-density table {
+  font-size: var(--text-xs);
+}
+
+.high-density th {
+  padding: var(--space-1) var(--space-2);
+}
+
+.high-density td {
+  padding: var(--space-1) var(--space-2);
+}
+
+/* Form Controls & Inputs */
+.high-density .form-field {
+  margin-block-end: var(--space-2);
+}
+
+.high-density .form-label {
+  margin-block-end: var(--space-1);
+  font-size: var(--text-xs);
+}
+
+.high-density input:not([type="checkbox"]):not([type="radio"]),
+.high-density select,
+.high-density textarea {
+  padding: var(--space-1) var(--space-2);
+  font-size: var(--text-sm);
+}
+
+/* Buttons, Chips, Badges & Lists */
+.high-density .badge,
+.high-density .chip,
+.high-density .pill {
+  padding: 0.125rem 0.375rem;
+  font-size: 0.6875rem;
+}
+
+.high-density .one-tap-row {
+  min-height: var(--tap-min);
+  padding: var(--space-1) var(--space-2);
+  gap: var(--space-2);
+}
+
+.high-density .one-tap-tile {
+  min-height: var(--tap-min);
+  padding: var(--space-1) var(--space-2);
+  gap: 0.25rem;
+}
+
+.high-density .kanban-card {
+  padding: var(--space-2) var(--space-2);
+}
+
+.high-density .divider {
+  margin-block: var(--space-2);
+}
+
+.high-density p + p {
+  margin-top: var(--space-2);
+}
+
+.high-density-view {
+  padding-top: 0.25rem;
+  padding-bottom: 0.25rem;
+}
+
+.high-density-card {
+  padding: 0.375rem 0.5rem !important;
+  gap: 0.375rem !important;
+}
+
+/* Accessibility Focus Preservation in High-Density */
+.high-density a:focus-visible,
+.high-density button:focus-visible,
+.high-density input:focus-visible,
+.high-density select:focus-visible,
+.high-density textarea:focus-visible {
+  outline: 2px solid var(--patina-green);
+  outline-offset: 2px;
+}
+
+.data-table-dense {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-family: var(--font-body);
+  font-size: var(--text-xs);
+}
+
+.data-table-dense th {
+  font-family: var(--font-heading);
+  font-weight: var(--font-weight-heading);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-wider);
+  padding: 0.375rem 0.5rem;
+  font-size: 10px;
+  color: var(--text-on-dark-secondary);
+  border-bottom: 1px solid var(--glass-border);
+}
+
+.data-table-dense td {
+  padding: 0.375rem 0.5rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.data-table-dense tr:hover td {
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.hud-card-dense {
+  padding: 0.5rem 0.75rem;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--glass-border);
+  background: var(--glass-bg);
+  backdrop-filter: blur(16px);
+}
+
+/* ── Info Stack ─────────────────────────────────────────── */
+.info-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.info-stack__label {
+  font-size: var(--text-xs);
+  font-weight: var(--font-weight-medium);
+  letter-spacing: var(--tracking-wider);
+  text-transform: uppercase;
+  /* Upgraded from #A0AEC0 (6.0:1 on obsidian — meets WCAG AA) */
+  color: var(--text-on-dark-secondary);
+}
+
+.info-stack__value {
+  font-size: var(--text-body);
+  color: var(--text-on-dark-primary);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   ONE-TAP — WCAG 2.5.5 (target size ≥ 44×44px)
+   ═══════════════════════════════════════════════════════════ */
+.one-tap {
+  min-height: var(--tap-min);
+  min-width: var(--tap-min);
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.one-tap-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-height: calc(var(--tap-min) + 4px);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--glass-border);
+  background: rgba(255, 255, 255, 0.04);
+  transition:
+    background  var(--duration-fast) var(--ease-sovereign),
+    border-color var(--duration-fast) var(--ease-sovereign);
+  text-align: left;
+  width: 100%;
+  cursor: pointer;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  /* Ensure text uses accessible color */
+  color: var(--text-on-dark-primary);
+}
+
+.one-tap-row:hover {
+  background: rgba(255, 255, 255, 0.07);
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
+.one-tap-row:active {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.one-tap-row:focus-visible {
+  outline: 2px solid var(--color-focus-ring);
+  outline-offset: 2px;
+  border-color: var(--color-focus-ring);
+}
+
+.one-tap-tile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  min-height: calc(var(--tap-min) + 8px);
+  padding: var(--space-2) var(--space-2);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--glass-border);
+  background: rgba(255, 255, 255, 0.04);
+  cursor: pointer;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    background  var(--duration-fast) var(--ease-sovereign),
+    border-color var(--duration-fast) var(--ease-sovereign);
+}
+
+.one-tap-tile:hover {
+  background: rgba(255, 255, 255, 0.07);
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
+.one-tap-tile:active {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.one-tap-tile:focus-visible {
+  outline: 2px solid var(--color-focus-ring);
+  outline-offset: 2px;
+  border-color: var(--color-focus-ring);
+}
+
+/* ── Comfortable size variant for primary actions ────────── */
+.one-tap--comfortable {
+  min-height: var(--tap-comfortable);
+  min-width: var(--tap-comfortable);
+}
+
+/* ── Spacious size variant for hero CTAs ─────────────────── */
+.one-tap--spacious {
+  min-height: var(--tap-spacious);
+  min-width: var(--tap-spacious);
+}
+
+@media (min-width: 768px) {
+  .mobile-stack-first {
+    display: contents;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   RESPONSIVE LAYOUT UTILITIES
+   Fluid, container-query-ready layout primitives.
+   ═══════════════════════════════════════════════════════════ */
+
+/* Content area: accounts for header + bottom nav safely */
+.content-safe {
+  height: calc(100dvh - var(--hud-bar-h) - var(--mobile-nav-h) - var(--safe-bottom));
+  /* Ensure content area doesn't overflow into notch/safe areas */
+  padding-inline: max(var(--safe-left), env(safe-area-inset-left, 0px))
+                  max(var(--safe-right), env(safe-area-inset-right, 0px));
+}
+@media (min-width: 768px) {
+  .content-safe {
+    height: calc(100dvh - var(--hud-bar-h));
+    padding-inline: 0;
+  }
+}
+
+/* Dynamic viewport helpers */
+.h-screen-dynamic    { height: 100dvh; }
+.min-h-screen-dynamic { min-height: 100dvh; }
+.max-h-screen-dynamic { max-height: 100dvh; }
+
+/* Tall-screen panel expansion limits */
+@media (min-height: 800px) {
+  .tall\:chat-dock-expanded { max-height: min(60dvh, 560px); }
+  .tall\:hud-expanded       { max-height: min(40dvh, 380px); }
+}
+
+/* Flex layout shortcuts */
+.flex-center { display: flex; align-items: center; justify-content: center; }
+.flex-between { display: flex; align-items: center; justify-content: space-between; }
+.flex-start  { display: flex; align-items: center; justify-content: flex-start; }
+
+/* Responsive two-column panel split */
+.panel-split {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--density-gap);
+}
+@media (min-width: 768px) {
+  .panel-split {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 2fr);
+    gap: var(--density-gap-md);
+  }
+}
+@media (min-width: 1280px) {
+  .panel-split {
+    grid-template-columns: minmax(280px, 320px) minmax(0, 1fr);
+    gap: var(--density-gap-lg);
+  }
+}
+
+/* Auto-fit card grid */
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(280px, 100%), 1fr));
+  gap: var(--density-gap-md);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   SCROLLBARS — accessible thin scrollbar with hover reveal
+   ═══════════════════════════════════════════════════════════ */
+.custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.12) transparent;
+  /* Ensure scroll areas are keyboard navigable */
+  overflow: auto;
+}
+.custom-scrollbar::-webkit-scrollbar { width: 4px; height: 4px; }
+.custom-scrollbar::-webkit-scrollbar-track { background: rgba(255, 255, 255, 0.04); border-radius: 10px; }
+.custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.12); border-radius: 10px; }
+.custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.25); }
+
+/* Scrollable element should have a visible focus state */
+.custom-scrollbar:focus-visible {
+  outline: 2px solid var(--color-focus-ring);
+  outline-offset: 2px;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   GLASS / VIP CARD
+   ═══════════════════════════════════════════════════════════ */
+.shadow-glass-default { box-shadow: 0 8px 32px 0 rgba(0,0,0,0.4); }
+
+.vip-card {
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  border: 1px solid var(--glass-border);
+}
+
+/* Glassmorphism with saturation boost */
+.glass-panel {
+  background: rgba(10, 10, 16, 0.7);
+  backdrop-filter: blur(24px) saturate(var(--glass-saturation));
+  -webkit-backdrop-filter: blur(24px) saturate(var(--glass-saturation));
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-inset-highlight);
+  contain: layout style;
+}
+
+/* ── Glass Panel interactive state ─────────────────────── */
+.glass-panel--interactive:hover {
+  border-color: rgba(255, 255, 255, 0.14);
+  background: rgba(14, 14, 22, 0.75);
+}
+
+.glass-panel--interactive:focus-visible {
+  border-color: var(--color-focus-ring);
+  box-shadow: 0 0 0 2px var(--color-focus-ring-offset), 0 0 0 4px var(--color-focus-ring);
+}
+
+/* ── Compact glass card ─────────────────────────────────── */
+.glass-card {
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-lg);
+  padding: var(--density-pad-md);
+  container-type: inline-size;
+}
+
+/* ── Glass card section header ──────────────────────────── */
+.glass-card__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  padding-block-end: var(--space-3);
+  margin-block-end: var(--space-3);
+  border-bottom: 1px solid var(--glass-border);
+}
+
+.glass-card__title {
+  font-family: var(--font-heading);
+  font-size: var(--text-sm);
+  font-weight: var(--font-weight-heading);
+  letter-spacing: var(--tracking-wider);
+  text-transform: uppercase;
+  color: var(--text-on-dark-secondary);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   STATUS BADGES — text + icon pattern (not color-only)
+   WCAG 1.4.1: color must not be the sole means of conveying info
+   ═══════════════════════════════════════════════════════════ */
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: 0.1875rem var(--space-2);
+  border-radius: var(--radius-full);
+  font-size: var(--text-xs);
+  font-weight: var(--font-weight-medium);
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.status-badge--success {
+  color: var(--status-success-text);
+  background: rgba(62, 185, 145, 0.12);
+  border: 1px solid rgba(62, 185, 145, 0.25);
+}
+
+.status-badge--warning {
+  color: var(--status-warning-text);
+  background: rgba(249, 115, 22, 0.12);
+  border: 1px solid rgba(249, 115, 22, 0.25);
+}
+
+.status-badge--error {
+  color: var(--status-error-text);
+  background: rgba(239, 68, 68, 0.12);
+  border: 1px solid rgba(239, 68, 68, 0.25);
+}
+
+.status-badge--info {
+  color: var(--status-info-text);
+  background: rgba(32, 178, 170, 0.12);
+  border: 1px solid rgba(32, 178, 170, 0.25);
+}
+
+.status-badge--neutral {
+  color: var(--text-on-dark-secondary);
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--glass-border);
+}
+
+/* ── Status dot (decorative only — never sole indicator) ── */
+.status-dot {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: var(--radius-full);
+  flex-shrink: 0;
+}
+.status-dot--success { background: var(--color-accent-green); }
+.status-dot--warning { background: var(--sigil-warning); }
+.status-dot--error   { background: var(--sigil-error); }
+.status-dot--info    { background: var(--color-accent-aqua); }
+.status-dot--dormant { background: var(--sigil-dormant); }
+
+/* ═══════════════════════════════════════════════════════════
+   FORM ELEMENTS — accessible, touch-friendly
+   ═══════════════════════════════════════════════════════════ */
+
+/* Base input */
+.input-base {
+  display: block;
+  width: 100%;
+  min-height: var(--tap-min);
+  padding: var(--space-2) var(--space-3);
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-md);
+  color: var(--text-on-dark-primary);
+  font-family: var(--font-body);
+  font-size: var(--text-body);
+  font-weight: var(--font-weight-ui);
+  font-variation-settings: 'wght' var(--font-weight-ui);
+  letter-spacing: var(--tracking-tight);
+  line-height: var(--leading-body);
+  transition:
+    border-color var(--duration-fast) var(--ease-sovereign),
+    background   var(--duration-fast) var(--ease-sovereign),
+    box-shadow   var(--duration-fast) var(--ease-sovereign);
+}
+
+.input-base::placeholder {
+  color: var(--text-on-dark-tertiary);
+  opacity: 1;
+}
+
+.input-base:hover {
+  border-color: rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.input-base:focus-visible {
+  border-color: var(--color-focus-ring);
+  background: rgba(255, 255, 255, 0.06);
+  outline: none;
+  box-shadow:
+    0 0 0 1px var(--color-focus-ring-offset),
+    0 0 0 3px var(--color-focus-ring);
+}
+
+.input-base:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* Error state with accessible text (not color-only) */
+.input-base--error {
+  border-color: var(--sigil-error);
+}
+
+.input-base--error:focus-visible {
+  box-shadow:
+    0 0 0 1px var(--color-focus-ring-offset),
+    0 0 0 3px var(--sigil-error);
+}
+
+/* Label — Lexend Medium for legibility at small size */
+.form-label {
+  display: block;
+  margin-block-end: var(--space-2);
+  font-size: var(--text-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--text-on-dark-secondary);
+  letter-spacing: var(--tracking-wide);
+}
+
+/* Helper / error message */
+.form-help {
+  margin-block-start: var(--space-1);
+  font-size: var(--text-xs);
+  color: var(--text-on-dark-tertiary);
+  line-height: var(--leading-body);
+}
+
+.form-error {
+  margin-block-start: var(--space-1);
+  font-size: var(--text-xs);
+  color: var(--status-error-text);
+  line-height: var(--leading-body);
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+/* ── Form field group ───────────────────────────────────── */
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  margin-block-end: var(--space-4);
+}
+
+/* Horizontal form row (label left, input right) */
+@media (min-width: 640px) {
+  .form-field--horizontal {
+    flex-direction: row;
+    align-items: center;
+    gap: var(--space-4);
+  }
+  .form-field--horizontal .form-label {
+    flex: 0 0 160px;
+    margin-block-end: 0;
+  }
+  .form-field--horizontal .input-base {
+    flex: 1;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   FADE / ENTRANCE ANIMATIONS
+   ═══════════════════════════════════════════════════════════ */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+.animate-fade-in { animation: fadeIn 0.5s ease-out; }
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.animate-fade-in-up { animation: fadeInUp var(--duration-enter) var(--ease-decelerate); }
+
+@keyframes fadeInDown {
+  from { opacity: 0; transform: translateY(-8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.animate-fade-in-down { animation: fadeInDown var(--duration-enter) var(--ease-decelerate); }
+
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.96); }
+  to   { opacity: 1; transform: scale(1); }
+}
+.animate-scale-in { animation: scaleIn var(--duration-enter) var(--ease-spring); }
+
+.mask-gradient-b { mask-image: linear-gradient(to top, black 80%, transparent 100%); }
+
+/* ═══════════════════════════════════════════════════════════
+   IRIDESCENT SWEEP
+   ═══════════════════════════════════════════════════════════ */
+@keyframes sweep {
+  0%   { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+.iridescent-sweep { position: relative; overflow: hidden; }
+.iridescent-sweep::after {
+  content: '';
+  position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(32,178,170,0.12), transparent);
+  animation: sweep 4s infinite linear;
+  pointer-events: none;
+  /* Allow reduced-motion override */
+  will-change: transform;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   SCANLINES (HUD glass-monitor feel)
+   ═══════════════════════════════════════════════════════════ */
+.scanlines {
+  background-image: repeating-linear-gradient(
+    0deg,
+    rgba(0,0,0,0.12) 0px,
+    rgba(0,0,0,0.12) 1px,
+    transparent 1px,
+    transparent 4px
+  );
+  background-size: 100% 4px;
+  pointer-events: none;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   VEIL-PEEL EFFECT — Core HUD gesture
+   ═══════════════════════════════════════════════════════════ */
+.veil-overlay {
+  position: absolute; inset: 0; z-index: 20;
+  background: var(--veil-colour);
+  border: 1px solid var(--veil-border);
+  border-radius: inherit;
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  pointer-events: none;
+  animation: veilShimmer 3s infinite ease-in-out;
+}
+
+@keyframes veilShimmer {
+  0%, 100% { background: rgba(106,13,173,0.14); }
+  50%       { background: rgba(106,13,173,0.26); }
+}
+
+.peel-ring {
+  position: absolute; inset: -8px; z-index: 30;
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+@keyframes peelReveal {
+  0%   { clip-path: inset(100% 0 0 0 round 12px); opacity: 0.6; }
+  100% { clip-path: inset(0% 0 0 0 round 12px);   opacity: 1; }
+}
+.peel-reveal {
+  animation: peelReveal 0.45s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+@keyframes veilGlow {
+  0%, 100% { box-shadow: 0 0 0px var(--veil-border); }
+  50%       { box-shadow: 0 0 18px var(--veil-border), 0 0 40px rgba(106,13,173,0.25); }
+}
+.veil-glow { animation: veilGlow 2.4s infinite ease-in-out; }
+
+.peel-arc-track { stroke: rgba(255,255,255,0.08); }
+.peel-arc-fill  { stroke: var(--roman-aqua); stroke-linecap: round; transition: stroke-dashoffset 16ms linear; }
+
+/* ═══════════════════════════════════════════════════════════
+   PORT GLOWS
+   ═══════════════════════════════════════════════════════════ */
+.port-connected-glow { box-shadow: 0 0 12px var(--patina-green); }
+
+/* ═══════════════════════════════════════════════════════════
+   PROGRESS / FLOW ANIMATIONS
+   ═══════════════════════════════════════════════════════════ */
+@keyframes progress-flow {
+  0%   { background-position: 0% 0%; }
+  100% { background-position: 200% 0%; }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   NEURAL TOPOLOGY
+   ═══════════════════════════════════════════════════════════ */
+@keyframes pulse-node {
+  0%   { r: 4; opacity: 0.8; }
+  50%  { r: 7; opacity: 1; }
+  100% { r: 4; opacity: 0.8; }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   KANBAN DRAG-AND-DROP
+   ═══════════════════════════════════════════════════════════ */
+.kanban-col-over {
+  background: rgba(32, 178, 170, 0.06);
+  border-color: rgba(32, 178, 170, 0.35) !important;
+  box-shadow: inset 0 0 20px rgba(32, 178, 170, 0.08);
+}
+
+.kanban-card-dragging {
+  opacity: 0.4;
+  transform: scale(0.97);
+  pointer-events: none;
+}
+
+.kanban-drop-indicator {
+  height: 2px;
+  border-radius: 2px;
+  background: var(--roman-aqua);
+  box-shadow: 0 0 8px var(--peel-glow);
+  margin: 2px 0;
+  animation: fadeIn 0.15s ease-out;
+}
+
+/* ── Kanban card ─────────────────────────────────────────── */
+.kanban-card {
+  padding: var(--space-3) var(--space-3);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--glass-border);
+  background: rgba(255, 255, 255, 0.03);
+  cursor: grab;
+  transition:
+    background   var(--duration-fast) var(--ease-sovereign),
+    border-color var(--duration-fast) var(--ease-sovereign),
+    box-shadow   var(--duration-fast) var(--ease-sovereign);
+}
+
+.kanban-card:hover {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
+.kanban-card:focus-visible {
+  outline: 2px solid var(--color-focus-ring);
+  outline-offset: 2px;
+  border-color: var(--color-focus-ring);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   HUD MISC
+   ═══════════════════════════════════════════════════════════ */
+@keyframes holoFlicker {
+  0%, 98%, 100% { opacity: 1; }
+  99%            { opacity: 0.85; }
+}
+.holo-flicker { animation: holoFlicker 6s infinite; }
+
+/* Luminous imperfection – subtle noise grain on glass surfaces */
+.luminous-imperfection::before {
+  content: '';
+  position: absolute; inset: 0; z-index: 1;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+  pointer-events: none;
+  border-radius: inherit;
+}
+
+/* Slow pulse for "alive" status dots */
+@keyframes pulse-slow {
+  0%, 100% { opacity: 1;   transform: scale(1); }
+  50%       { opacity: 0.5; transform: scale(0.85); }
+}
+.animate-pulse-slow { animation: pulse-slow 3s infinite; }
+
+/* ═══════════════════════════════════════════════════════════
+   COMPONENT DUALITY — Ancient Roman Glass (Book II Table 2)
+   ═══════════════════════════════════════════════════════════ */
+.glass-live {
+  background: var(--glass-live-bg);
+  backdrop-filter: blur(var(--glass-live-blur)) saturate(var(--glass-live-saturation));
+  -webkit-backdrop-filter: blur(var(--glass-live-blur)) saturate(var(--glass-live-saturation));
+  border: 1px solid var(--glass-live-border);
+  box-shadow: var(--glass-live-shadow), var(--glass-inset-highlight);
+  transition:
+    background       var(--duration-moderate) var(--ease-sovereign),
+    backdrop-filter  var(--duration-moderate) var(--ease-sovereign),
+    box-shadow       var(--duration-moderate) var(--ease-sovereign),
+    transform        var(--duration-moderate) var(--ease-sovereign);
+}
+
+.glass-architect {
+  background: var(--glass-arch-bg);
+  backdrop-filter: blur(var(--glass-arch-blur)) saturate(var(--glass-arch-saturation));
+  -webkit-backdrop-filter: blur(var(--glass-arch-blur)) saturate(var(--glass-arch-saturation));
+  border: 1px solid var(--glass-arch-border);
+  box-shadow: var(--glass-arch-shadow), var(--glass-inset-highlight);
+  transition:
+    background       var(--duration-moderate) var(--ease-sovereign),
+    backdrop-filter  var(--duration-moderate) var(--ease-sovereign),
+    box-shadow       var(--duration-moderate) var(--ease-sovereign),
+    transform        var(--duration-moderate) var(--ease-sovereign);
+}
+
+/* Port connector: input */
+.port-input {
+  background: #000;
+  border: 2px solid var(--port-input-colour);
+  box-shadow: 0 0 0 0 var(--port-input-colour);
+  transition: box-shadow var(--duration-fast);
+}
+.port-input:hover, .port-input.active {
+  box-shadow: 0 0 8px var(--port-input-colour), 0 0 20px rgba(62,185,145,0.3);
+}
+
+/* Port connector: output */
+.port-output {
+  background: #000;
+  border: 2px solid var(--port-output-colour);
+  box-shadow: 0 0 0 0 var(--port-output-colour);
+  transition: box-shadow var(--duration-fast);
+}
+.port-output:hover, .port-output.active {
+  box-shadow: 0 0 8px var(--port-output-colour), 0 0 20px rgba(32,178,170,0.3);
+}
+
+@keyframes portFlow {
+  0%   { box-shadow: 0 0 4px var(--port-output-colour); }
+  50%  { box-shadow: 0 0 14px var(--port-output-colour), 0 0 28px rgba(32,178,170,0.4); }
+  100% { box-shadow: 0 0 4px var(--port-output-colour); }
+}
+.port-flowing { animation: portFlow 1.2s ease-in-out infinite; }
+
+.canvas-veil-active::after {
+  content: '';
+  position: absolute; inset: 0; z-index: 25;
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
+  pointer-events: none;
+  animation: fadeIn var(--duration-fast) var(--ease-sovereign) forwards;
+}
+.node-peel-elevated { position: relative; z-index: 40 !important; }
+
+/* ═══════════════════════════════════════════════════════════
+   AETHERIC SIGILS — Living Icons (Book III §3.3)
+   ═══════════════════════════════════════════════════════════ */
+.sigil-dormant {
+  color: var(--sigil-dormant);
+  filter: brightness(0.5) saturate(0.4);
+}
+
+@keyframes sigilAware {
+  0%, 100% { opacity: 0.6; filter: brightness(0.7) drop-shadow(0 0 0px var(--sigil-aware)); }
+  50%       { opacity: 1.0; filter: brightness(1.1) drop-shadow(0 0 6px var(--sigil-aware)); }
+}
+.sigil-aware {
+  color: var(--sigil-aware);
+  animation: sigilAware 3s ease-in-out infinite;
+}
+
+@keyframes sigilActive {
+  0%, 100% { filter: brightness(1.0) drop-shadow(0 0 4px var(--sigil-active)); transform: scale(1); }
+  50%       { filter: brightness(1.4) drop-shadow(0 0 12px var(--sigil-active)) drop-shadow(0 0 24px rgba(32,178,170,0.4)); transform: scale(1.06); }
+}
+.sigil-active {
+  color: var(--sigil-active);
+  animation: sigilActive 0.8s ease-in-out infinite;
+}
+
+@keyframes sigilSuccess {
+  0%   { filter: brightness(2.0) drop-shadow(0 0 20px var(--sigil-success)); }
+  60%  { filter: brightness(1.2) drop-shadow(0 0 8px var(--sigil-success)); }
+  100% { filter: brightness(0.9) drop-shadow(0 0 4px var(--sigil-success)); }
+}
+.sigil-success {
+  color: var(--sigil-success);
+  animation: sigilSuccess 2s ease-out forwards;
+}
+.sigil-success-calm {
+  color: var(--sigil-success);
+  filter: brightness(0.9) drop-shadow(0 0 4px var(--sigil-success));
+}
+
+@keyframes sigilWarning {
+  0%, 100% { filter: brightness(1.0) drop-shadow(0 0 4px var(--sigil-warning)); }
+  30%       { filter: brightness(1.3) drop-shadow(0 0 10px var(--sigil-warning)); transform: translateX(-1px); }
+  60%       { filter: brightness(0.9) drop-shadow(0 0 6px var(--sigil-warning)); transform: translateX(1px); }
+}
+.sigil-warning {
+  color: var(--sigil-warning);
+  animation: sigilWarning 1.6s ease-in-out infinite;
+}
+
+@keyframes sigilError {
+  0%, 100% { filter: brightness(1.0) drop-shadow(0 0 6px var(--sigil-error)); transform: scale(1); }
+  25%       { filter: brightness(1.5) drop-shadow(0 0 14px var(--sigil-error)); transform: scale(1.04) rotate(1deg); }
+  75%       { filter: brightness(0.8) drop-shadow(0 0 4px var(--sigil-error)); transform: scale(0.97) rotate(-1deg); }
+}
+.sigil-error {
+  color: var(--sigil-error);
+  animation: sigilError 1.0s ease-in-out infinite;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   DIGITAL WABI-SABI — Grain & Organic Imperfection
+   ═══════════════════════════════════════════════════════════ */
+.wabi-grain {
+  position: absolute; inset: 0; pointer-events: none;
+  z-index: 2;
+  opacity: 0.045;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.72' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23g)'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  background-size: 300px 300px;
+  mix-blend-mode: overlay;
+  animation: grainDrift 8s steps(10) infinite;
+}
+
+@keyframes grainDrift {
+  0%   { background-position: 0    0; }
+  10%  { background-position: -5%  -10%; }
+  20%  { background-position: -15% 5%; }
+  30%  { background-position: 7%   -25%; }
+  40%  { background-position: -5%  25%; }
+  50%  { background-position: -15% 10%; }
+  60%  { background-position: 15%  0; }
+  70%  { background-position: 0    15%; }
+  80%  { background-position: 3%   35%; }
+  90%  { background-position: -10% 10%; }
+  100% { background-position: 0    0; }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   TOPBAR — COMMAND STATE (Book III §3.1)
+   ═══════════════════════════════════════════════════════════ */
+@keyframes slideOutLeft {
+  from { transform: translateX(0); opacity: 1; }
+  to   { transform: translateX(-20px); opacity: 0; pointer-events: none; }
+}
+@keyframes slideOutRight {
+  from { transform: translateX(0); opacity: 1; }
+  to   { transform: translateX(20px); opacity: 0; pointer-events: none; }
+}
+@keyframes commandExpand {
+  from { width: 0; opacity: 0; }
+  to   { width: 100%; opacity: 1; }
+}
+
+.topbar-command-active .topbar-slide-left {
+  animation: slideOutLeft var(--duration-moderate) var(--ease-sovereign) forwards;
+}
+.topbar-command-active .topbar-slide-right {
+  animation: slideOutRight var(--duration-moderate) var(--ease-sovereign) forwards;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   AEGIS HEALTH SCORE GAUGE (Book III §3.2)
+   ═══════════════════════════════════════════════════════════ */
+@keyframes gaugeReveal {
+  from { stroke-dashoffset: 440; opacity: 0.3; }
+  to   { opacity: 1; }
+}
+.aegis-gauge-arc {
+  stroke-dasharray: 440;
+  animation: gaugeReveal 1.2s var(--ease-sovereign) forwards;
+  transition: stroke-dashoffset 0.8s var(--ease-sovereign), stroke 0.4s;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   CHAOS CARDS (Book V §5.2)
+   ═══════════════════════════════════════════════════════════ */
+@keyframes chaosWeepingGlass {
+  0%, 100% { transform: translateY(0) scaleX(1); filter: blur(0); }
+  20%       { transform: translateY(2px) scaleX(0.98); }
+  60%       { transform: translateY(6px) scaleX(0.97); filter: blur(0.5px); }
+  80%       { transform: translateY(3px) scaleX(0.99); }
+}
+.chaos-weeping-glass { animation: chaosWeepingGlass 2s ease-in-out infinite; }
+
+@keyframes aethericEcho {
+  0%   { opacity: 0; transform: translateY(0) scale(1); filter: blur(0); }
+  10%  { opacity: 0.7; filter: blur(0.5px); }
+  50%  { opacity: 0.4; transform: translateY(-8px) scale(0.97); filter: blur(1px); }
+  90%  { opacity: 0.1; filter: blur(2px); }
+  100% { opacity: 0; }
+}
+.aetheric-echo {
+  animation: aethericEcho 2.4s ease-in-out forwards;
+  color: rgba(255, 215, 0, 0.6);
+  font-variant-numeric: tabular-nums;
+  pointer-events: none;
+  user-select: none;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   HIGH CONTRAST MODE — WCAG 1.4.11
+   Honours Windows "Forced Colors" / "High Contrast" OS setting.
+   ═══════════════════════════════════════════════════════════ */
+@media (forced-colors: active) {
+  /* Restore browser-native focus outlines in forced-color mode */
+  *:focus-visible {
+    outline: 3px solid ButtonText !important;
+    outline-offset: 2px !important;
+  }
+
+  /* Ensure glass borders remain visible */
+  .glass-panel,
+  .glass-live,
+  .glass-architect,
+  .vip-card,
+  .one-tap-row,
+  .one-tap-tile,
+  .glass-card {
+    border: 1px solid ButtonText !important;
+    background: Canvas !important;
+    backdrop-filter: none !important;
+  }
+
+  /* Status badges must use text, not only background color */
+  .status-badge {
+    border: 1px solid ButtonText !important;
+  }
+
+  /* Ensure interactive elements are visible */
+  .skip-link {
+    background: Highlight !important;
+    color: HighlightText !important;
+    border-color: ButtonText !important;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   PRINT STYLES — simplified layout for printing
+   ═══════════════════════════════════════════════════════════ */
+@media print {
+  body {
+    background: #fff !important;
+    color: #000 !important;
+    overflow: visible !important;
+  }
+
+  .glass-panel,
+  .glass-live,
+  .glass-architect,
+  .vip-card,
+  .glass-card {
+    background: #fff !important;
+    backdrop-filter: none !important;
+    border: 1px solid #ccc !important;
+    box-shadow: none !important;
+  }
+
+  .skip-link,
+  .wabi-grain,
+  .scanlines,
+  .iridescent-sweep::after,
+  .luminous-imperfection::before {
+    display: none !important;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   TOOLTIP UTILITY
+   ═══════════════════════════════════════════════════════════ */
+[data-tooltip] {
+  position: relative;
+}
+
+[data-tooltip]::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: calc(100% + var(--space-2));
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: var(--z-tooltip);
+  padding: var(--space-1) var(--space-2);
+  background: rgba(9, 9, 11, 0.95);
+  color: var(--text-on-dark-primary);
+  font-size: var(--text-xs);
+  font-family: var(--font-body);
+  font-weight: var(--font-weight-ui);
+  white-space: nowrap;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--glass-border);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity var(--duration-fast) var(--ease-sovereign);
+}
+
+[data-tooltip]:hover::after,
+[data-tooltip]:focus-visible::after {
+  opacity: 1;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   LOADING / SKELETON STATE
+   ═══════════════════════════════════════════════════════════ */
+@keyframes shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position:  200% 0; }
+}
+
+.skeleton {
+  border-radius: var(--radius-sm);
+  background: linear-gradient(
+    90deg,
+    rgba(255,255,255,0.04) 25%,
+    rgba(255,255,255,0.08) 50%,
+    rgba(255,255,255,0.04) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   DIVIDER UTILITIES
+   ═══════════════════════════════════════════════════════════ */
+.divider {
+  height: 1px;
+  background: var(--glass-border);
+  border: none;
+  margin-block: var(--space-4);
+}
+
+.divider--subtle {
+  background: rgba(255, 255, 255, 0.04);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   GLASS PEEL (from index.html inline styles — unified here)
+   ═══════════════════════════════════════════════════════════ */
+.glass-peel {
+  backdrop-filter: blur(25px);
+  mask-image: radial-gradient(circle at var(--mouse-x, 50%) var(--mouse-y, 50%), transparent 150px, black 300px);
+  -webkit-mask-image: radial-gradient(circle at var(--mouse-x, 50%) var(--mouse-y, 50%), transparent 150px, black 300px);
+}
+
+/* Ant-farm line animation */
+.ant-farm-line {
+  stroke-dasharray: 10, 10;
+  animation: ant-flow 10s linear infinite;
+}
+@keyframes ant-flow {
+  from { stroke-dashoffset: 200; }
+  to   { stroke-dashoffset: 0; }
+}
+
+/* Shard glitch */
+.shard-glitch {
+  animation: glitch 0.5s cubic-bezier(.25,.46,.45,.94) both infinite;
+}

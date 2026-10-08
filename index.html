@@ -1,0 +1,179 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="description" content="ΛΞVON OS — Autonomous AI operations platform." />
+  <meta name="theme-color" content="#09090b" />
+  <meta name="color-scheme" content="dark" />
+  <!-- Prevent exposing app to search crawlers in non-public deployments -->
+  <meta name="robots" content="noindex, nofollow" />
+  <title>ΛΞVOS</title>
+  <link rel="manifest" href="/manifest.json" />
+
+  <script>
+    window.process = window.process || {};
+    window.process.env = window.process.env || {};
+  </script>
+
+  <!-- Preconnect to speed up Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <!--
+    Variable-font ranges: Comfortaa 300–700, Lexend 100–900.
+    Loading the continuous axis costs the same bandwidth as a few discrete
+    weights and enables any intermediate value (e.g. 225, 350) via
+    font-weight or font-variation-settings in CSS.
+  -->
+  <link
+    href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@300..700&family=JetBrains+Mono:wght@400;700&family=Lexend:wght@100..900&family=Martian+Mono:wght@400;700&display=swap&font-display=swap"
+    rel="stylesheet"
+  />
+
+  <!-- Tailwind CSS via CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            'obsidian-black': '#09090b',
+            'charcoal':       '#121212',
+            'vitreous-white': '#F5FFFA',
+            'imperial-purple':'#6A0DAD',
+            'patina-green':   '#3EB991',
+            'roman-aqua':     '#20B2AA',
+            'gilded-accent':  '#FFD700',
+            'panel-bg':       'rgba(12, 12, 16, 0.75)',
+            'glass-border':   'rgba(255, 255, 255, 0.08)',
+            'text-primary':   '#F0F2F5',
+            'text-secondary': '#B8C0CC',
+            'text-tertiary':  '#8896A8',
+            'focus-ring':     '#5BCFCA',
+          },
+          fontFamily: {
+            /*
+             * Typography system:
+             *   font-comfortaa / font-heading  → titles & headers (always bold)
+             *   font-lexend    / font-body     → body copy (weight-body: 300)
+             *   font-mono                      → code, logs, metrics
+             *
+             * Weight is controlled by font-weight utilities, NOT by font-family
+             * classes. The body cascade provides font-weight: 300 as default.
+             * Use font-bold, font-medium etc. on interactive/UI elements.
+             */
+            'comfortaa': ['Comfortaa', 'cursive'],
+            'lexend':    ['Lexend', 'sans-serif'],
+            'heading':   ['Comfortaa', 'cursive'],
+            'body':      ['Lexend', 'sans-serif'],
+            'mono':      ['JetBrains Mono', 'Martian Mono', 'monospace'],
+          },
+          fontWeight: {
+            /* Named weight aliases — continuous variable-font axis values */
+            'body':    '225',   /* Lexend — ultra-light body copy */
+            'ui':      '350',   /* Lexend — UI labels, slightly heavier */
+            'ui-md':   '500',   /* Lexend Medium — emphasis */
+            'ui-bold': '700',   /* Lexend/Comfortaa Bold — CTAs, headings */
+          },
+          spacing: {
+            'density-xs': '0.1875rem',
+            'density-tight': '0.25rem',
+            'density':    '0.375rem',
+            'density-md': '0.5rem',
+            'density-lg': '0.75rem',
+          },
+          minHeight: { 'tap': '44px', 'tap-comfortable': '48px' },
+          minWidth:  { 'tap': '44px', 'tap-comfortable': '48px' },
+          borderRadius: {
+            'sm': '0.375rem',
+            'md': '0.625rem',
+            'lg': '0.875rem',
+            'xl': '1.25rem',
+          },
+          animation: {
+            'pulse-slow':    'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+            'scan-down':     'scanDown 8s linear infinite',
+            'aurora-drift':  'auroraDrift 60s ease-in-out infinite',
+            'glitch':        'glitch 0.2s linear infinite',
+            'fade-in':       'fadeIn 0.5s ease-out',
+            'fade-in-up':    'fadeInUp 220ms cubic-bezier(0, 0, 0.2, 1)',
+            'scale-in':      'scaleIn 220ms cubic-bezier(0.34, 1.56, 0.64, 1)',
+          },
+          keyframes: {
+            scanDown: {
+              '0%':   { transform: 'translateY(-100%)' },
+              '100%': { transform: 'translateY(100%)' }
+            },
+            auroraDrift: {
+              '0%, 100%': { transform: 'translate(0, 0) scale(1)' },
+              '50%':      { transform: 'translate(5%, 5%) scale(1.1)' }
+            },
+            glitch: {
+              '0%':   { transform: 'translate(0)' },
+              '20%':  { transform: 'translate(-2px, 2px)' },
+              '40%':  { transform: 'translate(-2px, -2px)' },
+              '60%':  { transform: 'translate(2px, 2px)' },
+              '80%':  { transform: 'translate(2px, -2px)' },
+              '100%': { transform: 'translate(0)' }
+            },
+            fadeIn: {
+              from: { opacity: '0' },
+              to:   { opacity: '1' }
+            },
+            fadeInUp: {
+              from: { opacity: '0', transform: 'translateY(8px)' },
+              to:   { opacity: '1', transform: 'translateY(0)' }
+            },
+            scaleIn: {
+              from: { opacity: '0', transform: 'scale(0.96)' },
+              to:   { opacity: '1', transform: 'scale(1)' }
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <!--
+    All CSS custom properties and global styles live in index.css.
+    Only critical above-the-fold overrides belong here.
+  -->
+  <style>
+    /* Prevent FOUC while index.css loads */
+    html { background: #09090b; }
+  </style>
+
+  <script type="importmap">
+{
+  "imports": {
+    "react": "https://esm.sh/react@^19.2.3",
+    "react-dom": "https://esm.sh/react-dom@^19.2.3",
+    "nanoid": "https://esm.sh/nanoid@^5.1.6",
+    "framer-motion": "https://esm.sh/framer-motion@^12.23.26",
+    "three": "https://esm.sh/three@^0.182.0",
+    "react-draggable": "https://esm.sh/react-draggable@^4.5.0",
+    "react-router-dom": "https://esm.sh/react-router-dom@^7.11.0",
+    "@stripe/stripe-js": "https://esm.sh/@stripe/stripe-js@^8.6.0",
+    "@stripe/react-stripe-js": "https://esm.sh/@stripe/react-stripe-js@^5.4.1",
+    "@react-three/fiber": "https://esm.sh/@react-three/fiber@^9.4.2",
+    "@react-three/drei": "https://esm.sh/@react-three/drei@^10.7.7",
+    "react-dom/": "https://esm.sh/react-dom@^19.2.3/",
+    "react/": "https://esm.sh/react@^19.2.3/"
+  }
+}
+</script>
+</head>
+<body class="app-shell bg-obsidian-black text-text-primary overflow-hidden font-lexend high-density">
+  <!--
+    Skip navigation link — WCAG 2.4.1.
+    Rendered here so screen readers and keyboard users encounter it first.
+    It is visually hidden until focused (styles in index.css .skip-link).
+  -->
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+
+  <div id="root"></div>
+  <script type="module" src="/index.tsx"></script>
+</body>
+</html>

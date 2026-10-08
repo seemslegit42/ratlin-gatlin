@@ -1,0 +1,32 @@
+# syntax=docker/dockerfile:1
+# BEEP Postman MCP — enterprise multi-stage (Bun runtime)
+FROM oven/bun:1.3-alpine AS deps
+WORKDIR /app
+COPY package.json bun.lock ./
+RUN --mount=type=cache,target=/root/.bun/install/cache \
+    bun install --frozen-lockfile
+
+FROM oven/bun:1.3-alpine AS runner
+RUN apk add --no-cache curl \
+    && addgroup -g 1001 -S beep \
+    && adduser -S beep -u 1001 -G beep
+
+WORKDIR /app
+COPY --from=deps /app/node_modules ./node_modules
+COPY package.json bun.lock ./
+COPY backend/postman-mcp-server.ts ./backend/postman-mcp-server.ts
+COPY backend/postman ./backend/postman
+
+RUN mkdir -p /app/logs && chown -R beep:beep /app
+
+USER beep
+ENV NODE_ENV=production
+ENV MCP_SERVER_PORT=3100
+ENV MCP_SERVER_HOST=0.0.0.0
+
+EXPOSE 3100
+
+HEALTHCHECK --interval=15s --timeout=5s --retries=3 --start-period=20s \
+  CMD curl -f http://127.0.0.1:3100/health || exit 1
+
+CMD ["bun", "run", "backend/postman-mcp-server.ts"]

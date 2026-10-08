@@ -1,0 +1,13 @@
+# Local developer overlay — merged by `bun cast` only (not used on Dokploy prod)
+services:
+  ollama:
+    ports:
+      - "${OLLAMA_HOST_PORT:-11434}:11434"
+
+  postman-mcp:
+    ports:
+      - "${MCP_HOST_PORT:-3100}:3100"
+
+  litellm:
+    ports:
+      - "${LITELLM_HOST_PORT:-4000}:4000"

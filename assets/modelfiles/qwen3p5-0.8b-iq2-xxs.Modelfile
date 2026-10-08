@@ -1,0 +1,6 @@
+# GGUF bundled under assets/. Register with project script:
+#   bun run ollama:register-qwen-local
+FROM ../Qwen3.5-0.8B-UD-IQ2_XXS.gguf
+
+PARAMETER temperature 0.35
+PARAMETER top_p 0.9

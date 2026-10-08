@@ -1,0 +1,12 @@
+{
+  "name": "ΛΞVOS",
+  "description": "ΛΞVOS: The Verdigris Interface Protocol. Powered by BEEP (Behavioral Event & Execution Processor), an agentic Syndicate Resource Planning (SRP) core for orchestrating all syndicate functions through natural language commands.",
+  "requestFramePermissions": [
+    "microphone",
+    "geolocation"
+  ],
+  "env": {
+    "VITE_APPWRITE_ENDPOINT": "https://tor.cloud.appwrite.io/v1",
+    "VITE_APPWRITE_PROJECT_ID": "6990e2830030cacccd98"
+  }
+}

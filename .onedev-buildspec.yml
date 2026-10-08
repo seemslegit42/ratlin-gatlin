@@ -1,0 +1,75 @@
+version: 40
+jobs:
+  - name: beep-ci
+    steps:
+      - !CheckoutStep
+        name: Checkout
+        cloneCredential: !DefaultCredential {}
+        withLfs: false
+        withSubmodules: false
+        condition: SUCCESSFUL
+      - !CommandStep
+        name: Install & test
+        runInContainer: true
+        image: oven/bun:1.3
+        interpreter: !DefaultInterpreter
+        commands: |
+          set -euo pipefail
+          bun install --frozen-lockfile
+          bun test
+        useTTY: true
+        condition: ALL_PREVIOUS_STEPS_WERE_SUCCESSFUL
+      - !CommandStep
+        name: Build SPA
+        runInContainer: true
+        image: oven/bun:1.3
+        interpreter: !DefaultInterpreter
+        commands: |
+          set -euo pipefail
+          bun run build
+        useTTY: true
+        condition: ALL_PREVIOUS_STEPS_WERE_SUCCESSFUL
+      - !CommandStep
+        name: Deploy Appwrite
+        runInContainer: true
+        image: oven/bun:1.3
+        interpreter: !DefaultInterpreter
+        commands: |
+          set -euo pipefail
+          bun install --global appwrite
+          bash scripts/deploy-appwrite-all.sh
+        useTTY: true
+        condition: ALL_PREVIOUS_STEPS_WERE_SUCCESSFUL
+      - !BuildImageStep
+        name: Build MCP image
+        buildPath: .
+        dockerfile: Dockerfile.mcp
+        output: !RegistryOutput
+          tags: '@property:BEEP_MCP_IMAGE@'
+        condition: ALL_PREVIOUS_STEPS_WERE_SUCCESSFUL
+      - !CommandStep
+        name: Trigger Dokploy redeploy
+        runInContainer: true
+        image: curlimages/curl:8.5.0
+        interpreter: !DefaultInterpreter
+        commands: |
+          set -euo pipefail
+          if [ -z "${DOKPLOY_HOST:-}" ] || [ -z "${DOKPLOY_COMPOSE_ID:-}" ] || [ -z "${DOKPLOY_API_KEY:-}" ]; then
+            echo "Dokploy secrets not set — skipping redeploy"
+            exit 0
+          fi
+          curl -fsS -X POST "${DOKPLOY_HOST%/}/api/compose.redeploy" \
+            -H "Content-Type: application/json" \
+            -H "x-api-key: ${DOKPLOY_API_KEY}" \
+            -d "{\"composeId\":\"${DOKPLOY_COMPOSE_ID}\"}"
+        useTTY: true
+        condition: ALL_PREVIOUS_STEPS_WERE_SUCCESSFUL
+    jobExecutor: docker-server
+    triggers:
+      - !BranchUpdateTrigger
+        branches: main master
+        projects: beep
+    retryCondition: never
+    maxRetries: 2
+    retryDelay: 30
+    timeout: 3600

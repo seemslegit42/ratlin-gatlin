@@ -1,0 +1,262 @@
+{
+  "projectId": "$APPWRITE_PROJECT_ID",
+  "projectName": "Beepin",
+  "endpoint": "$APPWRITE_ENDPOINT",
+  "sites": [
+    {
+      "$id": "beep-command",
+      "name": "BEEP Command",
+      "enabled": true,
+      "logging": true,
+      "framework": "other",
+      "timeout": 30,
+      "installCommand": "curl -fsSL https://bun.sh/install | bash && export BUN_INSTALL=\"$HOME/.bun\" && export PATH=\"$BUN_INSTALL/bin:$PATH\" && bun install",
+      "buildCommand": "bun run build",
+      "outputDirectory": "./dist",
+      "specification": "s-1vcpu-512mb",
+      "buildRuntime": "node-22",
+      "adapter": "",
+      "fallbackFile": "",
+      "path": "."
+    }
+  ],
+  "functions": [
+    {
+      "name": "Process Workflow",
+      "$id": "process-workflow",
+      "runtime": "node-18.0",
+      "path": "backend/functions/process-workflow.ts",
+      "entrypoint": "default",
+      "enabled": true,
+      "live": true,
+      "logging": true,
+      "events": [],
+      "schedule": "",
+      "timeout": 60,
+      "commands": "",
+      "version": "v3"
+    },
+    {
+      "name": "CRM Operations",
+      "$id": "crm-operations",
+      "runtime": "node-18.0",
+      "path": "backend/functions/crm-operations.ts",
+      "entrypoint": "default",
+      "enabled": true,
+      "live": true,
+      "logging": true,
+      "events": [],
+      "timeout": 60,
+      "commands": "",
+      "version": "v3"
+    },
+    {
+      "name": "Treasury Operations",
+      "$id": "treasury-operations",
+      "runtime": "node-18.0",
+      "path": "backend/functions/treasury-operations.ts",
+      "entrypoint": "default",
+      "enabled": true,
+      "live": true,
+      "logging": true,
+      "events": [],
+      "timeout": 60,
+      "commands": "",
+      "version": "v3"
+    },
+    {
+      "name": "Stripe Create Payment Intent",
+      "$id": "stripe-create-payment-intent",
+      "runtime": "node-18.0",
+      "path": "backend/functions/stripe-create-payment-intent.ts",
+      "entrypoint": "default",
+      "enabled": true,
+      "live": true,
+      "logging": true,
+      "events": [],
+      "timeout": 60,
+      "commands": "",
+      "version": "v3"
+    },
+    {
+      "name": "Stripe Webhook Handler",
+      "$id": "stripe-webhook-handler",
+      "runtime": "node-18.0",
+      "path": "backend/functions/stripe-webhook-handler.ts",
+      "entrypoint": "default",
+      "enabled": true,
+      "live": true,
+      "logging": true,
+      "events": [],
+      "timeout": 60,
+      "commands": "",
+      "version": "v3"
+    },
+    {
+      "name": "Stripe Connect Onboarding",
+      "$id": "stripe-connect-onboarding",
+      "runtime": "node-18.0",
+      "path": "backend/functions/stripe-connect-onboarding.ts",
+      "entrypoint": "default",
+      "enabled": true,
+      "live": true,
+      "logging": true,
+      "events": [],
+      "timeout": 60,
+      "commands": "",
+      "version": "v3"
+    }
+  ],
+  "buckets": [
+    {
+      "name": "Avatars",
+      "$id": "avatars",
+      "permissions": [],
+      "fileSecurity": false,
+      "enabled": true
+    },
+    {
+      "name": "Documents",
+      "$id": "documents",
+      "permissions": [],
+      "fileSecurity": true,
+      "enabled": true
+    },
+    {
+      "name": "Media",
+      "$id": "media",
+      "permissions": [],
+      "fileSecurity": false,
+      "enabled": true
+    }
+  ],
+  "tablesDB": [
+    {
+      "$id": "sovereign",
+      "name": "Sovereign",
+      "enabled": true
+    }
+  ],
+  "tables": [
+    {
+      "$id": "ledger",
+      "databaseId": "sovereign",
+      "name": "Ledger",
+      "enabled": true,
+      "rowSecurity": false,
+      "$permissions": [],
+      "columns": [
+        {
+          "key": "syndicate_id",
+          "type": "varchar",
+          "size": 255,
+          "required": true,
+          "array": false
+        },
+        {
+          "key": "balance",
+          "type": "double",
+          "required": true,
+          "default": 0,
+          "array": false
+        },
+        {
+          "key": "committed",
+          "type": "double",
+          "required": true,
+          "default": 0,
+          "array": false
+        },
+        {
+          "key": "reserved",
+          "type": "double",
+          "required": true,
+          "default": 0,
+          "array": false
+        },
+        {
+          "key": "updated_at",
+          "type": "datetime",
+          "required": false,
+          "array": false
+        }
+      ],
+      "indexes": [
+        {
+          "key": "syndicate_id",
+          "type": "key",
+          "attributes": ["syndicate_id"]
+        }
+      ]
+    },
+    {
+      "$id": "agents",
+      "databaseId": "sovereign",
+      "name": "Agents",
+      "enabled": true,
+      "rowSecurity": false,
+      "$permissions": [],
+      "columns": [
+        {
+          "key": "syndicate_id",
+          "type": "varchar",
+          "size": 255,
+          "required": true,
+          "array": false
+        },
+        {
+          "key": "name",
+          "type": "varchar",
+          "size": 255,
+          "required": true,
+          "array": false
+        },
+        {
+          "key": "type",
+          "type": "varchar",
+          "size": 128,
+          "required": true,
+          "array": false
+        },
+        {
+          "key": "description",
+          "type": "text",
+          "required": false,
+          "array": false
+        },
+        {
+          "key": "avatar_url",
+          "type": "string",
+          "format": "url",
+          "required": false,
+          "array": false
+        },
+        {
+          "key": "config",
+          "type": "text",
+          "required": false,
+          "array": false
+        },
+        {
+          "key": "created_at",
+          "type": "datetime",
+          "required": true,
+          "array": false
+        },
+        {
+          "key": "updated_at",
+          "type": "datetime",
+          "required": false,
+          "array": false
+        }
+      ],
+      "indexes": [
+        {
+          "key": "syndicate_id",
+          "type": "key",
+          "attributes": ["syndicate_id"]
+        }
+      ]
+    }
+  ]
+}

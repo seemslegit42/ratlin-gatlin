@@ -1,0 +1,14 @@
+#!/usr/bin/env bun
+import { spawnSync } from 'bun';
+import { dirname, join } from 'node:path';
+
+const root = dirname(import.meta.path);
+const result = spawnSync({
+  cmd: [process.execPath, join(root, 'scripts/cast.ts'), ...process.argv.slice(2)],
+  cwd: root,
+  stdout: 'inherit',
+  stderr: 'inherit',
+  stdin: 'inherit',
+  env: process.env,
+});
+process.exit(result.exitCode ?? 1);
