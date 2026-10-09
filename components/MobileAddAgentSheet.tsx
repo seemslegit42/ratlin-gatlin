@@ -11,6 +11,7 @@ import type { AgentTemplate } from '../types.js';
 import { AgentType } from '../types.js';
 import { AGENT_ICONS } from '../utils/agent-visuals.js';
 import { ChevronLeftIcon } from './icons/ChevronLeftIcon.js';
+import Sheet from './shared/Sheet.js';
 
 /**
  * Static information about available agent types for display.
@@ -90,28 +91,9 @@ const MobileAddAgentSheet: React.FC<MobileAddAgentSheetProps> = memo(({ isOpen, 
   };
 
   return (
-    <AnimatePresence>
-      {isOpen && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          onClick={handleClose}
-          className="fixed inset-0 bg-black/60 z-40"
-          aria-modal="true"
-          role="dialog"
-          aria-labelledby="add-agent-sheet-title"
-        >
-          <motion.div
-            initial={{ y: '100%' }}
-            animate={{ y: 0 }}
-            exit={{ y: '100%' }}
-            transition={{ type: 'spring', stiffness: 400, damping: 40 }}
-            onClick={(e) => e.stopPropagation()}
-            className="absolute bottom-0 left-0 right-0 bg-panel-bg backdrop-blur-xl p-4 rounded-t-2xl border-t border-glass-border flex flex-col max-h-[80vh]"
-          >
+    <Sheet isOpen={isOpen} onClose={handleClose}>
+        <div className="flex flex-col max-h-[80vh]">
             <div className="flex-shrink-0 mb-4">
-                <div className="w-10 h-1.5 bg-white/20 rounded-full mx-auto mb-4"></div>
                 
                 {selectedType ? (
                     <div className="flex items-center space-x-2">
@@ -239,10 +221,8 @@ const MobileAddAgentSheet: React.FC<MobileAddAgentSheetProps> = memo(({ isOpen, 
                     )}
                 </AnimatePresence>
             </div>
-          </motion.div>
-        </motion.div>
-      )}
-    </AnimatePresence>
+        </div>
+    </Sheet>
   );
 });
 MobileAddAgentSheet.displayName = 'MobileAddAgentSheet';

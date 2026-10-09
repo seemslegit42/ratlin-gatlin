@@ -1,7 +1,7 @@
 /**
  * @file services/ollamaService.ts
  * @description Ollama-backed AI service layer for ΛΞVON OS.
- * Now with MediaPipe GenAI support (browser-based LLM via WebGPU) + Ollama fallback.
+ * Strictly local execution via MediaPipe GenAI (WebGPU) or Ollama.
  */
 
 import type {
@@ -15,12 +15,8 @@ import type {
   JsonObject,
 } from '../types.js';
 import * as mediapieLLMService from './mediapieLLMService.js';
-import { getArchitectModelId, getPrimaryChatModelId, resolveOpenRouterModelForAlias, BEEP_CLOUD_ARCHITECT, BEEP_CLOUD_FAST } from './llmDefaults.js';
+import { getArchitectModelId, getPrimaryChatModelId } from './llmDefaults.js';
 import { postLiteLLMChat, pingLiteLLM, type LiteLLMMessage } from './litellmClient.js';
-import { isOpenRouterConfigured, pingOpenRouter, postOpenRouterChat, type OpenRouterChatOptions } from './openrouterClient.js';
-import { isOpenRouterNativeToolsEnabled } from './openrouterPolicy.js';
-import { mergeToolsWithSubagent } from './openrouterSubagent.js';
-import { MAINFRAME_TOOL_DEFINITIONS, toOpenRouterTools } from './openrouterTools.js';
 
 export interface LlmFunctionCall {
   name: string;
@@ -43,43 +39,22 @@ interface OllamaMessage {
 /**
  * LLM Backend Selection & Initialization
  */
-type LlmBackend = 'mediapipe' | 'ollama' | 'litellm' | 'openrouter';
+type LlmBackend = 'mediapipe' | 'ollama' | 'litellm';
 
 let preferredBackend: LlmBackend =
   (process.env.LLM_BACKEND as LlmBackend) || 'litellm';
 let mediapipeReady = false;
 let litellmReady = false;
-let openrouterReady = false;
-
-const cloudFallbackEnabled = (): boolean =>
-  process.env.LLM_CLOUD_FALLBACK !== '0' && isOpenRouterConfigured();
 
 export const initializeLLMBackend = async (): Promise<void> => {
-  if (preferredBackend === 'openrouter') {
-    console.log('[LLM] OpenRouter cloud API (unified model catalog).');
-    openrouterReady = await pingOpenRouter();
-    if (!openrouterReady) {
-      console.warn('[LLM] OpenRouter unreachable — check OPENROUTER_API_KEY and dev /openrouter proxy.');
-    }
-    return;
-  }
-
   if (preferredBackend === 'litellm') {
-    console.log('[LLM] LiteLLM gateway — local Granite/Gemma + OpenRouter cloud fallbacks.');
+    console.log('[LLM] LiteLLM gateway — local Granite/Gemma.');
     litellmReady = await pingLiteLLM();
     if (litellmReady) {
       console.log('[LLM] LiteLLM reachable.');
-      openrouterReady = cloudFallbackEnabled() ? await pingOpenRouter() : false;
       return;
     }
-    console.warn('[LLM] LiteLLM unreachable — trying OpenRouter or Ollama.');
-    if (cloudFallbackEnabled()) {
-      openrouterReady = await pingOpenRouter();
-      if (openrouterReady) {
-        preferredBackend = 'openrouter';
-        return;
-      }
-    }
+    console.warn('[LLM] LiteLLM unreachable — trying Ollama.');
     preferredBackend = 'ollama';
     return;
   }
@@ -109,13 +84,10 @@ export const getLLMBackendStatus = (): {
   backend: LlmBackend;
   ready: boolean;
   models: { fast: string; architect: string };
-  cloudFallback: boolean;
 } => {
   const active: LlmBackend = mediapipeReady
     ? 'mediapipe'
-    : openrouterReady && preferredBackend === 'openrouter'
-      ? 'openrouter'
-      : litellmReady
+    : litellmReady
         ? 'litellm'
         : preferredBackend;
   return {
@@ -123,13 +95,11 @@ export const getLLMBackendStatus = (): {
     ready:
       mediapipeReady ||
       litellmReady ||
-      openrouterReady ||
       preferredBackend === 'ollama',
     models: {
       fast: getPrimaryChatModelId(),
       architect: getArchitectModelId(),
     },
-    cloudFallback: cloudFallbackEnabled(),
   };
 };
 
@@ -307,13 +277,7 @@ const routeChatRequest = async (
     }
   }
 
-  // OpenRouter direct (cloud-only mode)
-  if (preferredBackend === 'openrouter') {
-    console.log('[LLM] Routing to OpenRouter.');
-    return postOpenRouterChatFromMessages(messages, options, modelOverride, abortSignal);
-  }
-
-  // LiteLLM gateway (OpenAI-compatible) — local GGUF + cloud fallbacks
+  // LiteLLM gateway (OpenAI-compatible) — local GGUF
   if (preferredBackend === 'litellm' || litellmReady) {
     console.log('[LLM] Routing to LiteLLM gateway.');
     return postLiteLLMChatFromOllamaMessages(messages, options, modelOverride, abortSignal);
@@ -340,13 +304,7 @@ const postLiteLLMChatFromOllamaMessages = async (
   }));
 
   const primaryModel = modelId;
-  const cloudModels = cloudFallbackEnabled()
-    ? [
-        modelId === getArchitectModelId() ? BEEP_CLOUD_ARCHITECT : BEEP_CLOUD_FAST,
-      ]
-    : [];
   const fallbacks = [
-    ...cloudModels,
     getArchitectModelId(),
     getPrimaryChatModelId(),
   ].filter((id, idx, arr) => id !== primaryModel && arr.indexOf(id) === idx);
@@ -370,56 +328,7 @@ const postLiteLLMChatFromOllamaMessages = async (
     }
   }
 
-  if (cloudFallbackEnabled()) {
-    console.warn('[LLM] LiteLLM exhausted — attempting OpenRouter cloud fallback.');
-    return postOpenRouterChatFromMessages(messages, options, modelOverride, abortSignal);
-  }
-
   throw new Error(lastError || `LiteLLM chat failed for models: ${tryModels.join(', ')}`);
-};
-
-const postOpenRouterChatFromMessages = async (
-  messages: OllamaMessage[],
-  options?: JsonObject,
-  modelOverride?: string,
-  abortSignal?: AbortSignal,
-  chatOptions?: OpenRouterChatOptions,
-): Promise<LlmResponse> => {
-  const alias =
-    typeof modelOverride === 'string' && modelOverride.trim().length > 0
-      ? modelOverride.trim()
-      : getPrimaryChatModelId();
-
-  const orModel = resolveOpenRouterModelForAlias(alias);
-  const orMessages = messages.map((m) => ({ role: m.role, content: m.content }));
-
-  const fallbacks = [
-    orModel,
-    resolveOpenRouterModelForAlias(getArchitectModelId()),
-    resolveOpenRouterModelForAlias(getPrimaryChatModelId()),
-  ].filter((id, idx, arr) => arr.indexOf(id) === idx);
-
-  const mergedTools = mergeToolsWithSubagent(chatOptions?.tools ?? [], alias);
-  const effectiveOptions: OpenRouterChatOptions | undefined =
-    mergedTools.length > 0 ? { ...chatOptions, tools: mergedTools } : chatOptions;
-
-  let lastError = '';
-  for (let i = 0; i < fallbacks.length; i++) {
-    try {
-      const result = await postOpenRouterChat(orMessages, fallbacks[i], effectiveOptions, abortSignal);
-      if (i > 0) console.info(`[LLM] OpenRouter fallback — using "${fallbacks[i]}".`);
-      return {
-        text: result.text,
-        functionCalls: result.functionCalls,
-        raw: result.raw,
-      };
-    } catch (error) {
-      lastError = error instanceof Error ? error.message : String(error);
-      if (i < fallbacks.length - 1) continue;
-    }
-  }
-
-  throw new Error(lastError || `OpenRouter chat failed for: ${fallbacks.join(', ')}`);
 };
 
 const postOllamaChat = async (
@@ -604,29 +513,6 @@ Phrase example: "Let the false urgency turn to ash."
   const attachmentNote = formatAttachment(attachment);
   const userText = attachmentNote ? `${prompt}\n\n${attachmentNote}` : prompt;
   const messages: OllamaMessage[] = [...buildHistoryMessages(history), { role: 'user' as OllamaRole, content: userText }];
-
-  const useNativeTools = isOpenRouterNativeToolsEnabled();
-
-  if (useNativeTools) {
-    const raw = await enqueueRequest(() =>
-      postOpenRouterChatFromMessages(
-        [{ role: 'system', content: baseSystemInstruction }, ...messages],
-        undefined,
-        undefined,
-        abortSignal,
-        {
-          tools: toOpenRouterTools(MAINFRAME_TOOL_DEFINITIONS),
-          tool_choice: 'auto',
-          parallel_tool_calls: false,
-        },
-      ),
-    );
-    return {
-      text: raw.text,
-      functionCalls: raw.functionCalls,
-      raw: raw.raw,
-    };
-  }
 
   const toolInstruction = buildToolInstruction([
     {

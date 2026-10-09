@@ -59,19 +59,51 @@ export default defineConfig(({ mode }) => {
             target: ollamaProxyTarget,
             changeOrigin: true,
             rewrite: (p: string) => p.replace(/^\/ollama/, '') || '/',
+            configure: (proxy) => {
+              proxy.on('error', (err, _req, res: any) => {
+                if (res && !res.headersSent && typeof res.writeHead === 'function') {
+                  res.writeHead(503, { 'Content-Type': 'application/json' });
+                  res.end(JSON.stringify({ error: 'Ollama service offline', detail: err.message }));
+                }
+              });
+            },
           },
           '/api/postman': {
             target: mcpServerTarget,
             changeOrigin: true,
+            configure: (proxy) => {
+              proxy.on('error', (err, _req, res: any) => {
+                if (res && !res.headersSent && typeof res.writeHead === 'function') {
+                  res.writeHead(503, { 'Content-Type': 'application/json' });
+                  res.end(JSON.stringify({ error: 'Postman MCP bridge offline', detail: err.message }));
+                }
+              });
+            },
           },
           '/mcp': {
             target: mcpServerTarget,
             changeOrigin: true,
+            configure: (proxy) => {
+              proxy.on('error', (err, _req, res: any) => {
+                if (res && !res.headersSent && typeof res.writeHead === 'function') {
+                  res.writeHead(503, { 'Content-Type': 'application/json' });
+                  res.end(JSON.stringify({ error: 'MCP bridge offline', detail: err.message }));
+                }
+              });
+            },
           },
           '/llm': {
             target: litellmProxyTarget,
             changeOrigin: true,
             rewrite: (p: string) => p.replace(/^\/llm/, '') || '/',
+            configure: (proxy) => {
+              proxy.on('error', (err, _req, res: any) => {
+                if (res && !res.headersSent && typeof res.writeHead === 'function') {
+                  res.writeHead(503, { 'Content-Type': 'application/json' });
+                  res.end(JSON.stringify({ error: 'LiteLLM service offline on port 4000', detail: err.message }));
+                }
+              });
+            },
           },
           '/openrouter': {
             target: openrouterProxyTarget,

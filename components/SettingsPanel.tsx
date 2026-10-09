@@ -388,36 +388,20 @@ const SettingsPanelContent: React.FC<SettingsPanelProps> = memo(({
                                     {settings.llmProvider === 'ollama' && <div className="w-2 h-2 bg-blue-400 rounded-full shadow-[0_0_5px_currentColor]"/>}
                                 </button>
                                 <button 
-                                    onClick={() => onUpdateSettings({ llmProvider: 'openai' })}
-                                    className={`w-full p-3 rounded-lg flex items-center justify-between transition-all ${settings.llmProvider === 'openai' ? 'bg-white/10 border border-white/20' : 'bg-white/5 border border-transparent hover:bg-white/10'}`}
-                                    aria-checked={settings.llmProvider === 'openai'}
+                                    onClick={() => onUpdateSettings({ llmProvider: 'mediapipe' })}
+                                    className={`w-full p-3 rounded-lg flex items-center justify-between transition-all ${settings.llmProvider === 'mediapipe' ? 'bg-white/10 border border-white/20' : 'bg-white/5 border border-transparent hover:bg-white/10'}`}
+                                    aria-checked={settings.llmProvider === 'mediapipe'}
                                     role="radio"
-                                    aria-label="OpenAI GPT-4o model"
+                                    aria-label="MediaPipe WebGPU model"
                                 >
                                     <div className="flex items-center space-x-3">
-                                        <div className="p-1 bg-black rounded text-white text-xs font-bold">O</div>
+                                        <div className="p-1 bg-gradient-to-br from-roman-aqua to-patina-green rounded text-white text-xs font-bold">M</div>
                                         <div className="text-left">
-                                            <div className="text-sm font-bold">OpenAI GPT-4o</div>
-                                            <div className="text-[10px] text-text-tertiary">High logical fidelity.</div>
+                                            <div className="text-sm font-bold">MediaPipe GenAI</div>
+                                            <div className="text-[10px] text-text-tertiary">In-browser hardware acceleration.</div>
                                         </div>
                                     </div>
-                                    {settings.llmProvider === 'openai' && <div className="w-2 h-2 bg-green-400 rounded-full shadow-[0_0_5px_currentColor]"/>}
-                                </button>
-                                <button 
-                                    onClick={() => onUpdateSettings({ llmProvider: 'anthropic' })}
-                                    className={`w-full p-3 rounded-lg flex items-center justify-between transition-all ${settings.llmProvider === 'anthropic' ? 'bg-white/10 border border-white/20' : 'bg-white/5 border border-transparent hover:bg-white/10'}`}
-                                    aria-checked={settings.llmProvider === 'anthropic'}
-                                    role="radio"
-                                    aria-label="Anthropic Claude model"
-                                >
-                                    <div className="flex items-center space-x-3">
-                                        <div className="p-1 bg-[#d09a7e] rounded text-black text-xs font-bold">A</div>
-                                        <div className="text-left">
-                                            <div className="text-sm font-bold">Anthropic Claude</div>
-                                            <div className="text-[10px] text-text-tertiary">Context window & safety.</div>
-                                        </div>
-                                    </div>
-                                    {settings.llmProvider === 'anthropic' && <div className="w-2 h-2 bg-[#d09a7e] rounded-full shadow-[0_0_5px_currentColor]"/>}
+                                    {settings.llmProvider === 'mediapipe' && <div className="w-2 h-2 bg-roman-aqua rounded-full shadow-[0_0_5px_currentColor]"/>}
                                 </button>
                             </div>
                         </div>

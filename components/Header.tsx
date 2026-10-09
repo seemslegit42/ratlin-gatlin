@@ -21,6 +21,8 @@ import { LevonLogoIcon } from './icons/LevonLogoIcon.js';
 import { BrainIcon } from './icons/BrainIcon.js';
 import { LayersIcon } from './icons/LayersIcon.js';
 import UserProfileDropdown from './UserProfileDropdown.js';
+import AvatarStack from './AvatarStack.js';
+import { VIEW_REGISTRY } from '../config/navigationRegistry.js';
 
 interface HeaderProps {
     currentView: View;
@@ -39,6 +41,8 @@ interface HeaderProps {
     economyData?: XiFlowData | null;
     /** Klepsydra flow metrics for health indicator. */
     klepsydra?: KlepsydraMetric;
+    /** Connected syndicate team members for avatar stack. */
+    users?: Record<string, any>;
 }
 
 // Fix: Added missing 'vault' and 'registry' properties
@@ -68,9 +72,9 @@ const VIEW_NAMES: Record<View, string> = {
 const Header: React.FC<HeaderProps> = ({
     currentView, onNavigate, currentUser, onOpenSettings,
     mode, setMode, onSummonDemiurge, onLogout, onQuickCommand,
-    agents = {}, economyData, klepsydra,
+    agents = {}, economyData, klepsydra, users = {},
 }) => {
-    const zoneLabel = VIEW_NAMES[currentView] || 'UNKNOWN SECTOR';
+    const zoneLabel = VIEW_REGISTRY[currentView]?.label || VIEW_NAMES[currentView] || 'UNKNOWN SECTOR';
 
     // ── Executive Telemetry KPI items (spec §2.1) ─────────────────
     const kpiItems = useMemo(() => {
@@ -339,6 +343,16 @@ const Header: React.FC<HeaderProps> = ({
                         </button>
                     </div>
                 )}
+
+                {/* Syndicate Presence Avatars */}
+                <div className="hidden lg:flex items-center">
+                    <AvatarStack 
+                        users={users && Object.values(users).length > 0 
+                            ? (Object.values(users) as any[]) 
+                            : (currentUser ? [{ id: currentUser.id, name: currentUser.name, color: '#3eb991', role: currentUser.role } as any] : [])} 
+                        selfId={currentUser?.id} 
+                    />
+                </div>
 
                 {/* User Profile Dropdown */}
                 <UserProfileDropdown

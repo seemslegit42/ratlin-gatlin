@@ -69,9 +69,9 @@ const STARTER_PROMPTS = [
 // ─── Props ────────────────────────────────────────────────────────────────────
 
 interface CommandStreamProps {
-  messages: ChatMessage[];
-  onWidgetInteraction: (command: string) => void;
-  onNavigate: (view: View) => void;
+  messages?: ChatMessage[];
+  onWidgetInteraction?: (command: string) => void;
+  onNavigate?: (view: View) => void;
 }
 
 interface MessageProps {
@@ -344,21 +344,26 @@ const EmptyState: React.FC<{ onSuggest: (cmd: string) => void }> = ({ onSuggest 
 
 // ─── CommandStream ────────────────────────────────────────────────────────────
 
-const CommandStream: React.FC<CommandStreamProps> = ({ messages, onWidgetInteraction, onNavigate }) => {
+const CommandStream: React.FC<CommandStreamProps> = ({ 
+  messages = [], 
+  onWidgetInteraction = () => {}, 
+  onNavigate = () => {} 
+}) => {
+  const safeMessages = Array.isArray(messages) ? messages : [];
   const streamEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     streamEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages]);
+  }, [safeMessages]);
 
-  if (messages.length === 0) {
+  if (safeMessages.length === 0) {
     return <EmptyState onSuggest={onWidgetInteraction} />;
   }
 
   return (
     <div className="pb-4 px-1 high-density">
-      {messages.map((msg, index) => {
-        const prev = messages[index - 1];
+      {safeMessages.map((msg, index) => {
+        const prev = safeMessages[index - 1];
         const isGrouped =
           !!prev &&
           prev.source === msg.source &&
@@ -373,7 +378,7 @@ const CommandStream: React.FC<CommandStreamProps> = ({ messages, onWidgetInterac
             message={msg}
             onWidgetInteraction={onWidgetInteraction}
             onNavigate={onNavigate}
-            isLast={index === messages.length - 1}
+            isLast={index === safeMessages.length - 1}
             isGrouped={isGrouped}
           />
         );
@@ -462,20 +467,21 @@ const CrmContactCard: React.FC<{ data: CrmContactWidgetData; onInteraction: (cmd
 // ─── Inline Micro-Frontend: Revenue / Pipeline Chart (spec §2.2) ──────────────
 
 const RevenueChartCard: React.FC<{ data: RevenueChartWidgetData; onInteraction: (cmd: string) => void }> = ({ data, onInteraction }) => {
-  const max = Math.max(...data.breakdown.map(b => b.value), 1);
-  const currency = data.currency ?? '$';
+  const breakdown = data?.breakdown || [];
+  const max = Math.max(...breakdown.map(b => b.value), 1);
+  const currency = data?.currency ?? '$';
   const fmt = (n: number) => n >= 1_000_000 ? `${currency}${(n / 1_000_000).toFixed(1)}M` : n >= 1_000 ? `${currency}${(n / 1_000).toFixed(0)}K` : `${currency}${n}`;
 
   return (
     <div className="rounded-xl border border-white/10 bg-black/30 p-3 space-y-3">
       <div className="flex items-center justify-between">
         <div>
-          <div className="text-xs font-bold text-vitreous-white">{data.title}</div>
-          {data.period && <div className="text-[9px] text-text-tertiary font-mono">{data.period}</div>}
+          <div className="text-xs font-bold text-vitreous-white">{data?.title || 'Revenue Breakdown'}</div>
+          {data?.period && <div className="text-[9px] text-text-tertiary font-mono">{data.period}</div>}
         </div>
         <div className="text-right">
-          <div className="text-sm font-bold font-mono text-patina-green">{fmt(data.totalValue)}</div>
-          {data.trend != null && (
+          <div className="text-sm font-bold font-mono text-patina-green">{fmt(data?.totalValue ?? 0)}</div>
+          {data?.trend != null && (
             <div className={`text-[9px] font-mono ${data.trend >= 0 ? 'text-patina-green' : 'text-red-400'}`}>
               {data.trend >= 0 ? '+' : ''}{data.trend.toFixed(1)}%
             </div>
@@ -483,19 +489,19 @@ const RevenueChartCard: React.FC<{ data: RevenueChartWidgetData; onInteraction: 
         </div>
       </div>
       <div className="space-y-1.5">
-        {data.breakdown.map(item => (
+        {breakdown.map(item => (
           <div key={item.label} className="flex items-center gap-2">
             <div className="text-[9px] font-mono text-text-tertiary w-20 truncate flex-shrink-0">{item.label}</div>
             <div className="flex-1 h-1.5 bg-white/5 rounded-full overflow-hidden">
-              <motion.div initial={{ width: 0 }} animate={{ width: `${(item.value / max) * 100}%` }}
+              <motion.div initial={{ width: 0 }} animate={{ width: `${((item.value || 0) / max) * 100}%` }}
                 transition={{ duration: 0.8, ease: [0.4, 0, 0.2, 1] }}
                 className="h-full rounded-full" style={{ backgroundColor: item.color ?? 'var(--roman-aqua)' }} />
             </div>
-            <div className="text-[9px] font-mono text-text-secondary w-12 text-right flex-shrink-0">{fmt(item.value)}</div>
+            <div className="text-[9px] font-mono text-text-secondary w-12 text-right flex-shrink-0">{fmt(item.value || 0)}</div>
           </div>
         ))}
       </div>
-      <button onClick={() => onInteraction(`Generate a detailed revenue breakdown and forecast for ${data.title}`)}
+      <button onClick={() => onInteraction(`Generate a detailed revenue breakdown and forecast for ${data?.title || 'Revenue'}`)}
         className="w-full py-1 text-[9px] font-bold uppercase tracking-wider bg-white/5 hover:bg-white/10 border border-white/8 rounded-lg text-text-secondary hover:text-white transition-all">
         Full Report →
       </button>
@@ -505,36 +511,39 @@ const RevenueChartCard: React.FC<{ data: RevenueChartWidgetData; onInteraction: 
 
 // ─── Inline Micro-Frontend: Workflow Scaffold Preview (spec §3.3) ─────────────
 
-const WorkflowScaffoldCard: React.FC<{ data: WorkflowScaffoldWidgetData; onNavigate: (v: View) => void }> = ({ data, onNavigate }) => (
-  <div className="rounded-xl border border-imperial-purple/30 bg-imperial-purple/5 p-3 space-y-3">
-    <div className="flex items-center justify-between">
-      <div>
-        <div className="text-xs font-bold text-vitreous-white">{data.workflowName}</div>
-        <div className="text-[9px] text-text-tertiary">{data.description}</div>
-      </div>
-      <div className="text-right">
-        <div className="text-[9px] font-mono text-imperial-purple">{data.completionPct}% scaffolded</div>
-        <div className="text-[8px] text-text-tertiary">{data.estimatedNodes} nodes</div>
-      </div>
-    </div>
-    <div className="h-1 bg-white/10 rounded-full overflow-hidden">
-      <motion.div initial={{ width: 0 }} animate={{ width: `${data.completionPct}%` }}
-        transition={{ duration: 1 }} className="h-full bg-imperial-purple rounded-full" />
-    </div>
-    <div className="space-y-1">
-      {data.phases.map((phase, i) => (
-        <div key={i} className="flex items-start gap-2 text-[9px]">
-          <span className="text-imperial-purple font-mono mt-0.5">▸</span>
-          <div>
-            <span className="text-white font-bold">{phase.label}</span>
-            <span className="text-text-tertiary ml-1">{phase.agents.join(', ')}</span>
-          </div>
+const WorkflowScaffoldCard: React.FC<{ data: WorkflowScaffoldWidgetData; onNavigate: (v: View) => void }> = ({ data, onNavigate }) => {
+  const phases = data?.phases || [];
+  return (
+    <div className="rounded-xl border border-imperial-purple/30 bg-imperial-purple/5 p-3 space-y-3">
+      <div className="flex items-center justify-between">
+        <div>
+          <div className="text-xs font-bold text-vitreous-white">{data?.workflowName || 'Workflow'}</div>
+          <div className="text-[9px] text-text-tertiary">{data?.description || ''}</div>
         </div>
-      ))}
+        <div className="text-right">
+          <div className="text-[9px] font-mono text-imperial-purple">{data?.completionPct ?? 0}% scaffolded</div>
+          <div className="text-[8px] text-text-tertiary">{data?.estimatedNodes ?? 0} nodes</div>
+        </div>
+      </div>
+      <div className="h-1 bg-white/10 rounded-full overflow-hidden">
+        <motion.div initial={{ width: 0 }} animate={{ width: `${data?.completionPct ?? 0}%` }}
+          transition={{ duration: 1 }} className="h-full bg-imperial-purple rounded-full" />
+      </div>
+      <div className="space-y-1">
+        {phases.map((phase, i) => (
+          <div key={i} className="flex items-start gap-2 text-[9px]">
+            <span className="text-imperial-purple font-mono mt-0.5">▸</span>
+            <div>
+              <span className="text-white font-bold">{phase?.label || ''}</span>
+              <span className="text-text-tertiary ml-1">{(phase?.agents || []).join(', ')}</span>
+            </div>
+          </div>
+        ))}
+      </div>
+      <button onClick={() => onNavigate('weaver')}
+        className="w-full py-1.5 text-[9px] font-bold uppercase tracking-wider bg-imperial-purple/20 hover:bg-imperial-purple/30 border border-imperial-purple/30 rounded-lg text-imperial-purple transition-all">
+        Open in Weaver Studio →
+      </button>
     </div>
-    <button onClick={() => onNavigate('weaver')}
-      className="w-full py-1.5 text-[9px] font-bold uppercase tracking-wider bg-imperial-purple/20 hover:bg-imperial-purple/30 border border-imperial-purple/30 rounded-lg text-imperial-purple transition-all">
-      Open in Weaver Studio →
-    </button>
-  </div>
-);
+  );
+};

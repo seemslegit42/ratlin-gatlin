@@ -5,117 +5,7 @@
     {
       "name": "Sovereign",
       "$id": "sovereign",
-      "enabled": true,
-      "collections": [
-        {
-          "name": "Ledger",
-          "$id": "ledger",
-          "enabled": true,
-          "permissions": [],
-          "documentSecurity": false,
-          "attributes": [
-            {
-              "key": "syndicate_id",
-              "type": "string",
-              "status": "available",
-              "required": true,
-              "array": false
-            },
-            {
-              "key": "balance",
-              "type": "float",
-              "status": "available",
-              "required": true,
-              "default": 0,
-              "array": false
-            },
-            {
-              "key": "committed",
-              "type": "float",
-              "status": "available",
-              "required": true,
-              "default": 0,
-              "array": false
-            },
-            {
-              "key": "reserved",
-              "type": "float",
-              "status": "available",
-              "required": true,
-              "default": 0,
-              "array": false
-            },
-            {
-              "key": "updated_at",
-              "type": "datetime",
-              "status": "available",
-              "required": false,
-              "array": false
-            }
-          ],
-          "indexes": [
-            {
-              "key": "syndicate_id",
-              "type": "key",
-              "attributes": ["syndicate_id"]
-            }
-          ]
-        },
-        {
-          "name": "Agents",
-          "$id": "agents",
-          "enabled": true,
-          "attributes": [
-            {
-              "key": "syndicate_id",
-              "type": "string",
-              "required": true
-            },
-            {
-              "key": "name",
-              "type": "string",
-              "required": true
-            },
-            {
-              "key": "type",
-              "type": "string",
-              "required": true
-            },
-            {
-              "key": "description",
-              "type": "text",
-              "required": false
-            },
-            {
-              "key": "avatar_url",
-              "type": "url",
-              "required": false
-            },
-            {
-              "key": "config",
-              "type": "text",
-              "required": false
-            },
-            {
-              "key": "created_at",
-              "type": "datetime",
-              "required": true
-            },
-            {
-              "key": "updated_at",
-              "type": "datetime",
-              "required": false
-            }
-          ],
-          "indexes": [
-            {
-              "key": "syndicate_id",
-              "type": "key",
-              "attributes": ["syndicate_id"]
-            }
-          ]
-        }
-      ]
+      "enabled": true
     }
   ],
   "functions": [
@@ -202,6 +92,2036 @@
       "permissions": [],
       "fileSecurity": false,
       "enabled": true
+    }
+  ],
+  "tables": [
+    {
+      "$id": "ledger",
+      "databaseId": "sovereign",
+      "name": "Ledger",
+      "enabled": true,
+      "rowSecurity": false,
+      "$permissions": [],
+      "columns": [
+        {
+          "key": "syndicate_id",
+          "type": "varchar",
+          "required": true,
+          "array": false,
+          "size": 255
+        },
+        {
+          "key": "balance",
+          "type": "double",
+          "required": false,
+          "array": false
+        },
+        {
+          "key": "committed",
+          "type": "double",
+          "required": false,
+          "array": false
+        },
+        {
+          "key": "reserved",
+          "type": "double",
+          "required": false,
+          "array": false
+        },
+        {
+          "key": "updated_at",
+          "type": "datetime",
+          "required": false,
+          "array": false
+        }
+      ],
+      "indexes": [
+        {
+          "key": "syndicate_id",
+          "type": "key",
+          "attributes": [
+            "syndicate_id"
+          ]
+        }
+      ]
+    },
+    {
+      "$id": "transactions",
+      "databaseId": "sovereign",
+      "name": "Transactions",
+      "enabled": true,
+      "rowSecurity": false,
+      "$permissions": [],
+      "columns": [
+        {
+          "key": "syndicate_id",
+          "type": "varchar",
+          "required": true,
+          "array": false,
+          "size": 255
+        },
+        {
+          "key": "amount",
+          "type": "double",
+          "required": false,
+          "array": false
+        },
+        {
+          "key": "type",
+          "type": "varchar",
+          "required": false,
+          "array": false,
+          "size": 64
+        },
+        {
+          "key": "reason",
+          "type": "text",
+          "required": false,
+          "array": false,
+          "size": 8192
+        },
+        {
+          "key": "created_at",
+          "type": "datetime",
+          "required": false,
+          "array": false
+        },
+        {
+          "key": "updated_at",
+          "type": "datetime",
+          "required": false,
+          "array": false
+        }
+      ],
+      "indexes": [
+        {
+          "key": "syndicate_id",
+          "type": "key",
+          "attributes": [
+            "syndicate_id"
+          ]
+        }
+      ]
+    },
+    {
+      "$id": "workflows",
+      "databaseId": "sovereign",
+      "name": "Workflows",
+      "enabled": true,
+      "rowSecurity": false,
+      "$permissions": [],
+      "columns": [
+        {
+          "key": "syndicate_id",
+          "type": "varchar",
+          "required": true,
+          "array": false,
+          "size": 255
+        }
+      ],
+      "indexes": [
+        {
+          "key": "syndicate_id",
+          "type": "key",
+          "attributes": [
+            "syndicate_id"
+          ]
+        }
+      ]
+    },
+    {
+      "$id": "agents",
+      "databaseId": "sovereign",
+      "name": "Agents",
+      "enabled": true,
+      "rowSecurity": false,
+      "$permissions": [],
+      "columns": [
+        {
+          "key": "syndicate_id",
+          "type": "varchar",
+          "required": true,
+          "array": false,
+          "size": 255
+        },
+        {
+          "key": "name",
+          "type": "varchar",
+          "required": false,
+          "array": false,
+          "size": 255
+        },
+        {
+          "key": "description",
+          "type": "text",
+          "required": false,
+          "array": false,
+          "size": 8192
+        },
+        {
+          "key": "type",
+          "type": "varchar",
+          "required": false,
+          "array": false,
+          "size": 128
+        },
+        {
+          "key": "status",
+          "type": "varchar",
+          "required": false,
+          "array": false,
+          "size": 128
+        },
+        {
+          "key": "position",
+          "type": "text",
+          "required": false,
+          "array": false,
+          "size": 2048
+        },
+        {
+          "key": "data",
+          "type": "text",
+          "required": false,
+          "array": false,
+          "size": 32768
+        },
+        {
+          "key": "output_data",
+          "type": "text",
+          "required": false,
+          "array": false,
+          "size": 32768
+        },
+        {
+          "key": "metrics",
+          "type": "text",
+          "required": false,
+          "array": false,
+          "size": 2048
+        },
+        {
+          "key": "needs",
+          "type": "text",
+          "required": false,
+          "array": false,
+          "size": 2048
+        },
+        {
+          "key": "persona",
+          "type": "varchar",
+          "required": false,
+          "array": false,
+          "size": 255
+        },
+        {
+          "key": "model",
+          "type": "varchar",
+          "required": false,
+          "array": false,
+          "size": 255
+        },
+        {
+          "key": "crew_id",
+          "type": "varchar",
+          "required": false,
+          "array": false,
+          "size": 255
+        }
+      ],
+      "indexes": [
+        {
+          "key": "syndicate_id",
+          "type": "key",
+          "attributes": [
+            "syndicate_id"
+          ]
+        }
+      ]
+    },
+    {
+      "$id": "rituals",
+      "databaseId": "sovereign",
+      "name": "Rituals",
+      "enabled": true,
+      "rowSecurity": false,
+      "$permissions": [],
+      "columns": [
+        {
+          "key": "syndicate_id",
+          "type": "varchar",
+          "required": true,
+          "array": false,
+          "size": 255
+        }
+      ],
+      "indexes": [
+        {
+          "key": "syndicate_id",
+          "type": "key",
+          "attributes": [
+            "syndicate_id"
+          ]
+        }
+      ]
+    },
+    {
+      "$id": "policies",
+      "databaseId": "sovereign",
+      "name": "Policies",
+      "enabled": true,
+      "rowSecurity": false,
+      "$permissions": [],
+      "columns": [
+        {
+          "key": "syndicate_id",
+          "type": "varchar",
+          "required": true,
+          "array": false,
+          "size": 255
+        }
+      ],
+      "indexes": [
+        {
+          "key": "syndicate_id",
+          "type": "key",
+          "attributes": [
+            "syndicate_id"
+          ]
+        }
+      ]
+    },
+    {
+      "$id": "audit",
+      "databaseId": "sovereign",
+      "name": "Audit",
+      "enabled": true,
+      "rowSecurity": false,
+      "$permissions": [],
+      "columns": [
+        {
+          "key": "syndicate_id",
+          "type": "varchar",
+          "required": true,
+          "array": false,
+          "size": 255
+        }
+      ],
+      "indexes": [
+        {
+          "key": "syndicate_id",
+          "type": "key",
+          "attributes": [
+            "syndicate_id"
+          ]
+        }
+      ]
+    },
+    {
+      "$id": "wsconfig",
+      "databaseId": "sovereign",
+      "name": "WS Config",
+      "enabled": true,
+      "rowSecurity": false,
+      "$permissions": [],
+      "columns": [
+        {
+          "key": "syndicate_id",
+          "type": "varchar",
+          "required": true,
+          "array": false,
+          "size": 255
+        }
+      ],
+      "indexes": [
+        {
+          "key": "syndicate_id",
+          "type": "key",
+          "attributes": [
+            "syndicate_id"
+          ]
+        }
+      ]
+    },
+    {
+      "$id": "users",
+      "databaseId": "sovereign",
+      "name": "Users",
+      "enabled": true,
+      "rowSecurity": false,
+      "$permissions": [],
+      "columns": [
+        {
+          "key": "user_id",
+          "type": "varchar",
+          "required": false,
+          "array": false,
+          "size": 255
+        },
+        {
+          "key": "syndicate_id",
+          "type": "varchar",
+          "required": true,
+          "array": false,
+          "size": 255
+        },
+        {
+          "key": "covenant",
+          "type": "varchar",
+          "required": false,
+          "array": false,
+          "size": 64
+        },
+        {
+          "key": "xi_balance",
+          "type": "double",
+          "required": false,
+          "array": false
+        },
+        {
+          "key": "phi_balance",
+          "type": "double",
+          "required": false,
+          "array": false
+        },
+        {
+          "key": "resonance_score",
+          "type": "integer",
+          "required": false,
+          "array": false
+        },
+        {
+          "key": "mythos_titles",
+          "type": "varchar",
+          "required": false,
+          "array": true,
+          "size": 255
+        },
+        {
+          "key": "tithe_rate",
+          "type": "double",
+          "required": false,
+          "array": false
+        },
+        {
+          "key": "pact",
+          "type": "varchar",
+          "required": false,
+          "array": false,
+          "size": 64
+        },
+        {
+          "key": "cogni_ops_remaining",
+          "type": "integer",
+          "required": false,
+          "array": false
+        },
+        {
+          "key": "cogni_ops_limit",
+          "type": "integer",
+          "required": false,
+          "array": false
+        },
+        {
+          "key": "has_onboarded",
+          "type": "boolean",
+          "required": false,
+          "array": false
+        },
+        {
+          "key": "age_of_ascension",
+          "type": "boolean",
+          "required": false,
+          "array": false
+        },
+        {
+          "key": "color",
+          "type": "varchar",
+          "required": false,
+          "array": false,
+          "size": 32
+        },
+        {
+          "key": "name",
+          "type": "varchar",
+          "required": false,
+          "array": false,
+          "size": 255
+        },
+        {
+          "key": "mythic_status",
+          "type": "text",
+          "required": false,
+          "array": false,
+          "size": 8192
+        }
+      ],
+      "indexes": [
+        {
+          "key": "syndicate_id",
+          "type": "key",
+          "attributes": [
+            "syndicate_id"
+          ]
+        }
+      ]
+    },
+    {
+      "$id": "syndicates",
+      "databaseId": "sovereign",
+      "name": "Syndicates",
+      "enabled": true,
+      "rowSecurity": false,
+      "$permissions": [],
+      "columns": [
+        {
+          "key": "name",
+          "type": "varchar",
+          "required": false,
+          "array": false,
+          "size": 255
+        },
+        {
+          "key": "description",
+          "type": "text",
+          "required": false,
+          "array": false,
+          "size": 4096
+        },
+        {
+          "key": "owner_id",
+          "type": "varchar",
+          "required": false,
+          "array": false,
+          "size": 255
+        },
+        {
+          "key": "settings",
+          "type": "text",
+          "required": false,
+          "array": false,
+          "size": 8192
+        }
+      ],
+      "indexes": []
+    },
+    {
+      "$id": "connections",
+      "databaseId": "sovereign",
+      "name": "Connections",
+      "enabled": true,
+      "rowSecurity": false,
+      "$permissions": [],
+      "columns": [
+        {
+          "key": "syndicate_id",
+          "type": "varchar",
+          "required": true,
+          "array": false,
+          "size": 255
+        },
+        {
+          "key": "from_agent_id",
+          "type": "varchar",
+          "required": false,
+          "array": false,
+          "size": 255
+        },
+        {
+          "key": "from_port_id",
+          "type": "varchar",
+          "required": false,
+          "array": false,
+          "size": 255
+        },
+        {
+          "key": "to_agent_id",
+          "type": "varchar",
+          "required": false,
+          "array": false,
+          "size": 255
+        },
+        {
+          "key": "to_port_id",
+          "type": "varchar",
+          "required": false,
+          "array": false,
+          "size": 255
+        }
+      ],
+      "indexes": [
+        {
+          "key": "syndicate_id",
+          "type": "key",
+          "attributes": [
+            "syndicate_id"
+          ]
+        }
+      ]
+    },
+    {
+      "$id": "crews",
+      "databaseId": "sovereign",
+      "name": "Crews",
+      "enabled": true,
+      "rowSecurity": false,
+      "$permissions": [],
+      "columns": [
+        {
+          "key": "syndicate_id",
+          "type": "varchar",
+          "required": true,
+          "array": false,
+          "size": 255
+        },
+        {
+          "key": "name",
+          "type": "varchar",
+          "required": false,
+          "array": false,
+          "size": 255
+        },
+        {
+          "key": "description",
+          "type": "text",
+          "required": false,
+          "array": false,
+          "size": 4096
+        },
+        {
+          "key": "agent_ids",
+          "type": "varchar",
+          "required": false,
+          "array": true,
+          "size": 255
+        },
+        {
+          "key": "color",
+          "type": "varchar",
+          "required": false,
+          "array": false,
+          "size": 32
+        }
+      ],
+      "indexes": [
+        {
+          "key": "syndicate_id",
+          "type": "key",
+          "attributes": [
+            "syndicate_id"
+          ]
+        }
+      ]
+    },
+    {
+      "$id": "agent_templates",
+      "databaseId": "sovereign",
+      "name": "Agent Templates",
+      "enabled": true,
+      "rowSecurity": false,
+      "$permissions": [],
+      "columns": [
+        {
+          "key": "syndicate_id",
+          "type": "varchar",
+          "required": true,
+          "array": false,
+          "size": 255
+        },
+        {
+          "key": "name",
+          "type": "varchar",
+          "required": false,
+          "array": false,
+          "size": 255
+        },
+        {
+          "key": "description",
+          "type": "text",
+          "required": false,
+          "array": false,
+          "size": 8192
+        },
+        {
+          "key": "type",
+          "type": "varchar",
+          "required": false,
+          "array": false,
+          "size": 128
+        },
+        {
+          "key": "persona",
+          "type": "varchar",
+          "required": false,
+          "array": false,
+          "size": 255
+        },
+        {
+          "key": "model",
+          "type": "varchar",
+          "required": false,
+          "array": false,
+          "size": 255
+        },
+        {
+          "key": "data",
+          "type": "text",
+          "required": false,
+          "array": false,
+          "size": 32768
+        },
+        {
+          "key": "blueprint",
+          "type": "text",
+          "required": false,
+          "array": false,
+          "size": 32768
+        }
+      ],
+      "indexes": [
+        {
+          "key": "syndicate_id",
+          "type": "key",
+          "attributes": [
+            "syndicate_id"
+          ]
+        }
+      ]
+    },
+    {
+      "$id": "workflow_versions",
+      "databaseId": "sovereign",
+      "name": "Workflow Versions",
+      "enabled": true,
+      "rowSecurity": false,
+      "$permissions": [],
+      "columns": [
+        {
+          "key": "syndicate_id",
+          "type": "varchar",
+          "required": true,
+          "array": false,
+          "size": 255
+        },
+        {
+          "key": "timestamp",
+          "type": "integer",
+          "required": false,
+          "array": false
+        },
+        {
+          "key": "name",
+          "type": "varchar",
+          "required": false,
+          "array": false,
+          "size": 255
+        },
+        {
+          "key": "description",
+          "type": "text",
+          "required": false,
+          "array": false,
+          "size": 8192
+        },
+        {
+          "key": "snapshot",
+          "type": "text",
+          "required": false,
+          "array": false,
+          "size": 32768
+        }
+      ],
+      "indexes": [
+        {
+          "key": "syndicate_id",
+          "type": "key",
+          "attributes": [
+            "syndicate_id"
+          ]
+        }
+      ]
+    },
+    {
+      "$id": "chronicle_events",
+      "databaseId": "sovereign",
+      "name": "Chronicle Events",
+      "enabled": true,
+      "rowSecurity": false,
+      "$permissions": [],
+      "columns": [
+        {
+          "key": "syndicate_id",
+          "type": "varchar",
+          "required": true,
+          "array": false,
+          "size": 255
+        },
+        {
+          "key": "event_type",
+          "type": "varchar",
+          "required": false,
+          "array": false,
+          "size": 128
+        },
+        {
+          "key": "data",
+          "type": "text",
+          "required": false,
+          "array": false,
+          "size": 32768
+        },
+        {
+          "key": "type",
+          "type": "varchar",
+          "required": false,
+          "array": false,
+          "size": 64
+        },
+        {
+          "key": "source",
+          "type": "varchar",
+          "required": false,
+          "array": false,
+          "size": 128
+        },
+        {
+          "key": "message",
+          "type": "text",
+          "required": false,
+          "array": false,
+          "size": 8192
+        },
+        {
+          "key": "timestamp",
+          "type": "integer",
+          "required": false,
+          "array": false
+        }
+      ],
+      "indexes": [
+        {
+          "key": "syndicate_id",
+          "type": "key",
+          "attributes": [
+            "syndicate_id"
+          ]
+        }
+      ]
+    },
+    {
+      "$id": "stripe_events",
+      "databaseId": "sovereign",
+      "name": "Stripe Events",
+      "enabled": true,
+      "rowSecurity": false,
+      "$permissions": [],
+      "columns": [
+        {
+          "key": "stripe_event_id",
+          "type": "varchar",
+          "required": false,
+          "array": false,
+          "size": 255
+        },
+        {
+          "key": "stripe_event_type",
+          "type": "varchar",
+          "required": false,
+          "array": false,
+          "size": 128
+        },
+        {
+          "key": "stripe_created_at",
+          "type": "datetime",
+          "required": false,
+          "array": false
+        },
+        {
+          "key": "payload",
+          "type": "text",
+          "required": false,
+          "array": false,
+          "size": 32768
+        },
+        {
+          "key": "created_at",
+          "type": "datetime",
+          "required": false,
+          "array": false
+        },
+        {
+          "key": "updated_at",
+          "type": "datetime",
+          "required": false,
+          "array": false
+        }
+      ],
+      "indexes": []
+    },
+    {
+      "$id": "crm_contacts",
+      "databaseId": "sovereign",
+      "name": "CRM Contacts",
+      "enabled": true,
+      "rowSecurity": false,
+      "$permissions": [],
+      "columns": [
+        {
+          "key": "syndicate_id",
+          "type": "varchar",
+          "required": true,
+          "array": false,
+          "size": 255
+        },
+        {
+          "key": "name",
+          "type": "varchar",
+          "required": false,
+          "array": false,
+          "size": 255
+        },
+        {
+          "key": "role",
+          "type": "varchar",
+          "required": false,
+          "array": false,
+          "size": 255
+        },
+        {
+          "key": "company",
+          "type": "varchar",
+          "required": false,
+          "array": false,
+          "size": 255
+        },
+        {
+          "key": "email",
+          "type": "varchar",
+          "required": false,
+          "array": false,
+          "size": 255
+        },
+        {
+          "key": "last_contact",
+          "type": "varchar",
+          "required": false,
+          "array": false,
+          "size": 64
+        }
+      ],
+      "indexes": [
+        {
+          "key": "syndicate_id",
+          "type": "key",
+          "attributes": [
+            "syndicate_id"
+          ]
+        }
+      ]
+    },
+    {
+      "$id": "crm_deals",
+      "databaseId": "sovereign",
+      "name": "CRM Deals",
+      "enabled": true,
+      "rowSecurity": false,
+      "$permissions": [],
+      "columns": [
+        {
+          "key": "syndicate_id",
+          "type": "varchar",
+          "required": true,
+          "array": false,
+          "size": 255
+        },
+        {
+          "key": "company",
+          "type": "varchar",
+          "required": false,
+          "array": false,
+          "size": 255
+        },
+        {
+          "key": "deal_name",
+          "type": "varchar",
+          "required": false,
+          "array": false,
+          "size": 255
+        },
+        {
+          "key": "priority",
+          "type": "varchar",
+          "required": false,
+          "array": false,
+          "size": 64
+        },
+        {
+          "key": "value",
+          "type": "double",
+          "required": false,
+          "array": false
+        },
+        {
+          "key": "stage",
+          "type": "varchar",
+          "required": false,
+          "array": false,
+          "size": 64
+        },
+        {
+          "key": "last_contact",
+          "type": "varchar",
+          "required": false,
+          "array": false,
+          "size": 64
+        },
+        {
+          "key": "resonance",
+          "type": "integer",
+          "required": false,
+          "array": false
+        },
+        {
+          "key": "strategy_json",
+          "type": "text",
+          "required": false,
+          "array": false,
+          "size": 32768
+        }
+      ],
+      "indexes": [
+        {
+          "key": "syndicate_id",
+          "type": "key",
+          "attributes": [
+            "syndicate_id"
+          ]
+        }
+      ]
+    },
+    {
+      "$id": "crm_activities",
+      "databaseId": "sovereign",
+      "name": "CRM Activities",
+      "enabled": true,
+      "rowSecurity": false,
+      "$permissions": [],
+      "columns": [
+        {
+          "key": "syndicate_id",
+          "type": "varchar",
+          "required": true,
+          "array": false,
+          "size": 255
+        },
+        {
+          "key": "user_name",
+          "type": "varchar",
+          "required": false,
+          "array": false,
+          "size": 255
+        },
+        {
+          "key": "action",
+          "type": "varchar",
+          "required": false,
+          "array": false,
+          "size": 64
+        },
+        {
+          "key": "target",
+          "type": "varchar",
+          "required": false,
+          "array": false,
+          "size": 255
+        },
+        {
+          "key": "topic",
+          "type": "varchar",
+          "required": false,
+          "array": false,
+          "size": 255
+        },
+        {
+          "key": "timestamp",
+          "type": "integer",
+          "required": false,
+          "array": false
+        }
+      ],
+      "indexes": [
+        {
+          "key": "syndicate_id",
+          "type": "key",
+          "attributes": [
+            "syndicate_id"
+          ]
+        }
+      ]
+    },
+    {
+      "$id": "treasury_transactions",
+      "databaseId": "sovereign",
+      "name": "Treasury Transactions",
+      "enabled": true,
+      "rowSecurity": false,
+      "$permissions": [],
+      "columns": [
+        {
+          "key": "syndicate_id",
+          "type": "varchar",
+          "required": true,
+          "array": false,
+          "size": 255
+        },
+        {
+          "key": "amount",
+          "type": "double",
+          "required": false,
+          "array": false
+        },
+        {
+          "key": "category",
+          "type": "varchar",
+          "required": false,
+          "array": false,
+          "size": 255
+        },
+        {
+          "key": "description",
+          "type": "text",
+          "required": false,
+          "array": false,
+          "size": 8192
+        },
+        {
+          "key": "created_at",
+          "type": "datetime",
+          "required": false,
+          "array": false
+        }
+      ],
+      "indexes": [
+        {
+          "key": "syndicate_id",
+          "type": "key",
+          "attributes": [
+            "syndicate_id"
+          ]
+        }
+      ]
+    },
+    {
+      "$id": "tribute_logs",
+      "databaseId": "sovereign",
+      "name": "Tribute Logs",
+      "enabled": true,
+      "rowSecurity": false,
+      "$permissions": [],
+      "columns": [
+        {
+          "key": "syndicate_id",
+          "type": "varchar",
+          "required": true,
+          "array": false,
+          "size": 255
+        },
+        {
+          "key": "amount",
+          "type": "double",
+          "required": false,
+          "array": false
+        },
+        {
+          "key": "reason",
+          "type": "text",
+          "required": false,
+          "array": false,
+          "size": 8192
+        },
+        {
+          "key": "created_at",
+          "type": "datetime",
+          "required": false,
+          "array": false
+        }
+      ],
+      "indexes": [
+        {
+          "key": "syndicate_id",
+          "type": "key",
+          "attributes": [
+            "syndicate_id"
+          ]
+        }
+      ]
+    },
+    {
+      "$id": "pulse_profiles",
+      "databaseId": "sovereign",
+      "name": "Pulse Profiles",
+      "enabled": true,
+      "rowSecurity": false,
+      "$permissions": [],
+      "columns": [
+        {
+          "key": "syndicate_id",
+          "type": "varchar",
+          "required": true,
+          "array": false,
+          "size": 255
+        },
+        {
+          "key": "health",
+          "type": "double",
+          "required": false,
+          "array": false
+        },
+        {
+          "key": "vitality",
+          "type": "double",
+          "required": false,
+          "array": false
+        },
+        {
+          "key": "momentum",
+          "type": "double",
+          "required": false,
+          "array": false
+        },
+        {
+          "key": "timestamp",
+          "type": "integer",
+          "required": false,
+          "array": false
+        }
+      ],
+      "indexes": [
+        {
+          "key": "syndicate_id",
+          "type": "key",
+          "attributes": [
+            "syndicate_id"
+          ]
+        }
+      ]
+    },
+    {
+      "$id": "global_economic_dials",
+      "databaseId": "sovereign",
+      "name": "Global Economic Dials",
+      "enabled": true,
+      "rowSecurity": false,
+      "$permissions": [],
+      "columns": [
+        {
+          "key": "dial_name",
+          "type": "varchar",
+          "required": false,
+          "array": false,
+          "size": 255
+        },
+        {
+          "key": "value",
+          "type": "double",
+          "required": false,
+          "array": false
+        },
+        {
+          "key": "min_value",
+          "type": "double",
+          "required": false,
+          "array": false
+        },
+        {
+          "key": "max_value",
+          "type": "double",
+          "required": false,
+          "array": false
+        },
+        {
+          "key": "updated_at",
+          "type": "datetime",
+          "required": false,
+          "array": false
+        }
+      ],
+      "indexes": []
+    },
+    {
+      "$id": "pillar_of_eternity",
+      "databaseId": "sovereign",
+      "name": "Pillar Of Eternity",
+      "enabled": true,
+      "rowSecurity": false,
+      "$permissions": [],
+      "columns": [
+        {
+          "key": "syndicate_id",
+          "type": "varchar",
+          "required": true,
+          "array": false,
+          "size": 255
+        },
+        {
+          "key": "pillar_name",
+          "type": "varchar",
+          "required": false,
+          "array": false,
+          "size": 255
+        },
+        {
+          "key": "value",
+          "type": "double",
+          "required": false,
+          "array": false
+        },
+        {
+          "key": "updated_at",
+          "type": "datetime",
+          "required": false,
+          "array": false
+        }
+      ],
+      "indexes": [
+        {
+          "key": "syndicate_id",
+          "type": "key",
+          "attributes": [
+            "syndicate_id"
+          ]
+        }
+      ]
+    },
+    {
+      "$id": "micro_app_modules",
+      "databaseId": "sovereign",
+      "name": "Micro App Modules",
+      "enabled": true,
+      "rowSecurity": false,
+      "$permissions": [],
+      "columns": [
+        {
+          "key": "syndicate_id",
+          "type": "varchar",
+          "required": true,
+          "array": false,
+          "size": 255
+        },
+        {
+          "key": "name",
+          "type": "varchar",
+          "required": false,
+          "array": false,
+          "size": 255
+        },
+        {
+          "key": "position",
+          "type": "text",
+          "required": false,
+          "array": false,
+          "size": 2048
+        },
+        {
+          "key": "jacks",
+          "type": "text",
+          "required": false,
+          "array": false,
+          "size": 32768
+        },
+        {
+          "key": "data",
+          "type": "text",
+          "required": false,
+          "array": false,
+          "size": 32768
+        }
+      ],
+      "indexes": [
+        {
+          "key": "syndicate_id",
+          "type": "key",
+          "attributes": [
+            "syndicate_id"
+          ]
+        }
+      ]
+    },
+    {
+      "$id": "micro_app_patches",
+      "databaseId": "sovereign",
+      "name": "Micro App Patches",
+      "enabled": true,
+      "rowSecurity": false,
+      "$permissions": [],
+      "columns": [
+        {
+          "key": "syndicate_id",
+          "type": "varchar",
+          "required": true,
+          "array": false,
+          "size": 255
+        },
+        {
+          "key": "start_jack",
+          "type": "text",
+          "required": false,
+          "array": false,
+          "size": 2048
+        },
+        {
+          "key": "end_jack",
+          "type": "text",
+          "required": false,
+          "array": false,
+          "size": 2048
+        }
+      ],
+      "indexes": [
+        {
+          "key": "syndicate_id",
+          "type": "key",
+          "attributes": [
+            "syndicate_id"
+          ]
+        }
+      ]
+    },
+    {
+      "$id": "micro_app_drafts",
+      "databaseId": "sovereign",
+      "name": "Micro App Drafts",
+      "enabled": true,
+      "rowSecurity": false,
+      "$permissions": [],
+      "columns": [
+        {
+          "key": "syndicate_id",
+          "type": "varchar",
+          "required": true,
+          "array": false,
+          "size": 255
+        },
+        {
+          "key": "name",
+          "type": "varchar",
+          "required": false,
+          "array": false,
+          "size": 255
+        },
+        {
+          "key": "code",
+          "type": "text",
+          "required": false,
+          "array": false,
+          "size": 32768
+        }
+      ],
+      "indexes": [
+        {
+          "key": "syndicate_id",
+          "type": "key",
+          "attributes": [
+            "syndicate_id"
+          ]
+        }
+      ]
+    },
+    {
+      "$id": "published_micro_apps",
+      "databaseId": "sovereign",
+      "name": "Published Micro Apps",
+      "enabled": true,
+      "rowSecurity": false,
+      "$permissions": [],
+      "columns": [
+        {
+          "key": "syndicate_id",
+          "type": "varchar",
+          "required": true,
+          "array": false,
+          "size": 255
+        },
+        {
+          "key": "name",
+          "type": "varchar",
+          "required": false,
+          "array": false,
+          "size": 255
+        },
+        {
+          "key": "description",
+          "type": "text",
+          "required": false,
+          "array": false,
+          "size": 8192
+        },
+        {
+          "key": "inputs",
+          "type": "text",
+          "required": false,
+          "array": false,
+          "size": 32768
+        },
+        {
+          "key": "outputs",
+          "type": "text",
+          "required": false,
+          "array": false,
+          "size": 32768
+        },
+        {
+          "key": "modules",
+          "type": "text",
+          "required": false,
+          "array": false,
+          "size": 32768
+        },
+        {
+          "key": "patches",
+          "type": "text",
+          "required": false,
+          "array": false,
+          "size": 32768
+        },
+        {
+          "key": "timestamp",
+          "type": "integer",
+          "required": false,
+          "array": false
+        }
+      ],
+      "indexes": [
+        {
+          "key": "syndicate_id",
+          "type": "key",
+          "attributes": [
+            "syndicate_id"
+          ]
+        }
+      ]
+    },
+    {
+      "$id": "operations_tasks",
+      "databaseId": "sovereign",
+      "name": "Operations Tasks",
+      "enabled": true,
+      "rowSecurity": false,
+      "$permissions": [],
+      "columns": [
+        {
+          "key": "syndicate_id",
+          "type": "varchar",
+          "required": true,
+          "array": false,
+          "size": 255
+        },
+        {
+          "key": "title",
+          "type": "varchar",
+          "required": false,
+          "array": false,
+          "size": 255
+        },
+        {
+          "key": "status",
+          "type": "varchar",
+          "required": false,
+          "array": false,
+          "size": 64
+        },
+        {
+          "key": "assignee",
+          "type": "varchar",
+          "required": false,
+          "array": false,
+          "size": 255
+        },
+        {
+          "key": "assignee_type",
+          "type": "varchar",
+          "required": false,
+          "array": false,
+          "size": 64
+        },
+        {
+          "key": "due_date",
+          "type": "varchar",
+          "required": false,
+          "array": false,
+          "size": 64
+        },
+        {
+          "key": "priority",
+          "type": "varchar",
+          "required": false,
+          "array": false,
+          "size": 64
+        },
+        {
+          "key": "location",
+          "type": "varchar",
+          "required": false,
+          "array": false,
+          "size": 255
+        },
+        {
+          "key": "complexity",
+          "type": "integer",
+          "required": false,
+          "array": false
+        },
+        {
+          "key": "estimated_hours",
+          "type": "double",
+          "required": false,
+          "array": false
+        }
+      ],
+      "indexes": [
+        {
+          "key": "syndicate_id",
+          "type": "key",
+          "attributes": [
+            "syndicate_id"
+          ]
+        }
+      ]
+    },
+    {
+      "$id": "procurement_orders",
+      "databaseId": "sovereign",
+      "name": "Procurement Orders",
+      "enabled": true,
+      "rowSecurity": false,
+      "$permissions": [],
+      "columns": [
+        {
+          "key": "syndicate_id",
+          "type": "varchar",
+          "required": true,
+          "array": false,
+          "size": 255
+        },
+        {
+          "key": "po_number",
+          "type": "varchar",
+          "required": false,
+          "array": false,
+          "size": 255
+        },
+        {
+          "key": "vendor",
+          "type": "varchar",
+          "required": false,
+          "array": false,
+          "size": 255
+        },
+        {
+          "key": "amount",
+          "type": "double",
+          "required": false,
+          "array": false
+        },
+        {
+          "key": "status",
+          "type": "varchar",
+          "required": false,
+          "array": false,
+          "size": 64
+        },
+        {
+          "key": "created_date",
+          "type": "integer",
+          "required": false,
+          "array": false
+        }
+      ],
+      "indexes": [
+        {
+          "key": "syndicate_id",
+          "type": "key",
+          "attributes": [
+            "syndicate_id"
+          ]
+        }
+      ]
+    },
+    {
+      "$id": "access_keys",
+      "databaseId": "sovereign",
+      "name": "Access Keys",
+      "enabled": true,
+      "rowSecurity": false,
+      "$permissions": [],
+      "columns": [
+        {
+          "key": "syndicate_id",
+          "type": "varchar",
+          "required": true,
+          "array": false,
+          "size": 255
+        },
+        {
+          "key": "name",
+          "type": "varchar",
+          "required": false,
+          "array": false,
+          "size": 255
+        },
+        {
+          "key": "prefix",
+          "type": "varchar",
+          "required": false,
+          "array": false,
+          "size": 64
+        },
+        {
+          "key": "scope",
+          "type": "varchar",
+          "required": false,
+          "array": false,
+          "size": 64
+        },
+        {
+          "key": "created_at",
+          "type": "datetime",
+          "required": false,
+          "array": false
+        },
+        {
+          "key": "last_used_at",
+          "type": "datetime",
+          "required": false,
+          "array": false
+        }
+      ],
+      "indexes": [
+        {
+          "key": "syndicate_id",
+          "type": "key",
+          "attributes": [
+            "syndicate_id"
+          ]
+        }
+      ]
+    },
+    {
+      "$id": "syndicate_integrations",
+      "databaseId": "sovereign",
+      "name": "Syndicate Integrations",
+      "enabled": true,
+      "rowSecurity": false,
+      "$permissions": [],
+      "columns": [
+        {
+          "key": "syndicate_id",
+          "type": "varchar",
+          "required": true,
+          "array": false,
+          "size": 255
+        },
+        {
+          "key": "service_name",
+          "type": "varchar",
+          "required": false,
+          "array": false,
+          "size": 255
+        },
+        {
+          "key": "config",
+          "type": "text",
+          "required": false,
+          "array": false,
+          "size": 32768
+        },
+        {
+          "key": "enabled",
+          "type": "boolean",
+          "required": false,
+          "array": false
+        },
+        {
+          "key": "created_at",
+          "type": "datetime",
+          "required": false,
+          "array": false
+        }
+      ],
+      "indexes": [
+        {
+          "key": "syndicate_id",
+          "type": "key",
+          "attributes": [
+            "syndicate_id"
+          ]
+        }
+      ]
+    },
+    {
+      "$id": "notes",
+      "databaseId": "sovereign",
+      "name": "Notes",
+      "enabled": true,
+      "rowSecurity": false,
+      "$permissions": [],
+      "columns": [
+        {
+          "key": "syndicate_id",
+          "type": "varchar",
+          "required": true,
+          "array": false,
+          "size": 255
+        },
+        {
+          "key": "title",
+          "type": "varchar",
+          "required": false,
+          "array": false,
+          "size": 255
+        },
+        {
+          "key": "content",
+          "type": "text",
+          "required": false,
+          "array": false,
+          "size": 32768
+        },
+        {
+          "key": "category",
+          "type": "varchar",
+          "required": false,
+          "array": false,
+          "size": 64
+        },
+        {
+          "key": "tags",
+          "type": "text",
+          "required": false,
+          "array": false,
+          "size": 8192
+        },
+        {
+          "key": "status",
+          "type": "varchar",
+          "required": false,
+          "array": false,
+          "size": 64
+        },
+        {
+          "key": "updated_at",
+          "type": "datetime",
+          "required": false,
+          "array": false
+        }
+      ],
+      "indexes": [
+        {
+          "key": "syndicate_id",
+          "type": "key",
+          "attributes": [
+            "syndicate_id"
+          ]
+        }
+      ]
+    },
+    {
+      "$id": "chat_messages",
+      "databaseId": "sovereign",
+      "name": "Chat Messages",
+      "enabled": true,
+      "rowSecurity": false,
+      "$permissions": [],
+      "columns": [
+        {
+          "key": "syndicate_id",
+          "type": "varchar",
+          "required": true,
+          "array": false,
+          "size": 255
+        },
+        {
+          "key": "user_id",
+          "type": "varchar",
+          "required": false,
+          "array": false,
+          "size": 255
+        },
+        {
+          "key": "message",
+          "type": "text",
+          "required": false,
+          "array": false,
+          "size": 32768
+        },
+        {
+          "key": "source",
+          "type": "varchar",
+          "required": false,
+          "array": false,
+          "size": 64
+        },
+        {
+          "key": "created_at",
+          "type": "datetime",
+          "required": false,
+          "array": false
+        }
+      ],
+      "indexes": [
+        {
+          "key": "syndicate_id",
+          "type": "key",
+          "attributes": [
+            "syndicate_id"
+          ]
+        }
+      ]
+    },
+    {
+      "$id": "secrets",
+      "databaseId": "sovereign",
+      "name": "Secrets",
+      "enabled": true,
+      "rowSecurity": false,
+      "$permissions": [],
+      "columns": [
+        {
+          "key": "syndicate_id",
+          "type": "varchar",
+          "required": true,
+          "array": false,
+          "size": 255
+        },
+        {
+          "key": "key",
+          "type": "varchar",
+          "required": false,
+          "array": false,
+          "size": 255
+        },
+        {
+          "key": "value",
+          "type": "text",
+          "required": false,
+          "array": false,
+          "size": 32768
+        },
+        {
+          "key": "created_at",
+          "type": "datetime",
+          "required": false,
+          "array": false
+        }
+      ],
+      "indexes": [
+        {
+          "key": "syndicate_id",
+          "type": "key",
+          "attributes": [
+            "syndicate_id"
+          ]
+        }
+      ]
+    },
+    {
+      "$id": "agentcreds",
+      "databaseId": "sovereign",
+      "name": "Agent Credentials",
+      "enabled": true,
+      "rowSecurity": false,
+      "$permissions": [],
+      "columns": [
+        {
+          "key": "syndicate_id",
+          "type": "varchar",
+          "required": true,
+          "array": false,
+          "size": 255
+        },
+        {
+          "key": "agent_id",
+          "type": "varchar",
+          "required": false,
+          "array": false,
+          "size": 255
+        },
+        {
+          "key": "credentials",
+          "type": "text",
+          "required": false,
+          "array": false,
+          "size": 32768
+        },
+        {
+          "key": "created_at",
+          "type": "datetime",
+          "required": false,
+          "array": false
+        }
+      ],
+      "indexes": [
+        {
+          "key": "syndicate_id",
+          "type": "key",
+          "attributes": [
+            "syndicate_id"
+          ]
+        }
+      ]
+    },
+    {
+      "$id": "email_marketing_lab",
+      "databaseId": "sovereign",
+      "name": "Email Marketing Lab",
+      "enabled": true,
+      "rowSecurity": false,
+      "$permissions": [],
+      "columns": [
+        {
+          "key": "syndicate_id",
+          "type": "varchar",
+          "required": true,
+          "array": false,
+          "size": 255
+        },
+        {
+          "key": "template_json",
+          "type": "text",
+          "required": false,
+          "array": false,
+          "size": 32768
+        },
+        {
+          "key": "segments_json",
+          "type": "text",
+          "required": false,
+          "array": false,
+          "size": 32768
+        },
+        {
+          "key": "schedules_json",
+          "type": "text",
+          "required": false,
+          "array": false,
+          "size": 32768
+        },
+        {
+          "key": "updated_at",
+          "type": "datetime",
+          "required": false,
+          "array": false
+        }
+      ],
+      "indexes": [
+        {
+          "key": "syndicate_id",
+          "type": "key",
+          "attributes": [
+            "syndicate_id"
+          ]
+        }
+      ]
     }
   ]
 }

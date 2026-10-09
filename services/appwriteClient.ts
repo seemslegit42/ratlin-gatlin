@@ -97,9 +97,66 @@ if (!appwriteEndpoint || !appwriteProjectId) {
 export const account = new Account(client);
 
 /**
+ * Strips Appwrite system attributes ($id, $createdAt, etc.) and custom 'id'
+ * attribute from document payloads. Appwrite reserves '$id' for system IDs
+ * and throws "AppwriteException: Invalid document structure: Unknown attribute: id"
+ * if a document payload includes an 'id' attribute that is not defined in the collection schema.
+ */
+export function sanitizeDocumentPayload<T>(data: T): T {
+  if (!data || typeof data !== 'object' || Array.isArray(data)) {
+    return data;
+  }
+  const sanitized: Record<string, any> = { ...(data as Record<string, any>) };
+  delete sanitized.id;
+  delete sanitized.$id;
+  delete sanitized.$createdAt;
+  delete sanitized.$updatedAt;
+  delete sanitized.$permissions;
+  delete sanitized.$databaseId;
+  delete sanitized.$collectionId;
+  return sanitized as T;
+}
+
+/**
  * Databases service for CRUD operations on collections/documents (Appwrite standard)
  */
 export const databases = new Databases(client);
+
+// Wrap databases.createDocument and updateDocument with automatic payload sanitization
+const originalCreateDocument = databases.createDocument.bind(databases);
+const originalUpdateDocument = databases.updateDocument.bind(databases);
+
+databases.createDocument = ((
+  databaseId: string,
+  collectionId: string,
+  documentId: string,
+  data: any,
+  permissions?: string[]
+) => {
+  return originalCreateDocument(
+    databaseId,
+    collectionId,
+    documentId,
+    sanitizeDocumentPayload(data),
+    permissions
+  );
+}) as any;
+
+databases.updateDocument = ((
+  databaseId: string,
+  collectionId: string,
+  documentId: string,
+  data: any,
+  permissions?: string[]
+) => {
+  return originalUpdateDocument(
+    databaseId,
+    collectionId,
+    documentId,
+    sanitizeDocumentPayload(data),
+    permissions
+  );
+}) as any;
 
 /**
  * Backward-compatible alias for databases service (formerly tablesDB)
@@ -108,9 +165,9 @@ export const tablesDB = {
   ...databases,
   createRow: (databaseId: string, collectionId: string, documentIdOrData: any, dataOrPermissions?: any, permissions?: string[]) => {
     if (typeof documentIdOrData === 'string' && (typeof dataOrPermissions === 'object' || dataOrPermissions === undefined)) {
-      return databases.createDocument(databaseId, collectionId, documentIdOrData, dataOrPermissions, permissions);
+      return databases.createDocument(databaseId, collectionId, documentIdOrData, sanitizeDocumentPayload(dataOrPermissions), permissions);
     } else {
-      return databases.createDocument(databaseId, collectionId, 'unique()', documentIdOrData, dataOrPermissions);
+      return databases.createDocument(databaseId, collectionId, 'unique()', sanitizeDocumentPayload(documentIdOrData), dataOrPermissions);
     }
   },
   getRow: (databaseId: string, collectionId: string, documentId: string) => 
@@ -124,7 +181,7 @@ export const tablesDB = {
     };
   },
   updateRow: (databaseId: string, collectionId: string, documentId: string, data: any, permissions?: string[]) => 
-    databases.updateDocument(databaseId, collectionId, documentId, data, permissions),
+    databases.updateDocument(databaseId, collectionId, documentId, sanitizeDocumentPayload(data), permissions),
   deleteRow: (databaseId: string, collectionId: string, documentId: string) => 
     databases.deleteDocument(databaseId, collectionId, documentId),
 };

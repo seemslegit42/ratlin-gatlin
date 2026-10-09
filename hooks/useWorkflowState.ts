@@ -189,15 +189,20 @@ export const useWorkflowState = (
               const seed = generateSeedState(syndicateId);
               setAgents(seed.agents);
               setConnections(seed.connections);
-              for (const a of Object.values(seed.agents)) { await tablesDB.createRow(DATABASE_ID, TABLES.AGENTS, a.id, mapAgentToDB(a)); }
-              for (const c of seed.connections) { await tablesDB.createRow(DATABASE_ID, TABLES.CONNECTIONS, c.id, { 
-                  id: c.id, 
-                  syndicate_id: c.syndicateId, 
-                  from_agent_id: c.from.agentId, 
-                  from_port_id: c.from.portId, 
-                  to_agent_id: c.to.agentId, 
-                  to_port_id: c.to.portId 
-              });}
+              try {
+                for (const a of Object.values(seed.agents)) { await tablesDB.createRow(DATABASE_ID, TABLES.AGENTS, a.id, mapAgentToDB(a)); }
+                for (const c of seed.connections) { 
+                  await tablesDB.createRow(DATABASE_ID, TABLES.CONNECTIONS, c.id, { 
+                    syndicate_id: c.syndicateId, 
+                    from_agent_id: c.from.agentId, 
+                    from_port_id: c.from.portId, 
+                    to_agent_id: c.to.agentId, 
+                    to_port_id: c.to.portId 
+                  });
+                }
+              } catch (seedErr) {
+                console.warn("[WORKFLOW] Seed state DB write caught:", seedErr);
+              }
           }
           isLoaded.current = true;
       }
@@ -492,27 +497,31 @@ export const useWorkflowState = (
 
           const agentsToInsert = Object.values(snapshot.agents || {}).map(mapAgentToDB);
           const connectionsToInsert = (snapshot.connections || []).map(c => ({
-              id: c.id,
-              syndicate_id: c.syndicateId, // Using correct property for DB insertion
-              from_agent_id: c.from.agentId,
-              from_port_id: c.from.portId,
-              to_agent_id: c.to.agentId,
-              to_port_id: c.to.portId,
-              created_at: new Date().toISOString()
+              connId: c.id,
+              payload: {
+                syndicate_id: c.syndicateId,
+                from_agent_id: c.from.agentId,
+                from_port_id: c.from.portId,
+                to_agent_id: c.to.agentId,
+                to_port_id: c.to.portId,
+                created_at: new Date().toISOString()
+              }
           }));
           const crewsToInsert = Object.values(snapshot.crews || {}).map((c: Crew) => ({
-              id: c.id,
-              syndicate_id: c.syndicateId, // Using correct property for DB insertion
-              name: c.name,
-              description: c.description,
-              agent_ids: c.agentIds,
-              color: c.color,
-              created_at: new Date().toISOString()
+              crewId: c.id,
+              payload: {
+                syndicate_id: c.syndicateId,
+                name: c.name,
+                description: c.description,
+                agent_ids: c.agentIds,
+                color: c.color,
+                created_at: new Date().toISOString()
+              }
           }));
 
           for (const a of agentsToInsert) { await tablesDB.createRow(DATABASE_ID, TABLES.AGENTS, (a as any).id, a); }
-          for (const c of connectionsToInsert) { await tablesDB.createRow(DATABASE_ID, TABLES.CONNECTIONS, (c as any).id, c); }
-          for (const c of crewsToInsert) { await tablesDB.createRow(DATABASE_ID, TABLES.CREWS, (c as any).id, c); }
+          for (const c of connectionsToInsert) { await tablesDB.createRow(DATABASE_ID, TABLES.CONNECTIONS, c.connId, c.payload); }
+          for (const c of crewsToInsert) { await tablesDB.createRow(DATABASE_ID, TABLES.CREWS, c.crewId, c.payload); }
 
           // 5. Set State (in case subscription is slow)
           setAgents(snapshot.agents || {});

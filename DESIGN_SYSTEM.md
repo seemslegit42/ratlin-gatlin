@@ -45,3 +45,4 @@ Icons are treated as carved glyphs.
 *   **The Cockpit (C-HUD)**: Fixed, immersive overlay. The user is a pilot.
 *   **The Canvas (Weaver)**: Infinite, pannable space. Represents the "Void" of creation.
 *   **The Obelisk**: A central anchor point in dashboards, representing accumulated value.
+*   **High-Density Layout**: Spacing-optimized design paradigm for maximum information density in dashboards and views, ensuring compliance with 44px touch target minimums.

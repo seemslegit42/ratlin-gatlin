@@ -25,6 +25,12 @@ import Minimap from '../../../components/weaver/Minimap';
 import CollaborationPanel from '../../../components/CollaborationPanel';
 import WorkflowKanban from '../../../components/weaver/WorkflowKanban';
 import { AgentStatus } from '../../../types';
+import EmptyState from '../../../components/EmptyState.js';
+import CrewActionPanel from '../../../components/weaver/CrewActionPanel.js';
+import CrewCreatorPanel from '../../../components/weaver/CrewCreatorPanel.js';
+import Palette from '../../../components/weaver/Palette.js';
+import ContextualAgentPalette from '../../../components/weaver/ContextualAgentPalette.js';
+import { AgentType, type AgentSuggestion } from '../../../types.js';
 
 interface DesktopLayoutProps {
     canvasRef: React.RefObject<HTMLDivElement>;
@@ -82,6 +88,13 @@ export const DesktopLayout: React.FC<DesktopLayoutProps> = ({
     versions, onSaveVersion, onRestoreVersion, onDeleteVersion, onOpenCreator, onContextMenu, tutorial,
     collaborationProps
 }) => {
+    const [contextualMenu, setContextualMenu] = React.useState<{ x: number; y: number } | null>(null);
+    const defaultSuggestions: AgentSuggestion[] = React.useMemo(() => [
+        { type: AgentType.CognitiveCore, name: 'Cognitive Core', description: 'Central reasoning and LLM analysis' },
+        { type: AgentType.Condition, name: 'Logic Gate', description: 'Conditional branch evaluator' },
+        { type: AgentType.DataTransformer, name: 'Transformer', description: 'Format and reshape structured payload' },
+        { type: AgentType.Output, name: 'Data Output', description: 'Terminal dispatch and persistence' },
+    ], []);
     
     const handleLibraryDragStart = (e: React.DragEvent, type: any, template: any) => {
         const dragData = template ? { type, template } : { type };
@@ -329,6 +342,61 @@ export const DesktopLayout: React.FC<DesktopLayoutProps> = ({
                     {tutorial && tutorial.isActive && tutorial.currentStep && <TutorialHint {...tutorial} />}
                 </AnimatePresence>
 
+                {/* Empty Canvas Call-To-Action */}
+                {Object.keys(canvasProps.agents).length === 0 && (
+                    <EmptyState onAddAgent={actions.handleQuickAdd} onDismiss={() => {}} />
+                )}
+
+                {/* Crew Selection Floating Control Bar */}
+                {uiState.isCrewMode && (
+                    <CrewActionPanel
+                        selectedCount={uiState.selectedAgentIdsForCrew?.length || 0}
+                        onCreateCrew={() => uiState.setIsCrewCreatorOpen(true)}
+                        onExitCrewMode={() => uiState.handleToggleCrewMode()}
+                        onDeleteSelected={() => {
+                            (uiState.selectedAgentIdsForCrew || []).forEach((id: string) => actions.deleteAgent(id));
+                            uiState.setSelectedAgentIdsForCrew([]);
+                        }}
+                        onUpdateStatus={(status: AgentStatus) => {
+                            (uiState.selectedAgentIdsForCrew || []).forEach((id: string) => actions.updateAgent(id, { status }));
+                        }}
+                        onSaveAsTemplate={(name: string) => {
+                            const firstId = uiState.selectedAgentIdsForCrew?.[0];
+                            if (firstId && canvasProps.agents[firstId]) {
+                                actions.saveAgentAsTemplate(canvasProps.agents[firstId], name);
+                            }
+                        }}
+                        onRunSelection={() => {
+                            (uiState.selectedAgentIdsForCrew || []).forEach((id: string) => actions.runAgent(id));
+                        }}
+                    />
+                )}
+
+                {/* Radial/Grid Quick Node Palette */}
+                {uiState.quickAddMenu && (
+                    <Palette
+                        position={uiState.quickAddMenu}
+                        onAddAgent={(type) => {
+                            actions.handleQuickAdd(type);
+                            uiState.setQuickAddMenu(null);
+                        }}
+                        onClose={() => uiState.setQuickAddMenu(null)}
+                    />
+                )}
+
+                {/* Contextual Agent Palette (Architect's Apprentice) */}
+                {contextualMenu && (
+                    <ContextualAgentPalette
+                        suggestions={defaultSuggestions}
+                        position={contextualMenu}
+                        onSelect={(suggestion) => {
+                            actions.handleQuickAdd(suggestion.type);
+                            setContextualMenu(null);
+                        }}
+                        onClose={() => setContextualMenu(null)}
+                    />
+                )}
+
                 {/* MODALS */}
                 <AnimatePresence>
                     {uiState.isSaveVersionModalOpen && (
@@ -339,6 +407,18 @@ export const DesktopLayout: React.FC<DesktopLayoutProps> = ({
                         />
                     )}
                 </AnimatePresence>
+
+                <CrewCreatorPanel
+                    isOpen={uiState.isCrewCreatorOpen}
+                    onClose={() => uiState.setIsCrewCreatorOpen(false)}
+                    selectedAgentIds={uiState.selectedAgentIdsForCrew || []}
+                    agents={canvasProps.agents}
+                    onSaveCrew={(crew) => {
+                        if (actions.addCrew) actions.addCrew(crew);
+                        uiState.setIsCrewCreatorOpen(false);
+                    }}
+                    currentUser={currentUser}
+                />
                 </>)}
             </div>
 

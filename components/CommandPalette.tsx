@@ -8,6 +8,8 @@
 
 import React, { useState, useEffect, useCallback, useRef, memo } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
+import { KeyboardIcon } from './icons/KeyboardIcon.js';
+import { StarIcon } from './icons/StarIcon.js';
 
 /**
  * Interface for a single command item in the palette.
@@ -233,6 +235,19 @@ const CommandPalette: React.FC<CommandPaletteProps> = memo(({ isOpen, onClose, c
               ) : (
                 <p className="text-center p-8 text-text-secondary">No commands found.</p>
               )}
+            </div>
+
+            {/* Keyboard Shortcuts Footer */}
+            <div className="p-2.5 px-4 bg-black/40 border-t border-glass-border flex items-center justify-between text-xs text-text-tertiary select-none">
+              <div className="flex items-center gap-2">
+                <KeyboardIcon className="w-4 h-4 text-roman-aqua" />
+                <span>Navigate <kbd className="px-1.5 py-0.5 rounded bg-white/10 font-mono text-[10px] text-white">↑</kbd> <kbd className="px-1.5 py-0.5 rounded bg-white/10 font-mono text-[10px] text-white">↓</kbd></span>
+              </div>
+              <div className="flex items-center gap-3">
+                <span className="flex items-center gap-1"><StarIcon className="w-3.5 h-3.5 text-yellow-400" /> Quick Action</span>
+                <span>Select <kbd className="px-1.5 py-0.5 rounded bg-white/10 font-mono text-[10px] text-white">↵</kbd></span>
+                <span>Close <kbd className="px-1.5 py-0.5 rounded bg-white/10 font-mono text-[10px] text-white">esc</kbd></span>
+              </div>
             </div>
           </motion.div>
         </motion.div>

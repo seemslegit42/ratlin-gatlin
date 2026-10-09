@@ -519,7 +519,7 @@ async function listExistingTables(tablesDB: any): Promise<Set<string>> {
     });
     const tables = res?.tables || [];
     for (const t of tables) out.add(t.$id);
-    if (collections.length < limit) break;
+    if (tables.length < limit) break;
     offset += limit;
   }
   return out;
@@ -577,6 +577,10 @@ async function createStringColumnWithFallback(
 async function ensureColumn(tablesDB: any, tableId: string, col: ColumnSpec) {
   switch (col.type) {
     case 'string':
+    case 'varchar':
+    case 'text':
+    case 'mediumtext':
+    case 'longtext':
       await createStringColumnWithFallback(tablesDB, tableId, col);
       return;
     case 'integer':
@@ -584,19 +588,44 @@ async function ensureColumn(tablesDB: any, tableId: string, col: ColumnSpec) {
         databaseId: DATABASE_ID,
         tableId,
         key: col.key,
-        required: false,
+        required: col.required ?? false,
         min: null,
         max: null,
         default: null,
         array: !!col.array,
       });
       return;
+    case 'bigint':
+      if (typeof tablesDB.createBigintColumn === 'function') {
+        await tablesDB.createBigintColumn({
+          databaseId: DATABASE_ID,
+          tableId,
+          key: col.key,
+          required: col.required ?? false,
+          min: null,
+          max: null,
+          default: null,
+          array: !!col.array,
+        });
+      } else {
+        await tablesDB.createIntegerColumn({
+          databaseId: DATABASE_ID,
+          tableId,
+          key: col.key,
+          required: col.required ?? false,
+          min: null,
+          max: null,
+          default: null,
+          array: !!col.array,
+        });
+      }
+      return;
     case 'float':
       await tablesDB.createFloatColumn({
         databaseId: DATABASE_ID,
         tableId,
         key: col.key,
-        required: false,
+        required: col.required ?? false,
         min: null,
         max: null,
         default: null,
@@ -608,7 +637,7 @@ async function ensureColumn(tablesDB: any, tableId: string, col: ColumnSpec) {
         databaseId: DATABASE_ID,
         tableId,
         key: col.key,
-        required: false,
+        required: col.required ?? false,
         default: false,
         array: !!col.array,
       });
@@ -618,7 +647,7 @@ async function ensureColumn(tablesDB: any, tableId: string, col: ColumnSpec) {
         databaseId: DATABASE_ID,
         tableId,
         key: col.key,
-        required: false,
+        required: col.required ?? false,
         default: '',
         array: !!col.array,
       });
@@ -628,13 +657,56 @@ async function ensureColumn(tablesDB: any, tableId: string, col: ColumnSpec) {
         databaseId: DATABASE_ID,
         tableId,
         key: col.key,
-        required: false,
+        required: col.required ?? false,
         default: 'https://example.com',
         array: !!col.array,
       });
       return;
+    case 'email':
+      if (typeof tablesDB.createEmailColumn === 'function') {
+        await tablesDB.createEmailColumn({
+          databaseId: DATABASE_ID,
+          tableId,
+          key: col.key,
+          required: col.required ?? false,
+          default: '',
+          array: !!col.array,
+        });
+      } else {
+        await createStringColumnWithFallback(tablesDB, tableId, col);
+      }
+      return;
+    case 'ip':
+      if (typeof tablesDB.createIpColumn === 'function') {
+        await tablesDB.createIpColumn({
+          databaseId: DATABASE_ID,
+          tableId,
+          key: col.key,
+          required: col.required ?? false,
+          default: '',
+          array: !!col.array,
+        });
+      } else {
+        await createStringColumnWithFallback(tablesDB, tableId, col);
+      }
+      return;
+    case 'enum':
+      if (typeof tablesDB.createEnumColumn === 'function' && col.elements?.length) {
+        await tablesDB.createEnumColumn({
+          databaseId: DATABASE_ID,
+          tableId,
+          key: col.key,
+          elements: col.elements,
+          required: col.required ?? false,
+          array: !!col.array,
+        });
+      } else {
+        await createStringColumnWithFallback(tablesDB, tableId, col);
+      }
+      return;
     default:
-      throw new Error(`Unsupported column type: ${(col as any).type}`);
+      await createStringColumnWithFallback(tablesDB, tableId, col);
+      return;
   }
 }
 
@@ -742,7 +814,11 @@ async function setupBackend() {
   console.log('\n🎉 TablesDB provisioning complete.');
 }
 
-setupBackend().catch(err => {
-  console.error('❌ Setup failed:', err?.message || err);
-  process.exit(1);
-});
+if (import.meta.main) {
+  setupBackend().catch(err => {
+    console.error('❌ Setup failed:', err?.message || err);
+    process.exit(1);
+  });
+}
+
+export { TABLES_SCHEMA, DATABASE_ID, type TableSpec, type ColumnSpec };

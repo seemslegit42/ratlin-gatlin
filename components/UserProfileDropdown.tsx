@@ -11,6 +11,7 @@ import { CrownIcon } from './icons/CrownIcon.js';
 import { CogIcon } from './icons/AgentStatusIcons.js';
 import { LayersIcon } from './icons/LayersIcon.js';
 import { PowerIcon } from './icons/AgentStatusIcons.js';
+import { ExitIcon } from './icons/ExitIcon.js';
 
 interface UserProfileDropdownProps {
     currentUser: CurrentUser;
@@ -164,10 +165,11 @@ export const UserProfileDropdown: React.FC<UserProfileDropdownProps> = ({
                                 className="w-full px-4 py-3 flex items-center gap-3 text-red-400 hover:bg-red-500/10 transition-colors group"
                             >
                                 <PowerIcon className="w-4 h-4 text-red-400 group-hover:text-red-300 transition-colors flex-shrink-0" />
-                                <div className="text-left min-w-0">
+                                <div className="text-left min-w-0 flex-grow">
                                     <p className="text-sm font-semibold leading-none">Disconnect</p>
                                     <p className="text-[10px] text-red-400/60 mt-1">End session</p>
                                 </div>
+                                <ExitIcon className="w-3.5 h-3.5 text-red-400/70 group-hover:text-red-300 transition-colors flex-shrink-0" />
                             </motion.button>
                         </div>
 

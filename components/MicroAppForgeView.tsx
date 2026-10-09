@@ -20,6 +20,8 @@ import { LogicGraph } from './forge/LogicGraph';
 import { ZapIcon } from './icons/VitalsIcons';
 import { SaveIcon } from './icons/SaveIcon';
 import { generateMicroAppCode } from '../services/ollamaService'; 
+import MobileNav from './MobileNav';
+import { useBreakpoint } from '../hooks/useBreakpoint'; 
 
 interface MicroAppForgeViewProps {
     onNavigate: (view: View) => void;
@@ -35,7 +37,9 @@ const MicroAppForgeView: React.FC<MicroAppForgeViewProps> = ({ onNavigate, curre
     } = useMicroAppForgeState(currentUser.syndicateId, currentUser.id);
     
     // IDE State
+    const isMobile = useBreakpoint();
     const [activeTab, setActiveTab] = useState<ForgeTab>('code');
+    const [mobileTab, setMobileTab] = useState('canvas'); // 'canvas' | 'chat' | 'preview'
     const [prompt, setPrompt] = useState('');
     const [isGenerating, setIsGenerating] = useState(false);
     const [lastCompiled, setLastCompiled] = useState(Date.now());
@@ -121,13 +125,13 @@ const MicroAppForgeView: React.FC<MicroAppForgeViewProps> = ({ onNavigate, curre
             </div>
 
             {/* Main Workspace */}
-            <div className="flex-grow flex overflow-hidden relative z-10">
+            <div className="flex-grow flex flex-col md:flex-row overflow-hidden relative z-10">
                 
                 {/* Left Pane: Editor & Logic */}
-                <div className="w-1/2 flex flex-col border-r border-white/10 bg-black/20">
+                <div className={`${isMobile && mobileTab === 'preview' ? 'hidden' : 'flex'} w-full md:w-1/2 flex-col border-r border-white/10 bg-black/20 h-full`}>
                     
                     {/* The Spark Bar (AI Input) - Only visible in Code Mode */}
-                    {activeTab === 'code' && (
+                    {activeTab === 'code' && (!isMobile || mobileTab === 'chat' || mobileTab === 'canvas') && (
                         <div className="p-4 border-b border-white/10 bg-white/5">
                             <div className="relative group">
                                 <div className={`absolute inset-0 bg-gradient-to-r from-imperial-purple to-roman-aqua rounded-xl opacity-20 group-hover:opacity-40 transition-opacity blur-md ${isGenerating ? 'animate-pulse' : ''}`} />
@@ -170,7 +174,7 @@ const MicroAppForgeView: React.FC<MicroAppForgeViewProps> = ({ onNavigate, curre
                 </div>
 
                 {/* Right Pane: Live Preview (The Artifact) */}
-                <div className="w-1/2 flex flex-col bg-[#0a0a0c]">
+                <div className={`${isMobile && mobileTab !== 'preview' ? 'hidden' : 'flex'} w-full md:w-1/2 flex-col bg-[#0a0a0c] h-full`}>
                     <div className="h-8 bg-black border-b border-white/10 flex items-center px-4 justify-between">
                         <span className="text-[10px] font-bold text-text-tertiary uppercase tracking-widest">Live Artifact Preview</span>
                         <div className="flex gap-1.5">
@@ -179,11 +183,20 @@ const MicroAppForgeView: React.FC<MicroAppForgeViewProps> = ({ onNavigate, curre
                             <div className="w-2 h-2 rounded-full bg-green-500/50" />
                         </div>
                     </div>
-                    <div className="flex-grow p-8 flex items-center justify-center bg-[radial-gradient(circle_at_center,rgba(62,185,145,0.05)_0%,transparent_70%)]">
+                    <div className="flex-grow p-4 md:p-8 flex items-center justify-center bg-[radial-gradient(circle_at_center,rgba(62,185,145,0.05)_0%,transparent_70%)]">
                         <LivePreviewFrame code={activeCode} lastCompiled={lastCompiled} />
                     </div>
                 </div>
 
+            </div>
+
+            {/* Mobile Navigation Footer */}
+            <div className="md:hidden">
+                <MobileNav
+                    activeTab={mobileTab}
+                    onTabChange={setMobileTab}
+                    hasPreview={Boolean(activeCode)}
+                />
             </div>
         </div>
     );

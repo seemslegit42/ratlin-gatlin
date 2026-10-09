@@ -24,6 +24,12 @@ import { MetronomeWave } from '../../components/economy/MetronomeWave.js';
 import { calculateOutcome, ensurePulseProfile } from '../../services/klepsydraService.js';
 import { useNotifications } from '../../contexts/NotificationContext.js';
 import { LockIcon } from '../../components/icons/LockIcons.js';
+import COGSBreakdown from '../../components/economy/COGSBreakdown.js';
+import FollyInstrumentsWidget from '../../components/economy/FollyInstrumentsWidget.js';
+import { CEVMCalculator } from '../../components/economy/CEVMCalculator.js';
+import { PricingTiers } from '../../components/economy/PricingTiers.js';
+import PaymentModal from '../../components/payment/PaymentModal.js';
+import { fetchCOGSBreakdown } from '../../services/xiEconomyService.js';
 
 interface XiDashboardProps {
     onNavigate: (view: View) => void;
@@ -73,7 +79,10 @@ const XiDashboard: React.FC<XiDashboardProps> = ({ onNavigate }) => {
     const { currentUser, updateUser } = useAuth();
     const { addNotification } = useNotifications();
     const [flowData, setFlowData] = useState<XiFlowData | null>(null);
-    const [activeTab, setActiveTab] = useState<'treasury' | 'folly' | 'chaos' | 'governance'>('treasury');
+    const [activeTab, setActiveTab] = useState<'treasury' | 'pricing' | 'cevm' | 'folly' | 'chaos' | 'governance'>('treasury');
+    const [paymentModalState, setPaymentModalState] = useState<{ isOpen: boolean; plan: string; amount: number }>({
+        isOpen: false, plan: '', amount: 0
+    });
     const [isExecuting, setIsExecuting] = useState(false);
     const [sreParams, setSreParams] = useState<SREParams | null>(null);
 
@@ -137,12 +146,12 @@ const XiDashboard: React.FC<XiDashboardProps> = ({ onNavigate }) => {
         <div className="h-full w-full overflow-y-auto p-3 md:p-5 space-y-4 md:space-y-6 bg-obsidian-black relative selection:bg-patina-green/30 high-density">
             <div className="flex items-center justify-between">
                 <BackButton onClick={() => onNavigate('main')} label="Cockpit" />
-                <div className="flex p-1 bg-black/40 border border-white/10 rounded-xl backdrop-blur-xl">
-                    {(['treasury', 'folly', 'chaos', 'governance'] as const).map(tab => (
+                <div className="flex p-1 bg-black/40 border border-white/10 rounded-xl backdrop-blur-xl overflow-x-auto max-w-full">
+                    {(['treasury', 'pricing', 'cevm', 'folly', 'chaos', 'governance'] as const).map(tab => (
                         <button 
                             key={tab}
                             onClick={() => setActiveTab(tab)}
-                            className={`px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-[0.15em] transition-all relative ${
+                            className={`px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-[0.15em] transition-all relative whitespace-nowrap ${
                                 activeTab === tab ? 'text-white' : 'text-text-tertiary hover:text-white'
                             }`}
                         >
@@ -223,6 +232,44 @@ const XiDashboard: React.FC<XiDashboardProps> = ({ onNavigate }) => {
                                 <Obelisk lifetimeBurn={542000} />
                              </div>
                         </div>
+
+                        {/* Unit Cost Composition & Micro-App Forge Uplink */}
+                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 pt-4">
+                            <COGSBreakdown components={fetchCOGSBreakdown()} xiFloor={flowData.governance.baseRTR} />
+                            <FollyInstrumentsWidget onNavigate={onNavigate} />
+                        </div>
+                    </motion.div>
+                )}
+
+                {activeTab === 'pricing' && (
+                    <motion.div 
+                        key="pricing"
+                        initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}
+                        className="space-y-6"
+                    >
+                        <div className="p-6 bg-gradient-to-r from-imperial-purple/20 via-roman-aqua/10 to-patina-green/20 border border-white/5 rounded-3xl">
+                            <h3 className="text-2xl font-bold font-comfortaa text-white mb-2">CogniOps Tier Allocations</h3>
+                            <p className="text-sm text-text-secondary leading-relaxed max-w-3xl">
+                                Select your Syndicate's pact tier. Subscriptions empower autonomous swarm operations and unlock enhanced neural throughput.
+                            </p>
+                        </div>
+                        <PricingTiers onPurchase={(plan, amount) => setPaymentModalState({ isOpen: true, plan, amount })} />
+                    </motion.div>
+                )}
+
+                {activeTab === 'cevm' && (
+                    <motion.div 
+                        key="cevm"
+                        initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}
+                        className="space-y-6"
+                    >
+                        <div className="p-6 bg-gradient-to-r from-roman-aqua/20 via-imperial-purple/10 to-transparent border border-white/5 rounded-3xl">
+                            <h3 className="text-2xl font-bold font-comfortaa text-white mb-2">Cognitive Efficacy Value Model (CEVM)</h3>
+                            <p className="text-sm text-text-secondary leading-relaxed max-w-3xl">
+                                Simulate exponential value creation across autonomous agents: Revenue = V × N × E_CO(t) × (P × F) × G_Trust.
+                            </p>
+                        </div>
+                        <CEVMCalculator />
                     </motion.div>
                 )}
 
@@ -285,6 +332,18 @@ const XiDashboard: React.FC<XiDashboardProps> = ({ onNavigate }) => {
                     </motion.div>
                 )}
             </AnimatePresence>
+
+            {/* Sovereign Subscription Payment Portal */}
+            <PaymentModal
+                isOpen={paymentModalState.isOpen}
+                onClose={() => setPaymentModalState(prev => ({ ...prev, isOpen: false }))}
+                planName={paymentModalState.plan}
+                amount={paymentModalState.amount}
+                onSuccess={() => {
+                    addNotification(`Sovereign pact ascended to ${paymentModalState.plan}.`, "success");
+                    setPaymentModalState(prev => ({ ...prev, isOpen: false }));
+                }}
+            />
         </div>
     );
 };

@@ -44,6 +44,11 @@ import AiChatDock from './components/AiChatDock.js';
 import LiveTicker from './components/LiveTicker.js';
 import DraggableWidget from './components/dashboard/DraggableWidget.js';
 import CommandCenter from './components/shared/CommandCenter.js'; 
+import CommandCenterTrigger from './components/shared/CommandCenterTrigger.js';
+import SystemFooter from './components/shared/SystemFooter.js';
+import PerilousLegalStrip from './components/shared/PerilousLegalStrip.js';
+import WorkflowProgressBar from './components/WorkflowProgressBar.js';
+import AvatarStack from './components/AvatarStack.js'; 
 import GlobalMobileNav from './components/GlobalMobileNav.js'; 
 import AgentCreationModal from './components/weaver/AgentCreationModal.js';
 import CommandPalette, { type Command } from './components/CommandPalette.js';
@@ -75,6 +80,12 @@ import SwarmIntegrity from './components/vitalshud/SwarmIntegrity.js';
 import FinancialPulse from './components/vitalshud/FinancialPulse.js';
 import SystemResources from './components/vitalshud/SystemResources.js';
 import { DesktopWidgetType } from './types.js';
+import SyndicateOverview from './components/dashboard/SyndicateOverview.js';
+import Chronicle from './components/Chronicle.js';
+import AmbientController from './components/ambient/AmbientController.js';
+import ArmorySheet from './components/shared/ArmorySheet.js';
+import TenantLogin from './components/TenantLogin.js';
+import PageTransition from './components/shared/PageTransition.js';
 
 // Auth
 import Login from './modules/auth/Login.js';
@@ -172,6 +183,7 @@ const App: React.FC = () => {
   const [isCommandCenterOpen, setIsCommandCenterOpen] = useState(false);
   const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false);
   const [isGlobalCreatorOpen, setIsGlobalCreatorOpen] = useState(false);
+  const [isArmoryOpen, setIsArmoryOpen] = useState(false);
   const [isDemiurgeOpen, setIsDemiurgeOpen] = useState(false); 
   const [isTtsMuted, setIsTtsMuted] = useState(false);
   /** Pre-fill the BEEP ActionBar input via KPI ticker touch-to-fill (spec §2.1). */
@@ -286,6 +298,7 @@ const App: React.FC = () => {
         { id: 'nav-weaver', name: 'Weaver Studio', category: 'Navigation', icon: <LayersIcon className="w-4 h-4" />, action: () => handleNavigate('weaver') },
         { id: 'nav-help', name: 'Help Center', category: 'Navigation', icon: <BookIcon className="w-4 h-4" />, action: () => handleNavigate('help') },
         { id: 'nav-avf', name: 'Open AVF Command Deck', category: 'Navigation', icon: <ChartBarIcon className="w-4 h-4" />, action: () => handleNavigate('avf') },
+        { id: 'open-armory', name: 'Open Armory Protocol', category: 'Archetypes', icon: <CrownIcon className="w-4 h-4" />, action: () => setIsArmoryOpen(true) },
         // ... (existing commands)
         { id: 'run-swarm', name: 'Execute Swarm', category: 'Operations', icon: <PlayIcon className="w-4 h-4" />, action: () => void runAllAgents() },
         { id: 'sim-folly', name: 'Simulate Folly Detection', category: 'Debug', icon: <ZapIcon className="w-4 h-4" />, action: () => triggerFollyInterdiction() },
@@ -344,6 +357,7 @@ const App: React.FC = () => {
   if (!currentUser) return (
     <Routes>
         <Route path="/verify" element={<EmailVerification />} />
+        <Route path="/tenant-login" element={<TenantLogin />} />
         <Route path="*" element={<Login />} />
     </Routes>
   );
@@ -352,6 +366,7 @@ const App: React.FC = () => {
     <div className={`app-shell h-screen w-screen overflow-hidden text-text-primary font-lexend high-density ${settings.theme === 'light' ? 'bg-white' : 'bg-obsidian-black'}`}>
       <Background />
       <DiegeticOverlay />
+      <AmbientController />
       <ChaosLayer effects={activeEffects} />
       
       {/* --- RITES LAYER --- */}
@@ -384,6 +399,7 @@ const App: React.FC = () => {
         agents={workflowState.agents}
         economyData={economyData}
         klepsydra={klepsydra}
+        users={workflowState.users}
       />
 
       {/* Mobile bottom padding: nav (5rem) + safe-area + dock peek composer (~4.5rem) */}
@@ -409,6 +425,23 @@ const App: React.FC = () => {
                               economyData={economyData}
                               pipeline={crmState.pipeline}
                               crmActivities={crmState.activities}
+                              messages={messages}
+                              isProcessing={isProcessing}
+                              isLive={isLive}
+                              isSpeaking={isSpeaking}
+                              volume={volume}
+                              isTtsMuted={isTtsMuted}
+                              onToggleTtsMute={() => setIsTtsMuted((prev) => !prev)}
+                              onSendCommand={(cmd, attach) => {
+                                setBeepPrefill(undefined);
+                                void processStreamingCommand(cmd, currentView, attach);
+                              }}
+                              onToggleLive={isLive ? stopLiveSession : startLiveSession}
+                              onOpenAgentCreator={() => setIsGlobalCreatorOpen(true)}
+                              onSpawnWidget={handleSpawnWidget}
+                              onOpenCommandCenter={() => setIsCommandCenterOpen(true)}
+                              onStopGeneration={cancelActiveGeneration}
+                              beepPrefill={beepPrefill}
                             />
                         ) : (
                             <Weaver 
@@ -449,41 +482,45 @@ const App: React.FC = () => {
                           updateAgent={workflowState.updateAgent} 
                       />
                   } />
-                  <Route path="/vault" element={<VaultView onNavigate={handleNavigate} />} />
-                  <Route path="/registry" element={<RegistryView onNavigate={handleNavigate} />} />
-                  <Route path="/microAppForge" element={<MicroAppForgeView onNavigate={handleNavigate} currentUser={currentUser} />} />
-                  <Route path="/economy" element={<XiDashboard onNavigate={handleNavigate} />} />
-                  <Route path="/avf" element={<AVFView onNavigate={handleNavigate} />} />
-                  <Route path="/finance" element={<FinanceView onNavigate={handleNavigate} />} />
-                  <Route path="/crm" element={<CRMView onNavigate={handleNavigate} {...crmState} />} />
+                  <Route path="/vault" element={<PageTransition><VaultView onNavigate={handleNavigate} /></PageTransition>} />
+                  <Route path="/registry" element={<PageTransition><RegistryView onNavigate={handleNavigate} /></PageTransition>} />
+                  <Route path="/microAppForge" element={<PageTransition><MicroAppForgeView onNavigate={handleNavigate} currentUser={currentUser} /></PageTransition>} />
+                  <Route path="/economy" element={<PageTransition><XiDashboard onNavigate={handleNavigate} /></PageTransition>} />
+                  <Route path="/avf" element={<PageTransition><AVFView onNavigate={handleNavigate} /></PageTransition>} />
+                  <Route path="/finance" element={<PageTransition><FinanceView onNavigate={handleNavigate} /></PageTransition>} />
+                  <Route path="/crm" element={<PageTransition><CRMView onNavigate={handleNavigate} {...crmState} /></PageTransition>} />
                   <Route path="/operations" element={
-                      <OperationsView
-                          onNavigate={handleNavigate}
-                          tasks={operationsState.tasks}
-                          onUpdateTask={operationsState.updateTask}
-                          onDeleteTask={operationsState.deleteTask}
-                          agents={workflowState.agents}
-                      />
+                      <PageTransition>
+                        <OperationsView
+                            onNavigate={handleNavigate}
+                            tasks={operationsState.tasks}
+                            onUpdateTask={operationsState.updateTask}
+                            onDeleteTask={operationsState.deleteTask}
+                            agents={workflowState.agents}
+                        />
+                      </PageTransition>
                   } />
-                  <Route path="/procurement" element={<ProcurementView onNavigate={handleNavigate} {...procurementState} />} />
-                  <Route path="/security" element={<SecurityView onNavigate={handleNavigate} />} />
-                  <Route path="/admin" element={<AdminView onNavigate={handleNavigate} agents={workflowState.agents} connections={workflowState.connections} />} />
-                  <Route path="/codex" element={<NotepadView onNavigate={handleNavigate} {...codexState} />} />
-                  <Route path="/pantheon" element={<PantheonView onNavigate={handleNavigate} />} />
+                  <Route path="/procurement" element={<PageTransition><ProcurementView onNavigate={handleNavigate} {...procurementState} /></PageTransition>} />
+                  <Route path="/security" element={<PageTransition><SecurityView onNavigate={handleNavigate} /></PageTransition>} />
+                  <Route path="/admin" element={<PageTransition><AdminView onNavigate={handleNavigate} agents={workflowState.agents} connections={workflowState.connections} /></PageTransition>} />
+                  <Route path="/codex" element={<PageTransition><NotepadView onNavigate={handleNavigate} {...codexState} /></PageTransition>} />
+                  <Route path="/pantheon" element={<PageTransition><PantheonView onNavigate={handleNavigate} /></PageTransition>} />
                   <Route
                     path="/marketing"
                     element={
-                      <MarketingView
-                        onNavigate={handleNavigate}
-                        contacts={crmState.contacts}
-                        activities={crmState.activities}
-                        currentUserId={currentUser?.id}
-                      />
+                      <PageTransition>
+                        <MarketingView
+                          onNavigate={handleNavigate}
+                          contacts={crmState.contacts}
+                          activities={crmState.activities}
+                          currentUserId={currentUser?.id}
+                        />
+                      </PageTransition>
                     }
                   />
-                  <Route path="/hrm" element={<HRMView onNavigate={handleNavigate} agents={workflowState.agents} />} />
-                  <Route path="/production" element={<ProductionView onNavigate={handleNavigate} />} />
-                  <Route path="/help" element={<HelpView onNavigate={handleNavigate} />} />
+                  <Route path="/hrm" element={<PageTransition><HRMView onNavigate={handleNavigate} agents={workflowState.agents} /></PageTransition>} />
+                  <Route path="/production" element={<PageTransition><ProductionView onNavigate={handleNavigate} /></PageTransition>} />
+                  <Route path="/help" element={<PageTransition><HelpView onNavigate={handleNavigate} /></PageTransition>} />
                   
                   <Route path="*" element={<Navigate to="/" replace />} />
               </Routes>
@@ -505,6 +542,8 @@ const App: React.FC = () => {
                    {widget.type === DesktopWidgetType.SwarmIntegrity && <SwarmIntegrity agents={workflowState.agents} onNavigate={handleNavigate} />}
                    {widget.type === DesktopWidgetType.FinancialPulse && <FinancialPulse data={economyData} onNavigate={() => handleNavigate('economy')} />}
                    {widget.type === DesktopWidgetType.SystemResources && <SystemResources agents={workflowState.agents} />}
+                   {widget.type === DesktopWidgetType.SyndicateOverview && <SyndicateOverview onNavigate={handleNavigate} />}
+                   {widget.type === DesktopWidgetType.Chronicle && <Chronicle events={workflowState.chronicle || []} isMobile={false} dragConstraintsRef={{ current: document.body as unknown as HTMLDivElement }} />}
                </DraggableWidget>
            ))}
       </main>
@@ -568,6 +607,17 @@ const App: React.FC = () => {
       />
 
       <AnimatePresence>
+        {workflowState.isWorkflowExecuting && <WorkflowProgressBar />}
+      </AnimatePresence>
+
+      <SystemFooter />
+      <PerilousLegalStrip />
+
+      <div className="fixed bottom-24 right-6 z-40 hidden md:block">
+          <CommandCenterTrigger isOpen={isCommandCenterOpen} onClick={() => setIsCommandCenterOpen(true)} />
+      </div>
+
+      <AnimatePresence>
         {isSettingsOpen && (
           <SettingsPanel 
               settings={settings} 
@@ -595,6 +645,15 @@ const App: React.FC = () => {
           onClose={() => setIsGlobalCreatorOpen(false)} 
           onAddAgent={handleGlobalAddAgent} 
           templates={SYSTEM_TEMPLATES}
+      />
+
+      <ArmorySheet 
+          isOpen={isArmoryOpen} 
+          onClose={() => setIsArmoryOpen(false)} 
+          onSelectAgent={(type) => {
+            handleGlobalAddAgent(type);
+            setIsArmoryOpen(false);
+          }} 
       />
       
       <AnimatePresence>

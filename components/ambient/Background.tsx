@@ -11,10 +11,16 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
+import AuroraLayer from './AuroraLayer.js';
+import LeyLines from './LeyLines.js';
+import GlassOverlay from './GlassOverlay.js';
 
 const Background: React.FC = () => {
     return (
         <div className="fixed inset-0 -z-50 bg-[#09090b] overflow-hidden pointer-events-none" aria-hidden>
+            <AuroraLayer />
+            <LeyLines />
+            <GlassOverlay />
 
             {/* ── Layer 1: Primary triadic aurora — slow rotation ── */}
             <motion.div

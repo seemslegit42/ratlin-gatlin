@@ -18,6 +18,10 @@
 - [x] Set default user onboarding state to true and assign database collection permissions on Appwrite.
 - [x] Expand BEEP (Behavioral Event & Execution Processor) toolset with business-grade operational capabilities (tasks, metrics, security, workflows).
 - [x] Implement interactive business widgets (Morning Brief, Task Draft, Security Alert) with direct BEEP interaction and module navigation hooks.
+- [x] Resolve Vite build failures by creating `openrouterClient.ts`, `openrouterPolicy.ts`, and `CHudVitals.tsx` component with Roman Glass design system compliance.
+- [x] Fix CommandStream undefined length crash and bind chat stream state into MainView and Cockpit dock.
+- [x] Sanitize Appwrite document payloads against invalid custom 'id' attribute across database operations and seed state.
+- [x] Configure graceful proxy error handling in Vite to eliminate unhandled connection refused socket exceptions for offline ports.
 - [ ] Connect `getOperationalMetrics` and `getBusinessInsights` BEEP tools to real-time aggregate data from Appwrite collections.
 - [ ] Implement automated anomaly detection triggers for BEEP based on historical baseline deviations.
 - [ ] Implement quantum-resistant payload signatures for edge replication streams.

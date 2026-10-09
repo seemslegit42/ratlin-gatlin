@@ -163,6 +163,16 @@ const CommandCenterContent: React.FC<Pick<CommandCenterProps, 'onNavigate' | 'on
                             label="Task Log" 
                             onClick={() => onQuickAction("Show my active tasks")} 
                         />
+                        <WidgetButton 
+                            icon={<ZapIcon className="w-5 h-5" />} 
+                            label="Syndicate Pulse" 
+                            onClick={() => onSpawnWidget(DesktopWidgetType.SyndicateOverview)} 
+                        />
+                        <WidgetButton 
+                            icon={<ListTodoIcon className="w-5 h-5" />} 
+                            label="Live Chronicle" 
+                            onClick={() => onSpawnWidget(DesktopWidgetType.Chronicle)} 
+                        />
                     </div>
                 </section>
             </div>

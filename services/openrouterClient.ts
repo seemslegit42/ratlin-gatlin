@@ -1,279 +1,121 @@
 /**
- * OpenRouter client — unified API with Sovereign AI + tool calling support.
- * @see https://openrouter.ai/docs/quickstart
- * @see https://openrouter.ai/docs/guides/features/sovereign-ai
- * @see https://openrouter.ai/docs/guides/features/tool-calling
+ * OpenRouter API Client
  */
 
-import type { JsonObject, JsonValue } from '../types.js';
-import {
-  buildOpenRouterProviderPolicy,
-  resolveOpenRouterApiOrigin,
-  resolveOpenRouterRegion,
-} from './openrouterPolicy.js';
-import { parseOpenRouterToolCalls } from './openrouterTools.js';
+import type { JsonObject } from '../types.js';
 
-export interface OpenRouterToolCallResult {
+export interface OpenRouterMessage {
+  role: string;
+  content: string;
+}
+
+export interface OpenRouterChatOptions {
+  tools?: JsonObject[];
+  tool_choice?: string | JsonObject;
+  parallel_tool_calls?: boolean;
+  temperature?: number;
+  max_tokens?: number;
+}
+
+export interface OpenRouterFunctionCall {
   name: string;
   args: JsonObject;
 }
 
-export type OpenRouterRole = 'system' | 'user' | 'assistant' | 'tool';
-
-export interface OpenRouterMessage {
-  role: OpenRouterRole;
-  content?: string | null;
-  tool_calls?: unknown;
-  tool_call_id?: string;
-  name?: string;
-}
-
 export interface OpenRouterChatResult {
   text: string;
-  model: string;
-  functionCalls?: OpenRouterToolCallResult[];
-  finishReason?: string;
-  raw: unknown;
+  functionCalls?: OpenRouterFunctionCall[];
+  raw?: unknown;
 }
 
-export interface OpenRouterChatOptions {
-  temperature?: number;
-  top_p?: number;
-  max_tokens?: number;
-  tools?: JsonObject[];
-  tool_choice?: JsonObject | string;
-  parallel_tool_calls?: boolean;
-  provider?: JsonObject;
+export function isOpenRouterConfigured(): boolean {
+  const key = typeof process !== 'undefined' ? process.env.OPENROUTER_API_KEY : '';
+  return typeof key === 'string' && key.trim().length > 0;
 }
 
-export { resolveOpenRouterRegion, resolveOpenRouterApiOrigin, buildOpenRouterProviderPolicy };
-export {
-  buildSubagentServerTool,
-  mergeToolsWithSubagent,
-  isOpenRouterSubagentEnabled,
-  isArchitectModelAlias,
-} from './openrouterSubagent.js';
-
-/** Resolve API base — dev proxy keeps keys server-side. */
-export const resolveOpenRouterBaseUrl = (): string => {
-  const direct =
-    typeof import.meta !== 'undefined' &&
-    typeof import.meta.env?.VITE_OPENROUTER_DIRECT === 'string' &&
-    import.meta.env.VITE_OPENROUTER_DIRECT === 'true';
-
-  const useDevProxy =
-    typeof import.meta !== 'undefined' && !!import.meta.env?.DEV && !direct;
-
-  if (useDevProxy) {
-    return '/openrouter/api/v1';
-  }
-
-  const fromVite =
-    typeof process !== 'undefined' && typeof process.env.VITE_OPENROUTER_URL === 'string'
-      ? process.env.VITE_OPENROUTER_URL.trim()
-      : '';
-
-  if (fromVite) {
-    return fromVite.replace(/\/$/, '');
-  }
-
-  return resolveOpenRouterApiOrigin();
-};
-
-export const resolveOpenRouterChatUrl = (): string =>
-  `${resolveOpenRouterBaseUrl()}/chat/completions`;
-
-export const resolveOpenRouterApiKey = (): string => {
-  const key =
-    typeof process !== 'undefined' ? process.env.OPENROUTER_API_KEY?.trim() : '';
-  return key ?? '';
-};
-
-export const resolveOpenRouterAttributionHeaders = (): Record<string, string> => {
-  const headers: Record<string, string> = {};
-  const referer =
-    (typeof process !== 'undefined' && process.env.OPENROUTER_SITE_URL?.trim()) ||
-    (typeof process !== 'undefined' && process.env.VITE_APP_URL?.trim()) ||
-    '';
-  const title =
-    (typeof process !== 'undefined' && process.env.OPENROUTER_APP_NAME?.trim()) ||
-    'BEEP Command — ΛΞV & Co.';
-
-  if (referer) headers['HTTP-Referer'] = referer;
-  if (title) headers['X-OpenRouter-Title'] = title;
-  return headers;
-};
-
-export const isOpenRouterConfigured = (): boolean => {
-  if (typeof import.meta !== 'undefined' && import.meta.env?.DEV) {
-    return true;
-  }
-  return resolveOpenRouterApiKey().length > 0;
-};
-
-export const pingOpenRouter = async (): Promise<boolean> => {
+export async function pingOpenRouter(): Promise<boolean> {
+  if (!isOpenRouterConfigured()) return false;
   try {
-    const headers: Record<string, string> = { ...resolveOpenRouterAttributionHeaders() };
-    const key = resolveOpenRouterApiKey();
-    if (key) headers.Authorization = `Bearer ${key}`;
-
-    const res = await fetch(`${resolveOpenRouterBaseUrl()}/models`, {
-      headers,
-      signal: AbortSignal.timeout(8000),
+    const key = process.env.OPENROUTER_API_KEY;
+    const res = await fetch('https://openrouter.ai/api/v1/models', {
+      method: 'GET',
+      headers: {
+        Authorization: `Bearer ${key}`,
+      },
     });
     return res.ok;
   } catch {
     return false;
   }
-};
-
-function buildRequestBody(
-  messages: OpenRouterMessage[],
-  model: string,
-  options?: OpenRouterChatOptions,
-): JsonObject {
-  const provider = options?.provider ?? buildOpenRouterProviderPolicy();
-
-  const body: JsonObject = {
-    model,
-    messages: messages as unknown as JsonValue,
-    stream: false,
-  };
-
-  if (typeof options?.temperature === 'number') body.temperature = options.temperature;
-  if (typeof options?.top_p === 'number') body.top_p = options.top_p;
-  if (typeof options?.max_tokens === 'number') body.max_tokens = options.max_tokens;
-  if (options?.tools?.length) body.tools = options.tools;
-  if (options?.tool_choice !== undefined) body.tool_choice = options.tool_choice;
-  if (typeof options?.parallel_tool_calls === 'boolean') {
-    body.parallel_tool_calls = options.parallel_tool_calls;
-  }
-  if (provider) body.provider = provider;
-
-  return body;
 }
 
-export const postOpenRouterChat = async (
+export async function postOpenRouterChat(
   messages: OpenRouterMessage[],
   model: string,
   options?: OpenRouterChatOptions,
   abortSignal?: AbortSignal,
-): Promise<OpenRouterChatResult> => {
-  const url = resolveOpenRouterChatUrl();
-  const body = buildRequestBody(messages, model, options);
+): Promise<OpenRouterChatResult> {
+  const apiKey = typeof process !== 'undefined' ? process.env.OPENROUTER_API_KEY : '';
+  if (!apiKey) {
+    throw new Error('OPENROUTER_API_KEY is not configured.');
+  }
 
-  const headers: Record<string, string> = {
-    'Content-Type': 'application/json',
-    ...resolveOpenRouterAttributionHeaders(),
+  const payload: JsonObject = {
+    model,
+    messages,
+    ...(options?.tools ? { tools: options.tools } : {}),
+    ...(options?.tool_choice ? { tool_choice: options.tool_choice } : {}),
+    ...(typeof options?.temperature === 'number' ? { temperature: options.temperature } : {}),
+    ...(typeof options?.max_tokens === 'number' ? { max_tokens: options.max_tokens } : {}),
   };
 
-  const key = resolveOpenRouterApiKey();
-  if (key) headers.Authorization = `Bearer ${key}`;
-
-  const resp = await fetch(url, {
+  const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
     method: 'POST',
-    headers,
-    body: JSON.stringify(body),
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${apiKey}`,
+      'HTTP-Referer': 'https://aevon.cloud',
+      'X-Title': 'AEVON OS',
+    },
+    body: JSON.stringify(payload),
     signal: abortSignal,
   });
 
-  const rawText = await resp.text();
-  if (!resp.ok) {
-    throw new Error(`OpenRouter chat failed (${resp.status}): ${rawText.slice(0, 400)}`);
+  if (!response.ok) {
+    const errText = await response.text();
+    throw new Error(`OpenRouter request failed (${response.status}): ${errText}`);
   }
 
-  let data: {
-    choices?: Array<{
-      message?: {
-        content?: string | null;
-        tool_calls?: unknown;
-      };
-      finish_reason?: string;
-    }>;
-    model?: string;
-    error?: { message?: string };
-  };
-
-  try {
-    data = JSON.parse(rawText) as typeof data;
-  } catch {
-    throw new Error(`OpenRouter returned non-JSON: ${rawText.slice(0, 200)}`);
-  }
-
-  if (data.error?.message) {
-    throw new Error(data.error.message);
-  }
-
+  const data = (await response.json()) as any;
   const choice = data.choices?.[0];
   const message = choice?.message;
-  const text = message?.content ?? '';
-  const functionCalls = parseOpenRouterToolCalls(message?.tool_calls);
+  const text = message?.content || '';
+
+  const rawToolCalls = message?.tool_calls;
+  let functionCalls: OpenRouterFunctionCall[] | undefined;
+
+  if (Array.isArray(rawToolCalls) && rawToolCalls.length > 0) {
+    functionCalls = rawToolCalls.map((tc: any) => {
+      let argsObj: JsonObject = {};
+      if (typeof tc.function?.arguments === 'string') {
+        try {
+          argsObj = JSON.parse(tc.function.arguments);
+        } catch {
+          argsObj = {};
+        }
+      } else if (typeof tc.function?.arguments === 'object' && tc.function?.arguments !== null) {
+        argsObj = tc.function.arguments;
+      }
+      return {
+        name: tc.function?.name || '',
+        args: argsObj,
+      };
+    });
+  }
 
   return {
     text,
-    model: data.model ?? model,
     functionCalls,
-    finishReason: choice?.finish_reason,
     raw: data,
   };
-};
-
-/** Agentic loop — execute tool round-trips until model returns text (max iterations). */
-export const postOpenRouterChatWithToolLoop = async (
-  initialMessages: OpenRouterMessage[],
-  model: string,
-  tools: JsonObject[],
-  executeTool: (name: string, args: JsonObject) => Promise<JsonObject | string>,
-  options?: OpenRouterChatOptions,
-  abortSignal?: AbortSignal,
-  maxIterations = 8,
-): Promise<OpenRouterChatResult> => {
-  const messages = [...initialMessages];
-  const chatOptions: OpenRouterChatOptions = {
-    ...options,
-    tools,
-    tool_choice: options?.tool_choice ?? 'auto',
-  };
-
-  let lastResult: OpenRouterChatResult | null = null;
-
-  for (let i = 0; i < maxIterations; i += 1) {
-    if (abortSignal?.aborted) {
-      throw new DOMException('The operation was aborted.', 'AbortError');
-    }
-
-    lastResult = await postOpenRouterChat(messages, model, chatOptions, abortSignal);
-
-    if (!lastResult.functionCalls?.length) {
-      return lastResult;
-    }
-
-    const rawChoice = (lastResult.raw as JsonObject)?.choices as JsonObject[] | undefined;
-    const assistantMessage = rawChoice?.[0]?.message;
-    if (assistantMessage && typeof assistantMessage === 'object' && !Array.isArray(assistantMessage)) {
-      messages.push(assistantMessage as unknown as OpenRouterMessage);
-    } else {
-      messages.push({ role: 'assistant', content: lastResult.text || '' });
-    }
-
-    for (let t = 0; t < lastResult.functionCalls.length; t += 1) {
-      const call = lastResult.functionCalls[t];
-      const toolCalls = (assistantMessage as JsonObject | undefined)?.tool_calls as
-        | JsonObject[]
-        | undefined;
-      const callId =
-        typeof toolCalls?.[t]?.id === 'string' ? (toolCalls[t].id as string) : `call_${t}`;
-
-      const toolResult = await executeTool(call.name, call.args);
-      messages.push({
-        role: 'tool',
-        tool_call_id: callId,
-        name: call.name,
-        content: typeof toolResult === 'string' ? toolResult : JSON.stringify(toolResult),
-      });
-    }
-  }
-
-  if (lastResult) return lastResult;
-  throw new Error('OpenRouter tool loop produced no result');
-};
+}

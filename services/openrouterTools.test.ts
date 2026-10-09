@@ -8,7 +8,7 @@ import {
 describe('openrouterTools', () => {
   it('converts BEEP tool defs to OpenRouter tools schema', () => {
     const tools = toOpenRouterTools(MAINFRAME_TOOL_DEFINITIONS);
-    expect(tools).toHaveLength(2);
+    expect(tools).toHaveLength(MAINFRAME_TOOL_DEFINITIONS.length);
     expect(tools[0].type).toBe('function');
     const fn = tools[0].function as { name: string; parameters: { required: string[] } };
     expect(fn.name).toBe('navigate');

@@ -18,6 +18,7 @@
 | Tests | `bun test` |
 | Compose validate | `docker compose -f docker-compose.yml -f docker-compose.dev.yml config` |
 | Appwrite full push | `bash scripts/deploy-appwrite-all.sh` |
+| Generate Appwrite types | `bun run types:generate` · `bun run types:strict` |
 
 ### Docker / Compose
 

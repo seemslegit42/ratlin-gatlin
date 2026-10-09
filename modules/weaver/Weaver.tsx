@@ -326,6 +326,10 @@ const Weaver: React.FC<WeaverProps> = (props) => {
                     onRestoreVersion={restoreVersion}
                     onDeleteVersion={deleteVersion}
                     onOpenCreator={() => uiState.setIsCreationModalOpen(true)}
+                    onContextMenu={(e: React.MouseEvent) => {
+                        e.preventDefault();
+                        uiState.setQuickAddMenu({ x: e.clientX, y: e.clientY });
+                    }}
                     tutorial={tutorial}
                     collaborationProps={{ self: currentUser, users: {}, messages: [], onSendMessage: () => {}, onMentionAgent: () => {}, isMobile: false }}
                 />

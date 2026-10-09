@@ -17,6 +17,7 @@ B.E.E.P is built upon the **Verdigris Interface Protocol™**, merging "Ancient 
 The central cockpit. It features:
 - **Command Stream**: A chat interface for communicating with BEEP (powered by Ollama + Qwen Coder). Supports text and file attachments. Voice requires an external provider.
 - **Vitals HUD**: Real-time monitoring of Swarm Integrity, Financial Pulse, and System Resources.
+- **Operational Toolset**: BEEP-integrated business intelligence (createTask, getBusinessInsights, etc.) for direct task delegation and KPI monitoring.
 - **Widgets**: Interactive, draggable glass panels for tasks, security alerts, and cash flow visualization.
 
 ### 2. Weaver Studio

@@ -33,6 +33,7 @@ import { CompassIcon, CommandCoreIcon } from './icons/CompassIcon.js';
 import { type View, DesktopWidgetType } from '../types.js';
 import { useBreakpoint }                from '../hooks/useBreakpoint.js';
 import { logInteraction }               from '../services/appLogger.js';
+import ActionButton                     from './shared/ActionButton.js';
 
 // ─── Props ────────────────────────────────────────────────────────────────────
 
@@ -723,19 +724,18 @@ const ActionBtn: React.FC<{
   children: React.ReactNode;
   danger?: boolean;
 }> = ({ onClick, aria, title, children, danger }) => (
-  <button
-    type="button"
+  <ActionButton
     onClick={onClick}
-    aria-label={aria}
-    title={title ?? aria}
-    className={`p-2.5 rounded-xl transition-all duration-150 active:scale-95 ${
+    label={aria}
+    tooltipContent={title ?? aria}
+    baseClassName={`p-2.5 rounded-xl transition-all duration-150 active:scale-95 ${
       danger
         ? 'text-red-500/70 hover:text-red-400 bg-red-500/5 hover:bg-red-500/10'
         : 'text-text-secondary hover:text-white hover:bg-white/10'
     }`}
   >
     {children}
-  </button>
+  </ActionButton>
 );
 
 export default memo(ActionBar);

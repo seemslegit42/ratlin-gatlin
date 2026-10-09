@@ -12,6 +12,8 @@ import SaveVersionModal from '../../../components/weaver/SaveVersionModal';
 import ShareModal from '../../../components/weaver/ShareModal';
 import WorkflowKanban from '../../../components/weaver/WorkflowKanban';
 import { AgentStatus, AgentType } from '../../../types';
+import MobileToolbar from '../../../components/MobileToolbar';
+import MobileAgentListItem from '../../../components/MobileAgentListItem';
 
 interface MobileLayoutProps {
     canvasRef: React.RefObject<HTMLDivElement>;
@@ -107,6 +109,37 @@ export const MobileLayout: React.FC<MobileLayoutProps> = ({
                 )}
             </div>
 
+            {/* Mobile Agent Search Overlay */}
+            <AnimatePresence>
+                {isSearchOpen && !isBoardView && (
+                    <motion.div
+                        initial={{ opacity: 0, y: -10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -10 }}
+                        className="absolute top-16 left-4 right-4 z-40 max-h-72 overflow-y-auto bg-panel-bg/95 backdrop-blur-2xl border border-glass-border rounded-2xl p-2 space-y-1 shadow-2xl custom-scrollbar"
+                    >
+                        {Object.values(canvasProps.agents as Record<string, any>)
+                            .filter((a: any) => !uiState.searchQuery || a.name.toLowerCase().includes(uiState.searchQuery.toLowerCase()))
+                            .map((agent: any) => (
+                                <MobileAgentListItem
+                                    key={agent.id}
+                                    agent={agent}
+                                    onSelect={(id) => { uiState.setSelectedAgentId(id); setIsSearchOpen(false); }}
+                                    onRunAgent={(id) => actions.runAgent(id)}
+                                    onStartConnection={(id) => canvasProps.onStartConnection(id)}
+                                    onCompleteConnection={(id) => canvasProps.onCompleteConnection(id)}
+                                    isConnectionMode={!!canvasProps.connectionSourceId}
+                                    connectionSourceId={canvasProps.connectionSourceId}
+                                    connectedOutputPorts={canvasProps.connections?.filter((c: any) => c.sourceAgentId === agent.id).map((c: any) => c.sourcePortId) || []}
+                                />
+                            ))}
+                        {Object.values(canvasProps.agents as Record<string, any>).length === 0 && (
+                            <p className="text-center py-4 text-xs text-text-tertiary">No agents found in workspace.</p>
+                        )}
+                    </motion.div>
+                )}
+            </AnimatePresence>
+
             {/* Main content area — canvas OR board */}
             <AnimatePresence mode="wait">
                 {isBoardView ? (
@@ -136,13 +169,21 @@ export const MobileLayout: React.FC<MobileLayoutProps> = ({
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
                         transition={{ duration: 0.18 }}
-                        className="flex-grow relative z-0"
+                        className="flex-grow relative z-0 flex flex-col h-full"
                         onTouchStart={(e) => { if (!uiState.isMobilePanLocked) actions.handleMouseDown(e); }}
                         onTouchMove={(e) => { if (!uiState.isMobilePanLocked) actions.handleMouseMove(e); }}
                         onTouchEnd={actions.handleMouseUp}
                         onClick={actions.onCanvasClick}
                     >
-                        <WeaverCanvasCore {...canvasProps} />
+                        <div className="pt-16 z-10 relative">
+                            <MobileToolbar 
+                                onAddAgentClick={() => uiState.setIsCreationModalOpen(true)}
+                                onRunAllAgents={actions.runAllAgents}
+                            />
+                        </div>
+                        <div className="flex-grow relative overflow-hidden">
+                            <WeaverCanvasCore {...canvasProps} />
+                        </div>
                     </motion.div>
                 )}
             </AnimatePresence>

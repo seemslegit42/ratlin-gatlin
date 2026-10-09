@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'bun:test';
-import { TABLES, DATABASE_ID, BUCKETS, resolveAppwriteEndpoint, resolveAppwriteProjectId } from './appwriteClient.js';
+import { TABLES, DATABASE_ID, BUCKETS, resolveAppwriteEndpoint, resolveAppwriteProjectId, sanitizeDocumentPayload } from './appwriteClient.js';
 
 describe('Appwrite Core Modules Integration', () => {
   it('should resolve the operational Toronto regional endpoint and sovereign project ID', () => {
@@ -52,5 +52,33 @@ describe('Appwrite Core Modules Integration', () => {
 
     expect(overallProgress).toBe(56);
     expect(plmStages.find(s => s.status === 'Active')?.stage).toBe('Prototyping');
+  });
+
+  it('should strip forbidden custom id and system attributes from document payloads', () => {
+    const rawPayload = {
+      id: 'custom_forbidden_id',
+      $id: 'system_id',
+      $createdAt: '2026-01-01',
+      $updatedAt: '2026-01-01',
+      $permissions: ['read("any")'],
+      $databaseId: 'sovereign',
+      $collectionId: 'agents',
+      syndicate_id: 'syn_alpha',
+      name: 'Agent Aegis',
+      status: 'Active',
+    };
+
+    const sanitized = sanitizeDocumentPayload(rawPayload);
+
+    expect(sanitized.id).toBeUndefined();
+    expect(sanitized.$id).toBeUndefined();
+    expect(sanitized.$createdAt).toBeUndefined();
+    expect(sanitized.$updatedAt).toBeUndefined();
+    expect(sanitized.$permissions).toBeUndefined();
+    expect(sanitized.$databaseId).toBeUndefined();
+    expect(sanitized.$collectionId).toBeUndefined();
+    expect(sanitized.syndicate_id).toBe('syn_alpha');
+    expect(sanitized.name).toBe('Agent Aegis');
+    expect(sanitized.status).toBe('Active');
   });
 });

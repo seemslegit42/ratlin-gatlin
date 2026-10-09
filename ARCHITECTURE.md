@@ -8,6 +8,7 @@ Modularity is maintained through domain-isolated folders. Atoms (Icons) are sepa
 *   **Multi-Tenancy**: All state is isolated by `syndicateId`.
 *   **Persistence**: Real-time sync via Appwrite.
 *   **Logical History**: Stack-based Undo/Redo at the hook level.
+*   **Regional Normalization**: Automated routing to nearest regional Appwrite endpoint (e.g., Toronto).
 
 ## 3. The Tri-Agentic Mind (AI Core)
 The system rejects concurrent parallel processing in favor of a **Serialized Request Chain** for stability.
@@ -23,8 +24,10 @@ The system rejects concurrent parallel processing in favor of a **Serialized Req
 1.  **Topological Analysis**: Identifies dependency order.
 2.  **Input Hydration**: Injects upstream JSON into downstream `{{prompts}}`.
 3.  **Aegis Verification**: Intercepts intents for security compliance before execution.
+4.  **BEEP Integration**: Orchestrates business intelligence and operational workflows (createTask, getOperationalMetrics, etc.) via natural language.
 
 ## 5. Visual Layer (Verdigris)
 *   **Diegetic Overlay**: Fixed scanlines and vignettes.
 *   **Glassmorphism**: Layered CSS blurs and smoky translucency.
 *   **3D Neural Lattice**: Three.js particle field responding to global swarm state.
+*   **High-Density Layout Engine**: Implements compact, spacing-optimized layouts across all modules to maximize information density while maintaining accessibility contracts (44px touch targets).

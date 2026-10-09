@@ -15,6 +15,8 @@ import PatchCable from '../switchboard/PatchCable';
 import Toolbar from '../switchboard/Toolbar';
 import type { JackPosition, AvailableModule } from '../../types';
 import { nanoid } from 'nanoid';
+import LivePreview from '../LivePreview';
+import NodeDetailView from '../switchboard/NodeDetailView';
 
 export const LogicGraph: React.FC<{ syndicateId: string; authenticatedUserId?: string | null }> = ({
     syndicateId,
@@ -28,6 +30,11 @@ export const LogicGraph: React.FC<{ syndicateId: string; authenticatedUserId?: s
 
     // Local state for jack positions (needed for cable rendering)
     const [jackPositions, setJackPositions] = useState<Record<string, JackPosition>>({});
+    
+    // Live preview & inspection state
+    const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+    const [isFullScreen, setIsFullScreen] = useState(false);
+    const [selectedModuleId, setSelectedModuleId] = useState<string | null>(null);
     
     // Connection draft state
     const [draftConnection, setDraftConnection] = useState<{ moduleId: string; jackId: string; pos: JackPosition } | null>(null);
@@ -177,20 +184,44 @@ export const LogicGraph: React.FC<{ syndicateId: string; authenticatedUserId?: s
 
                 {/* Modules Layer */}
                 {modules.map(mod => (
-                    <MicroAppModule
-                        key={mod.id}
-                        module={mod}
-                        onMove={(id, x, y) => updateModule(id, { position: { x, y } })}
-                        onJackClick={handleJackClick}
-                        registerJackPosition={handleRegisterJack}
-                        scale={zoom}
-                        onOpenLivePreview={() => {}}
-                        canvasPan={pan}
-                        canvasZoom={zoom}
-                        hoveredJackId={hoveredJackId}
-                    />
+                    <div key={mod.id} onClick={() => setSelectedModuleId(mod.id)}>
+                        <MicroAppModule
+                            module={mod}
+                            onMove={(id, x, y) => updateModule(id, { position: { x, y } })}
+                            onJackClick={handleJackClick}
+                            registerJackPosition={handleRegisterJack}
+                            scale={zoom}
+                            onOpenLivePreview={(url) => setPreviewUrl(url || 'https://www.google.com/doodles/')}
+                            canvasPan={pan}
+                            canvasZoom={zoom}
+                            hoveredJackId={hoveredJackId}
+                        />
+                    </div>
                 ))}
             </div>
+
+            {/* Selected Module Detail Inspector */}
+            {selectedModuleId && (
+                <div className="absolute top-16 right-4 z-40">
+                    <NodeDetailView
+                        module={modules.find(m => m.id === selectedModuleId) || null}
+                        onClose={() => setSelectedModuleId(null)}
+                        onUpdateModule={updateModule}
+                        onDeleteModule={deleteModule}
+                    />
+                </div>
+            )}
+
+            {/* Live Preview Modal */}
+            {previewUrl && (
+                <LivePreview
+                    url={previewUrl}
+                    isFullScreen={isFullScreen}
+                    onClose={() => setPreviewUrl(null)}
+                    onToggleFullScreen={() => setIsFullScreen(prev => !prev)}
+                    dragConstraintsRef={canvasRef}
+                />
+            )}
             
             {/* Instruction Overlay */}
             {modules.length === 0 && (

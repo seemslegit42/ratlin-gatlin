@@ -11,6 +11,7 @@ import Modal from '../shared/Modal';
 import { AgentType, AgentTemplate } from '../../types';
 import { AGENT_ICONS, AGENT_DESCRIPTIONS } from '../../utils/agent-visuals';
 import { SearchIcon } from '../icons/CommandPaletteIcons';
+import AgentForm from '../AgentForm';
 
 interface AgentCreationModalProps {
     isOpen: boolean;
@@ -53,6 +54,7 @@ const CATEGORIZED_AGENTS = {
 const AgentCreationModal: React.FC<AgentCreationModalProps> = ({ isOpen, onClose, onAddAgent, templates }) => {
     const [selectionTab, setSelectionTab] = useState<'archetypes' | 'templates'>('archetypes');
     const [searchQuery, setSearchQuery] = useState('');
+    const [configuringType, setConfiguringType] = useState<AgentType | null>(null);
 
     const handleManualArchetypeSelect = (type: AgentType) => {
         onAddAgent(type);
@@ -68,6 +70,24 @@ const AgentCreationModal: React.FC<AgentCreationModalProps> = ({ isOpen, onClose
         t.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
         t.description.toLowerCase().includes(searchQuery.toLowerCase())
     );
+
+    if (configuringType) {
+        return (
+            <Modal isOpen={isOpen} onClose={() => setConfiguringType(null)} title={`Configure ${configuringType}`}>
+                <div className="max-h-[65vh] overflow-y-auto p-4 custom-scrollbar">
+                    <AgentForm 
+                        type={configuringType}
+                        onSubmit={(data) => {
+                            onAddAgent(configuringType, { ...data, id: '', type: configuringType } as any);
+                            setConfiguringType(null);
+                            onClose();
+                        }}
+                        onCancel={() => setConfiguringType(null)}
+                    />
+                </div>
+            </Modal>
+        );
+    }
 
     return (
         <Modal isOpen={isOpen} onClose={onClose} title="Manifest New Entity">
@@ -122,13 +142,25 @@ const AgentCreationModal: React.FC<AgentCreationModalProps> = ({ isOpen, onClose
                                                 >
                                                     <div className="absolute top-0 right-0 w-16 h-16 bg-gradient-to-bl from-white/5 to-transparent rounded-bl-full -mr-8 -mt-8 pointer-events-none" />
                                                     
-                                                    <div className="flex items-center space-x-3 mb-2 relative z-10">
-                                                        <div className="p-2 rounded-lg bg-black/40 text-text-secondary group-hover:text-patina-green transition-colors border border-white/5">
-                                                            {AGENT_ICONS[type]}
+                                                    <div className="flex items-center justify-between w-full mb-2 relative z-10">
+                                                        <div className="flex items-center space-x-3">
+                                                            <div className="p-2 rounded-lg bg-black/40 text-text-secondary group-hover:text-patina-green transition-colors border border-white/5">
+                                                                {AGENT_ICONS[type]}
+                                                            </div>
+                                                            <h3 className="font-bold font-comfortaa text-white group-hover:text-patina-green transition-colors text-sm">
+                                                                {label}
+                                                            </h3>
                                                         </div>
-                                                        <h3 className="font-bold font-comfortaa text-white group-hover:text-patina-green transition-colors text-sm">
-                                                            {label}
-                                                        </h3>
+                                                        <span
+                                                            onClick={(e) => {
+                                                                e.stopPropagation();
+                                                                setConfiguringType(type);
+                                                            }}
+                                                            className="text-[9px] font-mono px-2 py-0.5 rounded bg-white/10 hover:bg-white/20 text-text-tertiary hover:text-white transition-colors"
+                                                            title="Configure parameters before creating"
+                                                        >
+                                                            Config
+                                                        </span>
                                                     </div>
                                                     <p className="text-[10px] text-text-tertiary leading-relaxed line-clamp-2 relative z-10">
                                                         {AGENT_DESCRIPTIONS[type]}

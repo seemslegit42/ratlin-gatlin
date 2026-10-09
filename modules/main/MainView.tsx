@@ -7,77 +7,100 @@
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import type { Agent, View, CurrentUser, KlepsydraMetric, CRMDeal, CRMActivity } from '../../types';
-import { generateStrategicAxiom } from '../../services/ollamaService';
-import VitalsHUD from '../../components/VitalsHUD';
-import { GlassPane } from '../../components/shared/GlassPane';
-import { BrainIcon } from '../../components/icons/BrainIcon';
-import type { XiFlowData } from '../../services/xiEconomyService';
-import { CoinsIcon } from '../../components/icons/EconomyIcons';
-import { ZapIcon, TrendingUpIcon } from '../../components/icons/VitalsIcons';
-import { CrownIcon } from '../../components/icons/CrownIcon';
-import { LayersIcon } from '../../components/icons/LayersIcon';
-import { ShieldIcon } from '../../components/icons/SecurityIcons';
-import { ListTodoIcon } from '../../components/icons/ListTodoIcon';
-import { MegaphoneIcon } from '../../components/icons/MarketingIcons';
-import { DatabaseIcon } from '../../components/icons/AetheriumIcons';
-import { UsersIcon } from '../../components/icons/QuickActionIcons';
+import type { Agent, View, CurrentUser, KlepsydraMetric, CRMDeal, CRMActivity, ChatMessage, DesktopWidgetType } from '../../types.js';
+import { generateStrategicAxiom } from '../../services/ollamaService.js';
+import VitalsHUD from '../../components/VitalsHUD.js';
+import { GlassPane } from '../../components/shared/GlassPane.js';
+import { BrainIcon } from '../../components/icons/BrainIcon.js';
+import type { XiFlowData } from '../../services/xiEconomyService.js';
+import { CoinsIcon } from '../../components/icons/EconomyIcons.js';
+import { ZapIcon, TrendingUpIcon } from '../../components/icons/VitalsIcons.js';
+import { CrownIcon } from '../../components/icons/CrownIcon.js';
+import { LayersIcon } from '../../components/icons/LayersIcon.js';
+import { ShieldIcon } from '../../components/icons/SecurityIcons.js';
+import { ListTodoIcon } from '../../components/icons/ListTodoIcon.js';
+import { MegaphoneIcon } from '../../components/icons/MarketingIcons.js';
+import { DatabaseIcon } from '../../components/icons/AetheriumIcons.js';
+import { UsersIcon } from '../../components/icons/QuickActionIcons.js';
 
-import { CHudVitals } from '../../components/CHudVitals';
-import CommandStream from '../../components/CommandStream';
-import ActionBar from '../../components/ActionBar';
-import { useBreakpoint } from '../../hooks/useBreakpoint';
+import { CHudVitals } from '../../components/CHudVitals.js';
+import CommandStream from '../../components/CommandStream.js';
+import ActionBar from '../../components/ActionBar.js';
+import { useBreakpoint } from '../../hooks/useBreakpoint.js';
 
 interface MainViewProps {
-    agents: Record<string, Agent>;
-    currentUser: CurrentUser;
+    agents?: Record<string, Agent>;
+    currentUser?: CurrentUser;
     onNavigate: (view: View) => void;
-    klepsydra: KlepsydraMetric;
-    economyData: XiFlowData | null;
-    messages: ChatMessage[];
-    isProcessing: boolean;
-    isLive: boolean;
-    isSpeaking: boolean;
-    volume: number;
-    isTtsMuted: boolean;
-    onToggleTtsMute: () => void;
-    onSendCommand: (cmd: string, attach?: any) => void;
-    onToggleLive: () => void;
-    onOpenAgentCreator: () => void;
-    onSpawnWidget: (type: DesktopWidgetType) => void;
-    onOpenCommandCenter: () => void;
-    onStopGeneration: () => void;
+    klepsydra?: KlepsydraMetric;
+    economyData?: XiFlowData | null;
+    pipeline?: Record<string, CRMDeal[]>;
+    crmActivities?: CRMActivity[];
+    messages?: ChatMessage[];
+    isProcessing?: boolean;
+    isLive?: boolean;
+    isSpeaking?: boolean;
+    volume?: number;
+    isTtsMuted?: boolean;
+    onToggleTtsMute?: () => void;
+    onSendCommand?: (cmd: string, attach?: any) => void;
+    onToggleLive?: () => void;
+    onOpenAgentCreator?: () => void;
+    onSpawnWidget?: (type: DesktopWidgetType) => void;
+    onOpenCommandCenter?: () => void;
+    onStopGeneration?: () => void;
     beepPrefill?: string;
 }
 
 const MainView: React.FC<MainViewProps> = ({
-    agents, currentUser, onNavigate, klepsydra, economyData,
-    messages, isProcessing, isLive, isSpeaking, volume, isTtsMuted,
-    onToggleTtsMute, onSendCommand, onToggleLive, onOpenAgentCreator,
-    onSpawnWidget, onOpenCommandCenter, onStopGeneration, beepPrefill
+    agents = {}, currentUser, onNavigate, klepsydra, economyData,
+    pipeline, crmActivities,
+    messages = [], isProcessing = false, isLive = false, isSpeaking = false, volume = 0, isTtsMuted = false,
+    onToggleTtsMute = () => {}, onSendCommand = () => {}, onToggleLive = () => {}, onOpenAgentCreator = () => {},
+    onSpawnWidget = () => {}, onOpenCommandCenter = () => {}, onStopGeneration = () => {}, beepPrefill
 }) => {
     const isMobile = useBreakpoint();
+    const [hudMode, setHudMode] = useState<'compressed' | 'expanded'>('compressed');
 
     // Derived values for CHudVitals
-    const activeAgents = Object.values(agents).filter(a => a.status !== 'Idle').length;
-    const totalAgents = Object.keys(agents).length;
-    const profitVelocity = klepsydra.flowScore; // Using flowScore as a proxy for profit velocity
-    const marketDisruption = 68; // Hardcoded placeholder for now
+    const activeAgents = Object.values(agents || {}).filter(a => a?.status !== 'Idle').length;
+    const totalAgents = Object.keys(agents || {}).length;
+    const profitVelocity = klepsydra?.flowScore ?? 0;
+    const marketDisruption = 68;
     const projectStatus = "Project Genesis";
-    const projectProgress = activeAgents > 0 ? (activeAgents / totalAgents) * 100 : 45;
+    const projectProgress = totalAgents > 0 ? (activeAgents / totalAgents) * 100 : 45;
 
     return (
         <div className="h-full w-full relative bg-obsidian-black flex flex-col font-lexend overflow-hidden high-density">
             {/* C-HUD Layout Protocol */}
             
-            {/* Top 1/3: Compressed Vitals HUD */}
-            <div className="h-[30%] min-h-[160px] flex-shrink-0 z-40">
-                <CHudVitals 
-                    profitVelocity={profitVelocity}
-                    marketDisruption={marketDisruption}
-                    projectStatus={projectStatus}
-                    projectProgress={projectProgress}
-                />
+            {/* Top 1/3: Vitals HUD Container with Mode Toggle */}
+            <div className={`${hudMode === 'expanded' ? 'min-h-[220px]' : 'h-[30%] min-h-[160px]'} flex-shrink-0 z-40 relative group`}>
+                <button
+                    onClick={() => setHudMode(prev => prev === 'compressed' ? 'expanded' : 'compressed')}
+                    className="absolute top-2 right-4 z-50 px-2 py-0.5 text-[9px] font-mono uppercase tracking-wider rounded bg-white/5 hover:bg-white/10 text-text-tertiary hover:text-white border border-white/10 transition-colors flex items-center gap-1"
+                    title="Toggle HUD Telemetry View"
+                >
+                    <span className="w-1.5 h-1.5 rounded-full bg-roman-aqua animate-pulse" />
+                    <span>{hudMode === 'compressed' ? 'EXPAND PODS' : 'COMPRESS HUD'}</span>
+                </button>
+                {hudMode === 'compressed' ? (
+                    <CHudVitals 
+                        profitVelocity={profitVelocity}
+                        marketDisruption={marketDisruption}
+                        projectStatus={projectStatus}
+                        projectProgress={projectProgress}
+                    />
+                ) : (
+                    <div className="h-full overflow-x-auto p-2 bg-black/40 border-b border-glass-border">
+                        <VitalsHUD 
+                            agents={agents} 
+                            onNavigate={onNavigate} 
+                            klepsydra={klepsydra || { flowScore: profitVelocity, flowState: 'Balanced', latencyMs: 24 } as any} 
+                            economyData={economyData} 
+                        />
+                    </div>
+                )}
             </div>
 
             {/* Bottom 2/3: Command Stream (Chat) */}
