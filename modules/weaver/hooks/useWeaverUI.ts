@@ -34,7 +34,7 @@ export const useWeaverUI = () => {
     const [searchQuery, setSearchQuery] = useState('');
 
     // View mode: 'canvas' = node graph, 'board' = Kanban status board
-    const [viewMode, setViewMode] = useState<'canvas' | 'board'>('canvas');
+    const [viewMode, setViewMode] = useState<'canvas' | 'board' | '3d'>('canvas');
 
     // Selection
     const [selectedAgentId, setSelectedAgentId] = useState<string | null>(null);

@@ -204,6 +204,24 @@ const IntegrationsPanel: React.FC = () => {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <ModuleCard title="Local Llama Backend">
+          <div className="text-xs text-text-secondary space-y-4">
+            <p>Your local LLM bridge (llama.cpp) allows for private, cost-free model inference.</p>
+            <div className="space-y-2">
+                <h4 className="font-bold text-vitreous-white">1. Install</h4>
+                <code className="block bg-black/50 p-2 rounded text-roman-aqua">curl -LsSf https://llama.app/install.sh | sh</code>
+            </div>
+            <div className="space-y-2">
+                <h4 className="font-bold text-vitreous-white">2. Verify</h4>
+                <code className="block bg-black/50 p-2 rounded text-roman-aqua">llama cli --version</code>
+            </div>
+            <div className="space-y-2">
+                <h4 className="font-bold text-vitreous-white">3. Serve</h4>
+                <code className="block bg-black/50 p-2 rounded text-roman-aqua">llama serve -hf ggml-org/gemma-4-e4b-it-GGUF:Q4_0</code>
+            </div>
+          </div>
+        </ModuleCard>
+
         <ModuleCard title="Security Protocols">
           <div className="space-y-4">
             <div className="flex items-start space-x-3 p-3 bg-imperial-purple/10 border border-imperial-purple/20 rounded-lg">

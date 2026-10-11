@@ -163,27 +163,161 @@ databases.updateDocument = ((
  */
 export const tablesDB = {
   ...databases,
-  createRow: (databaseId: string, collectionId: string, documentIdOrData: any, dataOrPermissions?: any, permissions?: string[]) => {
-    if (typeof documentIdOrData === 'string' && (typeof dataOrPermissions === 'object' || dataOrPermissions === undefined)) {
-      return databases.createDocument(databaseId, collectionId, documentIdOrData, sanitizeDocumentPayload(dataOrPermissions), permissions);
+  createRow: async (
+    arg1: any,
+    tableId?: string,
+    rowIdOrData?: any,
+    dataOrPermissions?: any,
+    permissionsOrTx?: any,
+    maybeTx?: string
+  ) => {
+    let databaseId = DATABASE_ID;
+    let collId = '';
+    let rowId = 'unique()';
+    let data: any = {};
+    let permissions: string[] | undefined = undefined;
+    let transactionId: string | undefined = undefined;
+
+    if (typeof arg1 === 'object' && arg1 !== null && !Array.isArray(arg1)) {
+      databaseId = arg1.databaseId || DATABASE_ID;
+      collId = arg1.tableId || arg1.collectionId;
+      rowId = arg1.rowId || 'unique()';
+      data = arg1.data || {};
+      permissions = arg1.permissions;
+      transactionId = arg1.transactionId;
     } else {
-      return databases.createDocument(databaseId, collectionId, 'unique()', sanitizeDocumentPayload(documentIdOrData), dataOrPermissions);
+      databaseId = arg1;
+      collId = tableId!;
+      if (typeof rowIdOrData === 'string' && (typeof dataOrPermissions === 'object' || dataOrPermissions === undefined)) {
+        rowId = rowIdOrData;
+        data = dataOrPermissions || {};
+        permissions = permissionsOrTx;
+        transactionId = maybeTx;
+      } else {
+        rowId = 'unique()';
+        data = rowIdOrData || {};
+        permissions = dataOrPermissions;
+        transactionId = permissionsOrTx;
+      }
     }
+
+    return databases.createDocument(databaseId, collId, rowId, sanitizeDocumentPayload(data), permissions);
   },
-  getRow: (databaseId: string, collectionId: string, documentId: string) => 
-    databases.getDocument(databaseId, collectionId, documentId),
-  listRows: async (databaseId: string, collectionId: string, queries?: string[]) => {
-    const res = await databases.listDocuments(databaseId, collectionId, queries);
+
+  getRow: async (arg1: any, tableId?: string, rowId?: string) => {
+    let databaseId = DATABASE_ID;
+    let collId = '';
+    let docId = '';
+    if (typeof arg1 === 'object' && arg1 !== null) {
+      databaseId = arg1.databaseId || DATABASE_ID;
+      collId = arg1.tableId || arg1.collectionId;
+      docId = arg1.rowId || arg1.documentId;
+    } else {
+      databaseId = arg1;
+      collId = tableId!;
+      docId = rowId!;
+    }
+    return databases.getDocument(databaseId, collId, docId);
+  },
+
+  listRows: async (arg1: any, tableId?: string, queries?: string[], ttl?: number) => {
+    let databaseId = DATABASE_ID;
+    let collId = '';
+    let q: string[] | undefined = queries;
+
+    if (typeof arg1 === 'object' && arg1 !== null && !Array.isArray(arg1)) {
+      databaseId = arg1.databaseId || DATABASE_ID;
+      collId = arg1.tableId || arg1.collectionId;
+      q = arg1.queries;
+    } else {
+      databaseId = arg1;
+      collId = tableId!;
+    }
+
+    const res = await databases.listDocuments(databaseId, collId, q);
     return {
       rows: res.documents,
       documents: res.documents,
       total: res.total,
     };
   },
-  updateRow: (databaseId: string, collectionId: string, documentId: string, data: any, permissions?: string[]) => 
-    databases.updateDocument(databaseId, collectionId, documentId, sanitizeDocumentPayload(data), permissions),
-  deleteRow: (databaseId: string, collectionId: string, documentId: string) => 
-    databases.deleteDocument(databaseId, collectionId, documentId),
+
+  updateRow: async (arg1: any, tableId?: string, rowId?: string, data?: any, permissions?: string[], transactionId?: string) => {
+    let databaseId = DATABASE_ID;
+    let collId = '';
+    let docId = '';
+    let payload: any = {};
+    let perms: string[] | undefined = undefined;
+
+    if (typeof arg1 === 'object' && arg1 !== null && !Array.isArray(arg1)) {
+      databaseId = arg1.databaseId || DATABASE_ID;
+      collId = arg1.tableId || arg1.collectionId;
+      docId = arg1.rowId || arg1.documentId;
+      payload = arg1.data || {};
+      perms = arg1.permissions;
+    } else {
+      databaseId = arg1;
+      collId = tableId!;
+      docId = rowId!;
+      payload = data || {};
+      perms = permissions;
+    }
+
+    return databases.updateDocument(databaseId, collId, docId, sanitizeDocumentPayload(payload), perms);
+  },
+
+  deleteRow: async (arg1: any, tableId?: string, rowId?: string, transactionId?: string) => {
+    let databaseId = DATABASE_ID;
+    let collId = '';
+    let docId = '';
+
+    if (typeof arg1 === 'object' && arg1 !== null && !Array.isArray(arg1)) {
+      databaseId = arg1.databaseId || DATABASE_ID;
+      collId = arg1.tableId || arg1.collectionId;
+      docId = arg1.rowId || arg1.documentId;
+    } else {
+      databaseId = arg1;
+      collId = tableId!;
+      docId = rowId!;
+    }
+
+    return databases.deleteDocument(databaseId, collId, docId);
+  },
+
+  upsertRow: async (arg1: any, tableId?: string, rowIdOrData?: any, data?: any, permissions?: string[]) => {
+    let databaseId = DATABASE_ID;
+    let collId = '';
+    let rowId = 'unique()';
+    let payload: any = {};
+    let perms: string[] | undefined = undefined;
+
+    if (typeof arg1 === 'object' && arg1 !== null && !Array.isArray(arg1)) {
+      databaseId = arg1.databaseId || DATABASE_ID;
+      collId = arg1.tableId || arg1.collectionId;
+      rowId = arg1.rowId || 'unique()';
+      payload = arg1.data || {};
+      perms = arg1.permissions;
+    } else {
+      databaseId = arg1;
+      collId = tableId!;
+      rowId = rowIdOrData || 'unique()';
+      payload = data || {};
+      perms = permissions;
+    }
+
+    if (rowId && rowId !== 'unique()') {
+      try {
+        const existing = await databases.getDocument(databaseId, collId, rowId);
+        if (existing) {
+          return databases.updateDocument(databaseId, collId, rowId, sanitizeDocumentPayload(payload), perms);
+        }
+      } catch {
+        // Not found, create
+      }
+    }
+
+    return databases.createDocument(databaseId, collId, rowId, sanitizeDocumentPayload(payload), perms);
+  },
 };
 
 /**

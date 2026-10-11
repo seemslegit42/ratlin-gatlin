@@ -98,6 +98,7 @@ import { initializeLLMBackend, getLLMBackendStatus } from './services/ollamaServ
 import { logInteraction, logSystemEvent, logError } from './services/appLogger.js';
 import { getPrimaryChatModelId } from './services/llmDefaults.js';
 import { useFileManagement } from './hooks/useFileManagement.js';
+import { PasswordRecovery } from './modules/auth/PasswordRecovery.js';
 
 // --- Lazy Modules ---
 const MainView = lazy(() => import('./modules/main/MainView.js'));
@@ -357,6 +358,8 @@ const App: React.FC = () => {
   if (!currentUser) return (
     <Routes>
         <Route path="/verify" element={<EmailVerification />} />
+        <Route path="/recovery" element={<PasswordRecovery />} />
+        <Route path="/forgot-password" element={<PasswordRecovery />} />
         <Route path="/tenant-login" element={<TenantLogin />} />
         <Route path="*" element={<Login />} />
     </Routes>
@@ -399,7 +402,6 @@ const App: React.FC = () => {
         agents={workflowState.agents}
         economyData={economyData}
         klepsydra={klepsydra}
-        users={workflowState.users}
       />
 
       {/* Mobile bottom padding: nav (5rem) + safe-area + dock peek composer (~4.5rem) */}
@@ -521,6 +523,8 @@ const App: React.FC = () => {
                   <Route path="/hrm" element={<PageTransition><HRMView onNavigate={handleNavigate} agents={workflowState.agents} /></PageTransition>} />
                   <Route path="/production" element={<PageTransition><ProductionView onNavigate={handleNavigate} /></PageTransition>} />
                   <Route path="/help" element={<PageTransition><HelpView onNavigate={handleNavigate} /></PageTransition>} />
+                  <Route path="/recovery" element={<PageTransition><PasswordRecovery /></PageTransition>} />
+                  <Route path="/forgot-password" element={<PageTransition><PasswordRecovery /></PageTransition>} />
                   
                   <Route path="*" element={<Navigate to="/" replace />} />
               </Routes>

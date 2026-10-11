@@ -349,7 +349,7 @@ const Header: React.FC<HeaderProps> = ({
                     <AvatarStack 
                         users={users && Object.values(users).length > 0 
                             ? (Object.values(users) as any[]) 
-                            : (currentUser ? [{ id: currentUser.id, name: currentUser.name, color: '#3eb991', role: currentUser.role } as any] : [])} 
+                            : (currentUser ? [{ id: currentUser.id, name: currentUser.name, color: '#3eb991', pact: currentUser.pact } as any] : [])} 
                         selfId={currentUser?.id} 
                     />
                 </div>

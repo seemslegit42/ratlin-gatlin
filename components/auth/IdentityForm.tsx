@@ -12,6 +12,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { STEP_VARIANTS } from '../../modules/auth/auth.types';
 import { GlassPane } from '../shared/GlassPane';
 import { PlusIcon } from '../icons/PlusIcon'; 
+import { NotificationContext } from '../../contexts/NotificationContext'; 
 
 interface IdentityFormProps {
   mode: 'login' | 'signup';
@@ -43,6 +44,7 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
   const [recoveryMode, setRecoveryMode] = useState(false);
   const [recoveryStatus, setRecoveryStatus] = useState<string | null>(null);
   const [verificationSent, setVerificationSent] = useState(false);
+  const notificationContext = React.useContext(NotificationContext);
 
   const isVerificationError = authError?.toLowerCase().includes('verif') ?? false;
 
@@ -79,13 +81,25 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
       try {
         const result = await onRequestRecovery(trimmedEmail);
         if (result.success) {
-          setRecoveryStatus('Password recovery link dispatched. Please check your inbox.');
+          const successMsg = 'Recovery email has been successfully sent to your inbox. Please check your messages.';
+          setRecoveryStatus(successMsg);
+          if (notificationContext?.addNotification) {
+            notificationContext.addNotification(successMsg, 'success');
+          }
           setRecoveryMode(false);
         } else {
-          setAuthError(result.error || 'Recovery request failed.');
+          const errorMsg = result.error || 'Recovery request failed.';
+          setAuthError(errorMsg);
+          if (notificationContext?.addNotification) {
+            notificationContext.addNotification(errorMsg, 'error');
+          }
         }
       } catch (err) {
-        setAuthError('An unexpected error occurred during password recovery.');
+        const errorMsg = 'An unexpected error occurred during password recovery.';
+        setAuthError(errorMsg);
+        if (notificationContext?.addNotification) {
+          notificationContext.addNotification(errorMsg, 'error');
+        }
       } finally {
         setIsSubmitting(false);
       }
@@ -100,7 +114,7 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
     } finally {
       setIsSubmitting(false);
     }
-  }, [email, password, name, mode, recoveryMode, onRequestRecovery, onSubmit, setAuthError]);
+  }, [email, password, name, mode, recoveryMode, onRequestRecovery, onSubmit, setAuthError, notificationContext]);
 
   const handleResendVerification = useCallback(async () => {
     if (!onResendVerification) return;
@@ -166,10 +180,10 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
 
                     <div className="text-center">
                         <h2 className="text-2xl font-bold mb-1 font-comfortaa text-white tracking-tight">
-                            {recoveryMode ? 'Axiom Recovery' : mode === 'login' ? 'Neural Handshake' : 'Protocol Initialization'}
+                            {recoveryMode ? 'Forgot Password Recovery' : mode === 'login' ? 'Neural Handshake' : 'Protocol Initialization'}
                         </h2>
                         <p className="text-xs text-text-tertiary font-mono uppercase tracking-widest opacity-60">
-                            {recoveryMode ? 'Resetting Cipher' : mode === 'login' ? 'Confirming Sovereignty' : 'Preparing the Seed'}
+                            {recoveryMode ? 'Appwrite Account Recovery • Dispatching Token' : mode === 'login' ? 'Confirming Sovereignty' : 'Preparing the Seed'}
                         </p>
                     </div>
 
@@ -341,22 +355,46 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
 
                             {/* Password recovery / back link */}
                             {mode === 'login' && !recoveryMode && onRequestRecovery && (
-                              <button
-                                type="button"
-                                onClick={() => { setRecoveryMode(true); setAuthError(null); setRecoveryStatus(null); }}
-                                className="text-[10px] text-text-tertiary hover:text-roman-aqua transition-colors font-mono uppercase tracking-wider"
-                              >
-                                Forgot Axiom Cipher?
-                              </button>
+                              <div className="flex flex-col items-center gap-1.5 pt-1">
+                                <button
+                                  type="button"
+                                  onClick={() => { setRecoveryMode(true); setAuthError(null); setRecoveryStatus(null); }}
+                                  className="text-[10px] text-roman-aqua/90 hover:text-roman-aqua hover:underline transition-colors font-mono uppercase tracking-wider"
+                                >
+                                  Forgot Password? (Recover Cipher)
+                                </button>
+                                <a
+                                  href="/recovery"
+                                  className="text-[9px] text-text-tertiary/70 hover:text-white transition-colors font-mono tracking-wide"
+                                  onClick={(e) => {
+                                    e.preventDefault();
+                                    if (typeof window !== 'undefined') window.location.href = '/recovery';
+                                  }}
+                                >
+                                  Open Dedicated Recovery Terminal →
+                                </a>
+                              </div>
                             )}
                             {recoveryMode && (
-                              <button
-                                type="button"
-                                onClick={() => { setRecoveryMode(false); setAuthError(null); }}
-                                className="text-[10px] text-text-tertiary hover:text-white transition-colors font-mono uppercase tracking-wider"
-                              >
-                                ← Return to Access
-                              </button>
+                              <div className="flex flex-col items-center gap-1.5 pt-1">
+                                <button
+                                  type="button"
+                                  onClick={() => { setRecoveryMode(false); setAuthError(null); }}
+                                  className="text-[10px] text-text-tertiary hover:text-white transition-colors font-mono uppercase tracking-wider"
+                                >
+                                  ← Return to Login
+                                </button>
+                                <a
+                                  href="/recovery"
+                                  className="text-[9px] text-roman-aqua/80 hover:text-roman-aqua underline underline-offset-2 font-mono tracking-wide"
+                                  onClick={(e) => {
+                                    e.preventDefault();
+                                    if (typeof window !== 'undefined') window.location.href = '/recovery';
+                                  }}
+                                >
+                                  Open Dedicated Recovery Terminal →
+                                </a>
+                              </div>
                             )}
                         </div>
                     </form>

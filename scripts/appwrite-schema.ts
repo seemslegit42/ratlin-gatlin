@@ -47,6 +47,24 @@ export type ColumnSpec = {
 export type TableSpec = {
   name: string;
   columns: ColumnSpec[];
+  rowSecurity?: boolean;
+  permissions?: string[];
+};
+
+export const AppwriteRole = {
+  any: () => 'any',
+  users: () => 'users',
+  user: (id: string) => `user:${id}`,
+  team: (id: string, role?: string) => role ? `team:${id}/${role}` : `team:${id}`,
+  member: (id: string) => `member:${id}`,
+  label: (key: string) => `label:${key}`,
+};
+
+export const AppwritePermission = {
+  read: (role: string) => `read("${role}")`,
+  create: (role: string) => `create("${role}")`,
+  update: (role: string) => `update("${role}")`,
+  delete: (role: string) => `delete("${role}")`,
 };
 
 export const DATABASE_ID = 'sovereign';
@@ -116,6 +134,8 @@ export const TABLES_SCHEMA: Record<string, TableSpec> = {
   // --- Core system tables ---
   users: {
     name: 'Users',
+    rowSecurity: true,
+    permissions: [AppwritePermission.read(AppwriteRole.users())],
     columns: [
       { key: 'user_id', type: 'string', size: 255 },
       { key: 'syndicate_id', type: 'string', size: 255 },
@@ -214,6 +234,7 @@ export const TABLES_SCHEMA: Record<string, TableSpec> = {
   // --- CRM Module ---
   crm_contacts: {
     name: 'CRM Contacts',
+    rowSecurity: true,
     columns: [
       { key: 'syndicate_id', type: 'string', size: 255 },
       { key: 'name', type: 'string', size: 255 },
@@ -416,6 +437,7 @@ export const TABLES_SCHEMA: Record<string, TableSpec> = {
   // --- Vault ---
   secrets: {
     name: 'Secrets',
+    rowSecurity: true,
     columns: [
       { key: 'syndicate_id', type: 'string', size: 255 },
       { key: 'key', type: 'string', size: 255 },

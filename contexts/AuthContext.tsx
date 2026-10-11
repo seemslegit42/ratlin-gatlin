@@ -21,6 +21,7 @@ interface AuthContextType {
   onAuthStateChange: (callback: (user: CurrentUser | null) => void) => () => void;
   handleSessionExpiry: () => void;
   requestPasswordRecovery: (email: string) => Promise<{ success: boolean; error?: string }>;
+  completePasswordRecovery: (userId: string, secret: string, password: string, passwordAgain?: string) => Promise<{ success: boolean; error?: string }>;
   sendVerificationEmail: () => Promise<{ success: boolean; error?: string }>;
   refreshSession: () => Promise<void>;
 }
@@ -464,8 +465,40 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     const email = emailRaw.trim().toLowerCase();
     if (!email) return { success: false, error: 'Email address is required.' };
     try {
-      const recoveryUrl = `${window.location.origin}${window.location.pathname}#/recovery`;
+      const recoveryUrl = `${window.location.origin}/recovery`;
       await account.createRecovery({ email, url: recoveryUrl });
+      return { success: true };
+    } catch (error: unknown) {
+      return { success: false, error: toAuthUiMessage(error) };
+    }
+  }, []);
+
+  const completePasswordRecovery = useCallback(async (
+    userId: string,
+    secret: string,
+    password: string,
+    passwordAgain?: string
+  ) => {
+    if (!userId || !secret) {
+      return { success: false, error: 'Missing recovery credentials (userId or secret).' };
+    }
+    if (!password || password.length < 8) {
+      return { success: false, error: 'Password must be at least 8 characters long.' };
+    }
+    if (passwordAgain && password !== passwordAgain) {
+      return { success: false, error: 'Passwords do not match.' };
+    }
+    try {
+      try {
+        await account.updateRecovery({
+          userId,
+          secret,
+          password,
+          passwordAgain: passwordAgain || password,
+        });
+      } catch {
+        await (account.updateRecovery as any)(userId, secret, password, passwordAgain || password);
+      }
       return { success: true };
     } catch (error: unknown) {
       return { success: false, error: toAuthUiMessage(error) };
@@ -510,7 +543,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     <AuthContext.Provider value={{
       currentUser, syndicateId: currentUser?.syndicateId || null, isLoading: loading,
       login, register, logout, updateUser, onAuthStateChange, handleSessionExpiry,
-      requestPasswordRecovery, sendVerificationEmail, refreshSession
+      requestPasswordRecovery, completePasswordRecovery, sendVerificationEmail, refreshSession
     }}>
       {children}
     </AuthContext.Provider>

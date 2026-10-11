@@ -16,6 +16,8 @@ import { ZapIcon } from '../../components/icons/VitalsIcons';
 import { ShieldCheckIcon } from '../../components/icons/ShieldCheckIcon';
 import BackButton from '../../components/shared/BackButton';
 import type { View, Agent, Connection } from '../../types';
+import { LlamaCliPlayground } from '../../components/admin/LlamaCliPlayground';
+import { BrainIcon } from '../../components/icons/BrainIcon';
 
 interface AdminViewProps {
   onNavigate: (view: View) => void;
@@ -24,7 +26,7 @@ interface AdminViewProps {
 }
 
 const AdminView: React.FC<AdminViewProps> = ({ onNavigate, agents, connections }) => {
-  const [activeInstrument, setActiveInstrument] = useState<'pantheon' | 'loom' | 'integrations' | 'keys' | 'schema' | 'infra' | 'constitution'>('pantheon');
+  const [activeInstrument, setActiveInstrument] = useState<'pantheon' | 'loom' | 'integrations' | 'keys' | 'schema' | 'infra' | 'constitution' | 'llama-cli'>('pantheon');
 
   return (
     <div className="h-full w-full overflow-y-auto p-3 md:p-5 space-y-4 high-density">
@@ -90,6 +92,13 @@ const AdminView: React.FC<AdminViewProps> = ({ onNavigate, agents, connections }
             <DatabaseIcon className="w-4 h-4" />
             <span>Schema</span>
           </button>
+          <button
+            onClick={() => setActiveInstrument('llama-cli')}
+            className={`px-4 py-2 rounded-md text-xs font-bold flex items-center space-x-2 transition-colors whitespace-nowrap ${activeInstrument === 'llama-cli' ? 'bg-white/10 text-white' : 'text-text-secondary hover:text-white'}`}
+          >
+            <BrainIcon className="w-4 h-4 text-roman-aqua" />
+            <span>Llama CLI</span>
+          </button>
         </div>
       </header>
 
@@ -100,6 +109,7 @@ const AdminView: React.FC<AdminViewProps> = ({ onNavigate, agents, connections }
       {activeInstrument === 'integrations' && <IntegrationsPanel />}
       {activeInstrument === 'keys' && <AccessKeysPanel />}
       {activeInstrument === 'schema' && <SchemaManager />}
+      {activeInstrument === 'llama-cli' && <LlamaCliPlayground />}
     </div>
   );
 };

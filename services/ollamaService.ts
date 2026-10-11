@@ -17,6 +17,7 @@ import type {
 import * as mediapieLLMService from './mediapieLLMService.js';
 import { getArchitectModelId, getPrimaryChatModelId } from './llmDefaults.js';
 import { postLiteLLMChat, pingLiteLLM, type LiteLLMMessage } from './litellmClient.js';
+import { postLlamaCppChat, pingLlamaCpp } from './llamaCppService.js';
 
 export interface LlmFunctionCall {
   name: string;
@@ -39,14 +40,26 @@ interface OllamaMessage {
 /**
  * LLM Backend Selection & Initialization
  */
-type LlmBackend = 'mediapipe' | 'ollama' | 'litellm';
+type LlmBackend = 'mediapipe' | 'ollama' | 'litellm' | 'openrouter' | 'llamacpp';
 
 let preferredBackend: LlmBackend =
   (process.env.LLM_BACKEND as LlmBackend) || 'litellm';
 let mediapipeReady = false;
 let litellmReady = false;
+let llamacppReady = false;
 
 export const initializeLLMBackend = async (): Promise<void> => {
+  if (preferredBackend === 'llamacpp') {
+    console.log('[LLM] Connecting to llama.cpp server.');
+    llamacppReady = await pingLlamaCpp();
+    if (llamacppReady) {
+      console.log('[LLM] llama.cpp server reachable.');
+      return;
+    }
+    console.warn('[LLM] llama.cpp server unreachable — trying LiteLLM/Ollama.');
+    preferredBackend = 'litellm';
+  }
+
   if (preferredBackend === 'litellm') {
     console.log('[LLM] LiteLLM gateway — local Granite/Gemma.');
     litellmReady = await pingLiteLLM();
@@ -83,6 +96,7 @@ export const initializeLLMBackend = async (): Promise<void> => {
 export const getLLMBackendStatus = (): {
   backend: LlmBackend;
   ready: boolean;
+  cloudFallback: boolean;
   models: { fast: string; architect: string };
 } => {
   const active: LlmBackend = mediapipeReady
@@ -96,6 +110,7 @@ export const getLLMBackendStatus = (): {
       mediapipeReady ||
       litellmReady ||
       preferredBackend === 'ollama',
+    cloudFallback: litellmReady,
     models: {
       fast: getPrimaryChatModelId(),
       architect: getArchitectModelId(),
@@ -277,6 +292,12 @@ const routeChatRequest = async (
     }
   }
 
+  // llama.cpp server (OpenAI-compatible)
+  if (preferredBackend === 'llamacpp' || llamacppReady) {
+    console.log('[LLM] Routing to llama.cpp backend.');
+    return postLlamaCppChatFromOllamaMessages(messages, options, modelOverride, abortSignal);
+  }
+
   // LiteLLM gateway (OpenAI-compatible) — local GGUF
   if (preferredBackend === 'litellm' || litellmReady) {
     console.log('[LLM] Routing to LiteLLM gateway.');
@@ -285,6 +306,26 @@ const routeChatRequest = async (
 
   console.log('[LLM] Routing to Ollama backend.');
   return postOllamaChat(messages, options, modelOverride, abortSignal);
+};
+
+const postLlamaCppChatFromOllamaMessages = async (
+  messages: OllamaMessage[],
+  options?: JsonObject,
+  modelOverride?: string,
+  abortSignal?: AbortSignal,
+): Promise<LlmResponse> => {
+  const modelId =
+    typeof modelOverride === 'string' && modelOverride.trim().length > 0
+      ? modelOverride.trim()
+      : getPrimaryChatModelId();
+
+  const llamaMessages = messages.map((m) => ({
+    role: m.role,
+    content: m.content,
+  }));
+
+  const result = await postLlamaCppChat(llamaMessages, modelId, options, abortSignal);
+  return { text: result.text, raw: result.raw };
 };
 
 const postLiteLLMChatFromOllamaMessages = async (

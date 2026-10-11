@@ -144,8 +144,8 @@ export function buildSovereignTables(): CliTable[] {
       databaseId: DATABASE_ID,
       name: spec.name,
       enabled: true,
-      rowSecurity: false,
-      $permissions: [],
+      rowSecurity: spec.rowSecurity ?? false,
+      $permissions: spec.permissions ?? [],
       columns,
       indexes,
     });

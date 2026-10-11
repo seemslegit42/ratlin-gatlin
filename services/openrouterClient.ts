@@ -2,7 +2,7 @@
  * OpenRouter API Client
  */
 
-import type { JsonObject } from '../types.js';
+import type { JsonObject, JsonValue } from '../types.js';
 
 export interface OpenRouterMessage {
   role: string;
@@ -62,7 +62,7 @@ export async function postOpenRouterChat(
 
   const payload: JsonObject = {
     model,
-    messages,
+    messages: messages as unknown as JsonValue,
     ...(options?.tools ? { tools: options.tools } : {}),
     ...(options?.tool_choice ? { tool_choice: options.tool_choice } : {}),
     ...(typeof options?.temperature === 'number' ? { temperature: options.temperature } : {}),

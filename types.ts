@@ -45,7 +45,12 @@ export interface Settings {
   animationLevel: AnimationLevel;
   interactionStyle: InteractionStyle;
   anomalySensitivity: number;
-  llmProvider: 'ollama' | 'openai' | 'anthropic';
+  learningParameters?: {
+    patientWaitTimeThresholdMinutes?: number;
+    taskDelayMultiplier?: number;
+    securityDeviationThreshold?: 'Strict' | 'Moderate' | 'Relaxed';
+  };
+  llmProvider: 'ollama' | 'openai' | 'anthropic' | 'mediapipe' | 'litellm' | 'openrouter' | 'llamacpp';
   mcpAutoAbsorption: boolean;
 }
 
@@ -442,6 +447,9 @@ export enum WidgetType {
   REVENUE_CHART = 'REVENUE_CHART',
   /** Conversational scaffolding workflow preview (spec §3.3) */
   WORKFLOW_SCAFFOLD = 'WORKFLOW_SCAFFOLD',
+  GALAXY_STRATEGIC = 'GALAXY_STRATEGIC',
+  PVP_BATTLE = 'PVP_BATTLE',
+  COMPLIANCE_REPORT = 'COMPLIANCE_REPORT',
 }
 
 export interface WidgetData {
@@ -453,6 +461,7 @@ export interface InvoiceWidgetData extends WidgetData {
   clientName: string;
   status: string;
   amount: number;
+  milestoneName?: string;
 }
 
 export interface OnboardingWidgetData extends WidgetData {

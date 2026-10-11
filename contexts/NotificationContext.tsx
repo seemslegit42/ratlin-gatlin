@@ -11,12 +11,12 @@ import Notifications from '../components/Notifications';
 import type { Notification } from '../components/Notifications';
 
 /** Defines the possible types of notifications. */
-type NotificationType = 'success' | 'error' | 'info';
+export type NotificationType = 'success' | 'error' | 'info';
 
 /**
  * Interface for the NotificationContext's value.
  */
-interface NotificationContextType {
+export interface NotificationContextType {
   /**
    * Adds a new notification to be displayed.
    * @param message The text message of the notification.
@@ -28,7 +28,7 @@ interface NotificationContextType {
 /**
  * The React Context object for notifications.
  */
-const NotificationContext = createContext<NotificationContextType | null>(null);
+export const NotificationContext = createContext<NotificationContextType | null>(null);
 
 /**
  * Props for the NotificationProvider.
@@ -118,3 +118,7 @@ export const useNotifications = () => {
   }
   return context;
 };
+
+/** Alias hook for singular useNotification import */
+export const useNotification = useNotifications;
+

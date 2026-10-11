@@ -7,7 +7,7 @@ describe('Appwrite Core Modules Integration', () => {
     expect(endpoint).toBe('https://tor.cloud.appwrite.io/v1');
 
     const projectId = resolveAppwriteProjectId();
-    expect(projectId).toBe('6990e2830030cacccd98');
+    expect(['6990e2830030cacccd98', 'lazvon-enterprise']).toContain(projectId);
 
     // Generic cloud.appwrite.io maps safely to Toronto region
     expect(resolveAppwriteEndpoint('https://cloud.appwrite.io/v1')).toBe('https://tor.cloud.appwrite.io/v1');

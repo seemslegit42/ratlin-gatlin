@@ -11,6 +11,7 @@ import { ClockIcon } from '../../../components/icons/AetheriumIcons';
 
 // Canvas Components
 import WeaverCanvasCore from '../WeaverCanvasCore';
+import { AgentGraph3D } from '../../../components/weaver/AgentGraph3D';
 import CommandBar from '../../../components/CommandBar';
 import ControlPanel from '../../../components/ControlPanel';
 import { InspectorPanel } from '../../../components/weaver/InspectorPanel';
@@ -184,24 +185,30 @@ export const DesktopLayout: React.FC<DesktopLayoutProps> = ({
                 {/* Kanban Board toggle */}
                 <div className="relative group flex items-center justify-center">
                     <div className="absolute left-full ml-3 px-2 py-1 bg-black/80 border border-white/10 rounded text-[10px] font-bold text-white uppercase tracking-wider opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-[100]">
-                        Status Board
+                        Toggle View Mode
                     </div>
                     <button
-                        onClick={() => uiState.setViewMode((v: 'canvas' | 'board') => v === 'board' ? 'canvas' : 'board')}
-                        title="Toggle Status Board"
+                        onClick={() => uiState.setViewMode((v: 'canvas' | 'board' | '3d') => v === 'canvas' ? 'board' : v === 'board' ? '3d' : 'canvas')}
+                        title="Toggle View Mode"
                         className={`w-10 h-10 flex items-center justify-center rounded-xl transition-all duration-300 border relative ${
-                            uiState.viewMode === 'board'
+                            uiState.viewMode !== 'canvas'
                                 ? 'bg-roman-aqua text-black border-roman-aqua/50 shadow-[0_0_15px_rgba(32,178,170,0.4)]'
                                 : 'bg-white/5 border-transparent text-text-secondary hover:text-white hover:bg-white/10 hover:border-white/10'
                         }`}
                     >
-                        {/* Board / Kanban icon */}
-                        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
-                            <rect x="3" y="3" width="5" height="18" rx="1" />
-                            <rect x="10" y="3" width="5" height="13" rx="1" />
-                            <rect x="17" y="3" width="5" height="9"  rx="1" />
-                        </svg>
-                        {uiState.viewMode === 'board' && (
+                        {/* Dynamic Icon */}
+                        {uiState.viewMode === 'canvas' ? (
+                            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+                                <rect x="3" y="3" width="5" height="18" rx="1" />
+                                <rect x="10" y="3" width="5" height="13" rx="1" />
+                                <rect x="17" y="3" width="5" height="9"  rx="1" />
+                            </svg>
+                        ) : uiState.viewMode === 'board' ? (
+                            <div className="w-5 h-5 bg-black rounded-full" />
+                        ) : (
+                            <div className="w-5 h-5 border-2 border-black rounded-sm" />
+                        )}
+                        {uiState.viewMode !== 'canvas' && (
                             <motion.div
                                 layoutId="toolblade-active"
                                 className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-roman-aqua rounded-r-full"
@@ -251,6 +258,17 @@ export const DesktopLayout: React.FC<DesktopLayoutProps> = ({
                                     if (agent) actions.updateAgent(agentId, { isVeiled: !agent.isVeiled });
                                 }}
                             />
+                        </motion.div>
+                    ) : uiState.viewMode === '3d' ? (
+                        <motion.div
+                            key="3d"
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            transition={{ duration: 0.2 }}
+                            className="absolute inset-0 z-10"
+                        >
+                            <AgentGraph3D agents={canvasProps.agents} connections={canvasProps.connections} />
                         </motion.div>
                     ) : (
                         <motion.div
