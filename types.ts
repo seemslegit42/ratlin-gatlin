@@ -3,6 +3,10 @@
  * @description Centralized type definitions for the ΛΞVON OS (Agentic Operating System).
  */
 
+export interface TenantAware {
+  tenantId: string;
+}
+
 export type JsonValue = string | number | boolean | null | { [key: string]: JsonValue } | JsonValue[];
 export type JsonObject = { [key: string]: JsonValue };
 
@@ -138,7 +142,7 @@ export interface ConstitutionalPrinciple {
 
 export type Covenant = 'motion' | 'silence';
 
-export interface User {
+export interface User extends TenantAware {
   id: string;
   name: string;
   color: string;

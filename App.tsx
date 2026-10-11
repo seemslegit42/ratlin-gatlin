@@ -443,6 +443,7 @@ const App: React.FC = () => {
                               onSpawnWidget={handleSpawnWidget}
                               onOpenCommandCenter={() => setIsCommandCenterOpen(true)}
                               onStopGeneration={cancelActiveGeneration}
+                              onTogglePresence={() => addNotification("Presence logs toggled", "info")}
                               beepPrefill={beepPrefill}
                             />
                         ) : (

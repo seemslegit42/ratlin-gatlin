@@ -116,6 +116,30 @@ export async function deleteCurrentSession(): Promise<AuthResult> {
 }
 
 /**
+ * Updates the user's name.
+ */
+export async function updateName(name: string): Promise<AuthResult<Models.User<Models.Preferences>>> {
+    try {
+        const user = await account.updateName(name);
+        return { success: true, data: user };
+    } catch (error: unknown) {
+        return { success: false, error: toAuthUiMessage(error) };
+    }
+}
+
+/**
+ * Updates the user's preferences.
+ */
+export async function updatePrefs(prefs: Models.Preferences): Promise<AuthResult<Models.Preferences>> {
+    try {
+        const updatedPrefs = await account.updatePrefs(prefs);
+        return { success: true, data: updatedPrefs };
+    } catch (error: unknown) {
+        return { success: false, error: toAuthUiMessage(error) };
+    }
+}
+
+/**
  * Deletes all sessions for the user across all devices (Global Logout).
  */
 export async function deleteSessions(): Promise<AuthResult> {

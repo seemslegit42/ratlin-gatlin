@@ -49,6 +49,7 @@ interface MainViewProps {
     onSpawnWidget?: (type: DesktopWidgetType) => void;
     onOpenCommandCenter?: () => void;
     onStopGeneration?: () => void;
+    onTogglePresence?: () => void;
     beepPrefill?: string;
 }
 
@@ -57,7 +58,7 @@ const MainView: React.FC<MainViewProps> = ({
     pipeline, crmActivities,
     messages = [], isProcessing = false, isLive = false, isSpeaking = false, volume = 0, isTtsMuted = false,
     onToggleTtsMute = () => {}, onSendCommand = () => {}, onToggleLive = () => {}, onOpenAgentCreator = () => {},
-    onSpawnWidget = () => {}, onOpenCommandCenter = () => {}, onStopGeneration = () => {}, beepPrefill
+    onSpawnWidget = () => {}, onOpenCommandCenter = () => {}, onStopGeneration = () => {}, onTogglePresence = () => {}, beepPrefill
 }) => {
     const isMobile = useBreakpoint();
     const [hudMode, setHudMode] = useState<'compressed' | 'expanded'>('compressed');
@@ -76,14 +77,23 @@ const MainView: React.FC<MainViewProps> = ({
             
             {/* Top 1/3: Vitals HUD Container with Mode Toggle */}
             <div className={`${hudMode === 'expanded' ? 'min-h-[220px]' : 'h-[30%] min-h-[160px]'} flex-shrink-0 z-40 relative group`}>
-                <button
-                    onClick={() => setHudMode(prev => prev === 'compressed' ? 'expanded' : 'compressed')}
-                    className="absolute top-2 right-4 z-50 px-2 py-0.5 text-[9px] font-mono uppercase tracking-wider rounded bg-white/5 hover:bg-white/10 text-text-tertiary hover:text-white border border-white/10 transition-colors flex items-center gap-1"
-                    title="Toggle HUD Telemetry View"
-                >
-                    <span className="w-1.5 h-1.5 rounded-full bg-roman-aqua animate-pulse" />
-                    <span>{hudMode === 'compressed' ? 'EXPAND PODS' : 'COMPRESS HUD'}</span>
-                </button>
+                <div className="absolute top-2 right-4 z-50 flex items-center gap-2">
+                    <button
+                        onClick={onTogglePresence}
+                        className="px-2 py-0.5 text-[9px] font-mono uppercase tracking-wider rounded bg-white/5 hover:bg-white/10 text-text-tertiary hover:text-white border border-white/10 transition-colors flex items-center gap-1"
+                        title="Toggle Presence Logs"
+                    >
+                        <span>PRESENCE</span>
+                    </button>
+                    <button
+                        onClick={() => setHudMode(prev => prev === 'compressed' ? 'expanded' : 'compressed')}
+                        className="px-2 py-0.5 text-[9px] font-mono uppercase tracking-wider rounded bg-white/5 hover:bg-white/10 text-text-tertiary hover:text-white border border-white/10 transition-colors flex items-center gap-1"
+                        title="Toggle HUD Telemetry View"
+                    >
+                        <span className="w-1.5 h-1.5 rounded-full bg-roman-aqua animate-pulse" />
+                        <span>{hudMode === 'compressed' ? 'EXPAND PODS' : 'COMPRESS HUD'}</span>
+                    </button>
+                </div>
                 {hudMode === 'compressed' ? (
                     <CHudVitals 
                         profitVelocity={profitVelocity}

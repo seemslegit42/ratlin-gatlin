@@ -69,6 +69,46 @@
       "enabled": true,
       "events": [],
       "timeout": 60
+    },
+    {
+      "name": "Create User",
+      "$id": "create-user",
+      "runtime": "node-18.0",
+      "path": "backend/functions/create-user.ts",
+      "entrypoint": "default",
+      "enabled": true,
+      "events": [],
+      "timeout": 60
+    },
+    {
+      "name": "Log Audit Event",
+      "$id": "log-audit-event",
+      "runtime": "node-18.0",
+      "path": "backend/functions/log-audit-event.ts",
+      "entrypoint": "default",
+      "enabled": true,
+      "events": [],
+      "timeout": 60
+    },
+    {
+      "name": "Finalize Deal",
+      "$id": "finalize-deal",
+      "runtime": "node-18.0",
+      "path": "backend/functions/finalize-deal.ts",
+      "entrypoint": "default",
+      "enabled": true,
+      "events": [],
+      "timeout": 60
+    },
+    {
+      "name": "Manage Account",
+      "$id": "manage-account",
+      "runtime": "node-18.0",
+      "path": "backend/functions/manage-account.ts",
+      "entrypoint": "default",
+      "enabled": true,
+      "events": [],
+      "timeout": 60
     }
   ],
   "buckets": [

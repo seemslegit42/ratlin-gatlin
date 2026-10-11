@@ -7,6 +7,7 @@
 import React, { useState, useEffect } from 'react';
 import { AnimatePresence } from 'framer-motion';
 import { useAuth } from '../../contexts/AuthContext';
+import { useNotification } from '../../contexts/NotificationContext';
 import { AuthLayout } from './AuthLayout';
 import { IdentityForm } from '../../components/auth/IdentityForm';
 import { VowSelection } from '../../components/auth/VowSelection';
@@ -18,6 +19,7 @@ import { logInteraction } from '../../services/appLogger.js';
 
 const Login: React.FC = () => {
     const { login, register, requestPasswordRecovery, sendVerificationEmail } = useAuth();
+    const { addNotification } = useNotification();
     
     // -- State --
     const [step, setStep] = useState<number>(0);
@@ -73,7 +75,13 @@ const Login: React.FC = () => {
 
     const handleRequestRecovery = async (recoveryEmail: string) => {
         logInteraction('auth.recovery_request', {});
-        return requestPasswordRecovery(recoveryEmail);
+        const result = await requestPasswordRecovery(recoveryEmail);
+        if (result.success) {
+            addNotification('Recovery email sent successfully.', 'success');
+        } else {
+            addNotification(result.error || 'Failed to send recovery email.', 'error');
+        }
+        return result;
     };
 
     const handleResendVerification = async () => {

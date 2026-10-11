@@ -284,6 +284,11 @@ export const tablesDB = {
     return databases.deleteDocument(databaseId, collId, docId);
   },
 
+  getPresence: async (presenceId: string) => {
+    // PRESENCES collection/table id is 'presences'
+    return databases.getDocument(DATABASE_ID, 'presences', presenceId);
+  },
+
   upsertRow: async (arg1: any, tableId?: string, rowIdOrData?: any, data?: any, permissions?: string[]) => {
     let databaseId = DATABASE_ID;
     let collId = '';
