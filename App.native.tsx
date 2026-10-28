@@ -1,6 +1,6 @@
 /**
  * @file App.native.tsx
- * @description React Native root component for the complete ΛΞVOS mobile platform.
+ * @description React Native root entry point for the complete ΛΞVOS mobile platform.
  * Built with Verdigris Interface Protocol™ (Roman Aqua #20B2AA, Patina Green #3EB991, Imperial Purple #6A0DAD).
  * Integrates Appwrite 2.0 Auth, Turso libSQL state, and the Handheld Artifact doctrine.
  */
@@ -14,40 +14,61 @@ import {
   TouchableOpacity,
   SafeAreaView,
   StatusBar,
-  Dimensions,
   TextInput,
 } from 'react-native';
 import * as Haptics from 'expo-haptics';
 import { LinearGradient } from 'expo-linear-gradient';
 
-// Native Screens & Components
-import { GlassPane } from './components/native/GlassPane.native.js';
-import { AcquisitionButton } from './components/native/AcquisitionButton.native.js';
-import { BrandSignature } from './components/native/BrandSignature.native.js';
-import { WeaverScreenNative } from './components/native/WeaverScreen.native.js';
-import { CRMScreenNative } from './components/native/CRMScreen.native.js';
-import { EconomyScreenNative } from './components/native/EconomyScreen.native.js';
-import { VitalsScreenNative } from './components/native/VitalsScreen.native.js';
-import { PantheonScreenNative } from './components/native/PantheonScreen.native.js';
-import { OperationsScreenNative } from './components/native/OperationsScreen.native.js';
-import { SecurityScreenNative } from './components/native/SecurityScreen.native.js';
-import { MarketingScreenNative } from './components/native/MarketingScreen.native.js';
-import { SimulacrumScreenNative } from './components/native/SimulacrumScreen.native.js';
-import { VoiceCommandModal } from './components/native/VoiceCommandModal.native.js';
+// Native UI Atoms
+import { GlassPane } from './native/components/GlassPane.native.js';
+import { AcquisitionButton } from './native/components/AcquisitionButton.native.js';
+import { BrandSignature } from './native/components/BrandSignature.native.js';
+import { VoiceCommandModal } from './native/components/VoiceCommandModal.native.js';
+
+// Native Domain Modules
+import { AuthViewNative } from './native/modules/AuthView.native.js';
+import { AdminViewNative } from './native/modules/AdminView.native.js';
+import { FinanceViewNative } from './native/modules/FinanceView.native.js';
+import { HRMViewNative } from './native/modules/HRMView.native.js';
+import { MainViewNative } from './native/modules/MainView.native.js';
+
+// Native Domain Screens
+import { WeaverScreenNative } from './native/components/WeaverScreen.native.js';
+import { CRMScreenNative } from './native/components/CRMScreen.native.js';
+import { EconomyScreenNative } from './native/components/EconomyScreen.native.js';
+import { VitalsScreenNative } from './native/components/VitalsScreen.native.js';
+import { PantheonScreenNative } from './native/components/PantheonScreen.native.js';
+import { OperationsScreenNative } from './native/components/OperationsScreen.native.js';
+import { SecurityScreenNative } from './native/components/SecurityScreen.native.js';
+import { MarketingScreenNative } from './native/components/MarketingScreen.native.js';
+import { SimulacrumScreenNative } from './native/components/SimulacrumScreen.native.js';
+import { ProcurementScreenNative } from './native/components/ProcurementScreen.native.js';
+import { ProductionScreenNative } from './native/components/ProductionScreen.native.js';
+import { NotepadScreenNative } from './native/components/NotepadScreen.native.js';
+import { HelpScreenNative } from './native/components/HelpScreen.native.js';
 
 type TabKey =
   | 'command'
+  | 'main'
   | 'weaver'
   | 'operations'
   | 'crm'
   | 'economy'
+  | 'finance'
   | 'security'
   | 'marketing'
   | 'simulacrum'
+  | 'procurement'
+  | 'production'
+  | 'hrm'
   | 'vitals'
-  | 'pantheon';
+  | 'pantheon'
+  | 'admin'
+  | 'notepad'
+  | 'help';
 
 export default function AppNative() {
+  const [isAuthenticated, setIsAuthenticated] = useState(true);
   const [activeTab, setActiveTab] = useState<TabKey>('command');
   const [commandInput, setCommandInput] = useState('');
   const [isVoiceOpen, setIsVoiceOpen] = useState(false);
@@ -72,6 +93,15 @@ export default function AppNative() {
     setLogs(prev => [`> ${text}`, response, ...prev]);
     if (!inputToRun) setCommandInput('');
   };
+
+  if (!isAuthenticated) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <StatusBar barStyle="light-content" backgroundColor="#000000" />
+        <AuthViewNative onLoginSuccess={() => setIsAuthenticated(true)} />
+      </SafeAreaView>
+    );
+  }
 
   return (
     <SafeAreaView style={styles.container}>
@@ -151,15 +181,23 @@ export default function AppNative() {
             </ScrollView>
           )}
 
+          {activeTab === 'main' && <MainViewNative />}
           {activeTab === 'weaver' && <WeaverScreenNative />}
           {activeTab === 'operations' && <OperationsScreenNative />}
           {activeTab === 'crm' && <CRMScreenNative />}
           {activeTab === 'economy' && <EconomyScreenNative />}
+          {activeTab === 'finance' && <FinanceViewNative />}
           {activeTab === 'security' && <SecurityScreenNative />}
           {activeTab === 'marketing' && <MarketingScreenNative />}
           {activeTab === 'simulacrum' && <SimulacrumScreenNative />}
+          {activeTab === 'procurement' && <ProcurementScreenNative />}
+          {activeTab === 'production' && <ProductionScreenNative />}
+          {activeTab === 'hrm' && <HRMViewNative />}
           {activeTab === 'vitals' && <VitalsScreenNative />}
           {activeTab === 'pantheon' && <PantheonScreenNative />}
+          {activeTab === 'admin' && <AdminViewNative />}
+          {activeTab === 'notepad' && <NotepadScreenNative />}
+          {activeTab === 'help' && <HelpScreenNative />}
         </View>
 
         {/* Voice Command Modal */}
@@ -179,15 +217,23 @@ export default function AppNative() {
             {(
               [
                 ['command', 'Command'],
+                ['main', 'Dashboard'],
                 ['weaver', 'Weaver'],
                 ['operations', 'Operations'],
                 ['crm', 'CRM'],
                 ['economy', 'Economy'],
+                ['finance', 'Finance'],
                 ['security', 'Security'],
                 ['marketing', 'Marketing'],
                 ['simulacrum', 'Simulacrum'],
+                ['procurement', 'Procurement'],
+                ['production', 'Production'],
+                ['hrm', 'HRM'],
                 ['vitals', 'Vitals'],
                 ['pantheon', 'Pantheon'],
+                ['admin', 'Admin'],
+                ['notepad', 'Notepad'],
+                ['help', 'Help'],
               ] as [TabKey, string][]
             ).map(([key, label]) => {
               const isActive = activeTab === key;
