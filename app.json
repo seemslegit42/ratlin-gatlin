@@ -1,0 +1,32 @@
+{
+  "expo": {
+    "name": "ΛΞVOS Mobile",
+    "slug": "levos-mobile",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/modelfiles/gemma-4-12b.Modelfile",
+    "userInterfaceStyle": "dark",
+    "splash": {
+      "image": "./vitalshud-desktop-verify-20260430-145526.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#000000"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "cloud.aevon.levos"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#000000"
+      },
+      "package": "cloud.aevon.levos"
+    },
+    "web": {
+      "bundler": "metro"
+    },
+    "plugins": [
+      "expo-font",
+      "expo-haptics"
+    ]
+  }
+}
