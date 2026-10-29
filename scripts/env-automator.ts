@@ -27,8 +27,12 @@ function generateSecret(length = 32): string {
   return randomBytes(length).toString('hex');
 }
 
+const APPLIANCE = process.env.BEEP_APPLIANCE === '1' || process.env.BEEP_OPERATOR === '1';
+
 async function main() {
-  console.log(`\n${C.cyan}╔══════════════════════════════════════════╗\n║  ΛΞVOS Intelligent Env Automator         ║\n╚══════════════════════════════════════════╝${C.nc}\n`);
+  if (!APPLIANCE) {
+    console.log(`\n${C.cyan}╔══════════════════════════════════════════╗\n║  ΛΞVOS Intelligent Env Automator         ║\n╚══════════════════════════════════════════╝${C.nc}\n`);
+  }
 
   if (!existsSync(EXAMPLE_PATH)) {
     console.error(`${C.red}✗ .env.example not found in workspace root.${C.nc}`);
@@ -68,8 +72,23 @@ async function main() {
     if (eqIdx !== -1) {
       const key = trimmed.slice(0, eqIdx).trim();
       if (!updatedEnv[key] || updatedEnv[key] === '') {
-        // Never synthesize or assume Appwrite credentials, endpoints, or project IDs
-        if (key.includes('APPWRITE')) {
+        // Appliance mode: local self-hosted Appwrite on port 80 (no cloud defaults).
+        if (APPLIANCE && key.includes('APPWRITE')) {
+          if (key.includes('ENDPOINT')) {
+            updatedEnv[key] = 'http://localhost/v1';
+            continue;
+          }
+          if (key.includes('PROJECT_ID')) {
+            updatedEnv[key] = 'beep-local';
+            continue;
+          }
+          if (key.includes('API_KEY') || key.endsWith('_KEY')) {
+            updatedEnv[key] = `beep_sec_${generateSecret(16)}`;
+            continue;
+          }
+        }
+
+        if (!APPLIANCE && key.includes('APPWRITE')) {
           continue;
         }
 
@@ -123,7 +142,11 @@ async function main() {
     console.log(`${C.dim}  · Ollama not currently active locally (non-blocking for UI dev)${C.nc}`);
   }
 
-  console.log(`\n${C.green}Environment automation complete. Dominion is ready to cast.${C.nc}\n`);
+  if (APPLIANCE) {
+    /* operator mode: no console output */
+  } else {
+    console.log(`\n${C.green}Environment automation complete. Dominion is ready to cast.${C.nc}\n`);
+  }
 }
 
 main().catch(err => {

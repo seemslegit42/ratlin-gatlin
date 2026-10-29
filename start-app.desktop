@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=BEEP
+Comment=Open BEEP
+Exec=env BEEP_OPERATOR=1 BEEP_ROOT=%k bash -lc 'cd "$(dirname "%k")" && ./start-app.sh'
+Path=
+Icon=internet-web-browser
+Terminal=false
+Categories=Office;

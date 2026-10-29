@@ -1,5 +1,7 @@
 # B.E.E.P (Behavioral Event & Execution Processor)
 
+> **Operators:** read [quick-start.md](./quick-start.md) — double-click **install-app**, then use **BEEP** daily. No terminal.
+
 > **ΛΞVON OS: The Verdigris Interface**
 
 B.E.E.P is an agentic Syndicate Resource Planning (SRP) platform integrated into a Conversational Heads-Up Display (C-HUD). It serves as the primary interface for "Sovereigns" (users) to orchestrate AI business partners, manage complex workflows, and visualize economic data through an immersive, diegetic interface.

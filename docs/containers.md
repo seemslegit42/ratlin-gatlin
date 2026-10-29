@@ -10,7 +10,7 @@ Quick reference for the **BEEP Dominion** Docker Compose stack.
 | `litellm` | `ghcr.io/berriai/litellm` | OpenAI gateway, retries, fallbacks |
 | `postman-mcp` | `Dockerfile.mcp` | Postman API bridge + MCP over HTTP |
 
-**Not in Compose (Phase 1):** Appwrite — hosted on Appwrite Cloud and deployed via CLI.
+**BaaS (default):** Self-hosted Appwrite under `./appwrite/` — bootstrap with `bun run appwrite:bootstrap`, run merged stack with `docker-compose.sovereign.yml`. Appwrite Cloud is opt-in.
 
 ## Files
 
@@ -72,6 +72,9 @@ docker compose -f docker-compose.yml -f docker-compose.dev.yml down --remove-orp
 - Set `MCP_ALLOWED_HOSTS` to the Traefik hostname serving MCP.
 - `POSTMAN_API_KEY` is server-side only (MCP container env).
 
-## Phase 2 (deferred)
+## Sovereign merge
 
-Self-hosted Appwrite: see plan `docker-compose.sovereign.yml` / `EVOLUTION.md` when sovereignty requirements change.
+| File | Use |
+|------|-----|
+| `docker-compose.sovereign.yml` | Includes `./appwrite/docker-compose.yml` + `docker-compose.yml` |
+| `docs/self-hosted-appwrite.md` | Wizard, RAM/swap, BEEP env wiring |

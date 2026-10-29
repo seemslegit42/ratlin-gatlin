@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=Install BEEP
+Comment=One-time setup
+Exec=env BEEP_OPERATOR=1 BEEP_ROOT=%k bash -lc 'cd "$(dirname "%k")" && ./install-app.sh'
+Path=
+Icon=system-software-install
+Terminal=false
+Categories=Utility;

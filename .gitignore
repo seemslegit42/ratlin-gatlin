@@ -11,6 +11,11 @@ node_modules
 dist
 dist-ssr
 *.local
+.local/
+
+# Self-hosted Appwrite installer output (secrets + generated env)
+appwrite/.env
+appwrite/**/.env
 
 # GGUF model weights — large binaries; never commit (use Git LFS or fetch locally).
 # If one was accidentally tracked: git rm --cached path/to/file.gguf && git commit

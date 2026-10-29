@@ -7,18 +7,21 @@
     "bun": ">=1.1.0"
   },
   "scripts": {
-    "dev": "vite",
-    "dev:vite": "vite",
-    "dev:all": "concurrently -n vite,mcp -c blue,green \"vite\" \"bun run dev:mcp\"",
+    "dev": "BEEP_OPERATOR=1 bun run scripts/run-appliance.ts dev",
+    "start": "BEEP_OPERATOR=1 bun run scripts/run-appliance.ts start",
+    "build": "BEEP_OPERATOR=1 bun run scripts/run-appliance.ts build",
+    "install-app": "BEEP_OPERATOR=1 bun run scripts/install-app.ts",
+    "build-executable": "BEEP_OPERATOR=1 bun run scripts/build-executable.ts",
+    "dev:vite": "bunx --bun vite",
+    "dev:all": "bun run dev",
     "dev:mcp": "bun run backend/postman-mcp-server.ts",
-    "build": "bunx --bun vite build",
     "preview": "bunx --bun vite preview",
     "lint": "tsc --noEmit -p tsconfig.app.json",
     "typecheck": "tsc --noEmit -p tsconfig.app.json",
     "test": "bun test",
     "test:watch": "bun test --watch",
     "env:automate": "bun run scripts/env-automator.ts",
-    "cast": "bun run scripts/cast.ts",
+    "cast": "bun run dev",
     "cast:deploy": "DOKPLOY=1 bun run scripts/cast.ts --deploy",
     "cast:down": "bun run scripts/cast.ts --down",
     "cast:status": "bun run scripts/cast.ts --status",
@@ -27,7 +30,8 @@
     "file-janitor": "bun run backend/fileJanitor.ts",
     "types:generate": "bun run scripts/generate-appwrite-types.ts",
     "types:appwrite": "bun run scripts/generate-appwrite-types.ts",
-    "types:strict": "bun run scripts/generate-appwrite-types.ts --strict"
+    "types:strict": "bun run scripts/generate-appwrite-types.ts --strict",
+    "appwrite:bootstrap": "bash scripts/bootstrap-appwrite-self-hosted.sh"
   },
   "dependencies": {
     "@mediapipe/tasks-genai": "^0.10.0",

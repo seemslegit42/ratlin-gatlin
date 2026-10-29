@@ -1,14 +1,24 @@
 # BEEP deployment runbook
 
-Enterprise SaaS split: **Appwrite Cloud** hosts the SPA + serverless; **Dokploy** runs the auxiliary Compose stack (Ollama + Postman MCP).
+**Default (edge / sovereign):** **Self-hosted Appwrite** (`bun run appwrite:bootstrap`, `docker-compose.sovereign.yml`) for BaaS + Sites/Functions; auxiliary AI/MCP from `docker-compose.yml`. **Opt-in:** Appwrite Cloud + Dokploy-only stack (legacy split below).
 
-## Architecture
+## Architecture (sovereign default)
 
 | Layer | Host | Artifact |
 |-------|------|----------|
-| Command UI | Appwrite Sites | `dist/` from `bun run build` |
+| BaaS (auth, TablesDB, buckets, functions) | Self-hosted Appwrite (`./appwrite/`) | Wizard + `appwrite.config.json` push |
+| Command UI | Appwrite Sites on same instance | `dist/` from `bun run build` |
+| AI + MCP | Merged Compose | `docker-compose.sovereign.yml` |
+
+## Architecture (cloud opt-in)
+
+| Layer | Host | Artifact |
+|-------|------|----------|
+| Command UI | Appwrite Cloud Sites | `dist/` from `bun run build` |
 | Functions / Tables / Buckets | Appwrite Cloud | `appwrite.config.json` |
 | AI + MCP | Dokploy Compose | `docker-compose.yml` |
+
+See [self-hosted-appwrite.md](./self-hosted-appwrite.md) for bootstrap and 4 GB edge sizing.
 
 ## Founder local dev
 
