@@ -16,6 +16,7 @@ import { initializeFileManagement } from './services/fileManagementService.js';
 import { NotificationProvider } from './contexts/NotificationContext.js';
 import { AuthProvider } from './contexts/AuthContext.js';
 import { RouteGuardProvider } from './contexts/RouteGuardContext.js';
+import { AppwriteProvider } from '@appwrite.io/react';
 import './index.css';
 
 /**
@@ -46,11 +47,16 @@ root.render(
     <ErrorBoundary>
       <NotificationProvider>
         <AuthProvider>
-          <HashRouter>
-            <RouteGuardProvider>
-              <App />
-            </RouteGuardProvider>
-          </HashRouter>
+          <AppwriteProvider
+            endpoint={import.meta.env.VITE_APPWRITE_ENDPOINT}
+            projectId={import.meta.env.VITE_APPWRITE_PROJECT_ID}
+          >
+            <HashRouter>
+              <RouteGuardProvider>
+                <App />
+              </RouteGuardProvider>
+            </HashRouter>
+          </AppwriteProvider>
         </AuthProvider>
       </NotificationProvider>
     </ErrorBoundary>

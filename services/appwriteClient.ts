@@ -1,14 +1,10 @@
 /**
  * @file services/appwriteClient.ts
- * @description Appwrite Backend-as-a-Service client initialization.
- * Replaces supabaseClient.ts with Appwrite SDK for authentication, database, and realtime.
+ * @description Appwrite Backend-as-a-Service client initialization with lazy-loading singleton Proxy pattern to prevent cyclic dependencies and ReferenceErrors.
  */
 
 import { Client, Account, Databases, Storage, Realtime, Query } from 'appwrite';
 import { Teams, Permission, Role, ID } from 'appwrite';
-
-// Initialize Appwrite client
-const client = new Client();
 
 /**
  * Resolves the operational Appwrite endpoint with regional routing protection.
@@ -32,16 +28,13 @@ export const resolveAppwriteEndpoint = (override?: string): string => {
     (c): c is string => typeof c === 'string' && c.trim().length > 0 && c !== '$APPWRITE_ENDPOINT'
   );
 
-  // If there's an endpoint with an explicit regional domain (e.g. tor.cloud.appwrite.io), select it immediately
   const regional = all.find(c => c.includes('.cloud.appwrite.io') && !c.includes('//cloud.appwrite.io'));
   if (regional) return regional.trim();
 
-  // If candidateProcess has a non-empty regional or custom endpoint, prioritize it
   if (candidateProcess && candidateProcess.trim() && candidateProcess !== 'https://cloud.appwrite.io/v1') {
     return candidateProcess.trim();
   }
 
-  // If the configured endpoint is generic cloud.appwrite.io, route to the active project region (tor)
   const first = all[0];
   if (first) {
     const trimmed = first.trim();
@@ -77,30 +70,41 @@ export const resolveAppwriteProjectId = (override?: string): string => {
   return valid ? valid.trim() : '6990e2830030cacccd98';
 };
 
-const appwriteEndpoint = resolveAppwriteEndpoint();
-const appwriteProjectId = resolveAppwriteProjectId();
-
-if (appwriteEndpoint) {
-  client.setEndpoint(appwriteEndpoint);
-}
-if (appwriteProjectId) {
-  client.setProject(appwriteProjectId);
-}
-
-if (!appwriteEndpoint || !appwriteProjectId) {
-  console.warn('Appwrite credentials missing (VITE_APPWRITE_ENDPOINT or VITE_APPWRITE_PROJECT_ID). Backend requests will fail until configured.');
-}
+let cachedClient: Client | null = null;
 
 /**
- * Account service for authentication (login, signup, logout, session management)
+ * Lazy singleton getter for Appwrite Client.
  */
-export const account = new Account(client);
+export const getClient = (): Client => {
+  if (!cachedClient) {
+    cachedClient = new Client();
+    const appwriteEndpoint = resolveAppwriteEndpoint();
+    const appwriteProjectId = resolveAppwriteProjectId();
+
+    if (appwriteEndpoint) {
+      cachedClient.setEndpoint(appwriteEndpoint);
+    }
+    if (appwriteProjectId) {
+      cachedClient.setProject(appwriteProjectId);
+    }
+
+    if (!appwriteEndpoint || !appwriteProjectId) {
+      console.warn('Appwrite credentials missing (VITE_APPWRITE_ENDPOINT or VITE_APPWRITE_PROJECT_ID). Backend requests will fail until configured.');
+    }
+  }
+  return cachedClient;
+};
+
+/**
+ * Lazy singleton getter for Appwrite Account service.
+ */
+export const getAccount = (): Account => {
+  return new Account(getClient());
+};
 
 /**
  * Strips Appwrite system attributes ($id, $createdAt, etc.) and custom 'id'
- * attribute from document payloads. Appwrite reserves '$id' for system IDs
- * and throws "AppwriteException: Invalid document structure: Unknown attribute: id"
- * if a document payload includes an 'id' attribute that is not defined in the collection schema.
+ * attribute from document payloads.
  */
 export function sanitizeDocumentPayload<T>(data: T): T {
   if (!data || typeof data !== 'object' || Array.isArray(data)) {
@@ -118,51 +122,111 @@ export function sanitizeDocumentPayload<T>(data: T): T {
 }
 
 /**
- * Databases service for CRUD operations on collections/documents (Appwrite standard)
+ * Lazy singleton getter for Appwrite Databases service with payload sanitization.
  */
-export const databases = new Databases(client);
+export const getDatabases = (): Databases => {
+  const db = new Databases(getClient());
 
-// Wrap databases.createDocument and updateDocument with automatic payload sanitization
-const originalCreateDocument = databases.createDocument.bind(databases);
-const originalUpdateDocument = databases.updateDocument.bind(databases);
+  const originalCreateDocument = db.createDocument.bind(db);
+  const originalUpdateDocument = db.updateDocument.bind(db);
 
-databases.createDocument = ((
-  databaseId: string,
-  collectionId: string,
-  documentId: string,
-  data: any,
-  permissions?: string[]
-) => {
-  return originalCreateDocument(
-    databaseId,
-    collectionId,
-    documentId,
-    sanitizeDocumentPayload(data),
-    permissions
-  );
-}) as any;
+  db.createDocument = ((
+    databaseId: string,
+    collectionId: string,
+    documentId: string,
+    data: any,
+    permissions?: string[]
+  ) => {
+    return originalCreateDocument(
+      databaseId,
+      collectionId,
+      documentId,
+      sanitizeDocumentPayload(data),
+      permissions
+    );
+  }) as any;
 
-databases.updateDocument = ((
-  databaseId: string,
-  collectionId: string,
-  documentId: string,
-  data: any,
-  permissions?: string[]
-) => {
-  return originalUpdateDocument(
-    databaseId,
-    collectionId,
-    documentId,
-    sanitizeDocumentPayload(data),
-    permissions
-  );
-}) as any;
+  db.updateDocument = ((
+    databaseId: string,
+    collectionId: string,
+    documentId: string,
+    data: any,
+    permissions?: string[]
+  ) => {
+    return originalUpdateDocument(
+      databaseId,
+      collectionId,
+      documentId,
+      sanitizeDocumentPayload(data),
+      permissions
+    );
+  }) as any;
+
+  return db;
+};
+
+/**
+ * Lazy singleton getters for storage, realtime, and teams services.
+ */
+export const getStorage = (): Storage => new Storage(getClient());
+export const getRealtime = (): Realtime => new Realtime(getClient());
+export const getTeams = (): Teams => new Teams(getClient());
+
+/**
+ * Lazy-loading singleton Proxies for backward compatibility and circular dependency prevention.
+ */
+export const client = new Proxy({} as Client, {
+  get(_, prop) {
+    const c = getClient();
+    const val = (c as any)[prop];
+    return typeof val === 'function' ? val.bind(c) : val;
+  }
+});
+
+export const account = new Proxy({} as Account, {
+  get(_, prop) {
+    const a = getAccount();
+    const val = (a as any)[prop];
+    return typeof val === 'function' ? val.bind(a) : val;
+  }
+});
+
+export const databases = new Proxy({} as Databases, {
+  get(_, prop) {
+    const d = getDatabases();
+    const val = (d as any)[prop];
+    return typeof val === 'function' ? val.bind(d) : val;
+  }
+});
+
+export const storage = new Proxy({} as Storage, {
+  get(_, prop) {
+    const s = getStorage();
+    const val = (s as any)[prop];
+    return typeof val === 'function' ? val.bind(s) : val;
+  }
+});
+
+export const realtime = new Proxy({} as Realtime, {
+  get(_, prop) {
+    const r = getRealtime();
+    const val = (r as any)[prop];
+    return typeof val === 'function' ? val.bind(r) : val;
+  }
+});
+
+export const teams = new Proxy({} as Teams, {
+  get(_, prop) {
+    const t = getTeams();
+    const val = (t as any)[prop];
+    return typeof val === 'function' ? val.bind(t) : val;
+  }
+});
 
 /**
  * Backward-compatible alias for databases service (formerly tablesDB)
  */
 export const tablesDB = {
-  ...databases,
   createRow: async (
     arg1: any,
     tableId?: string,
@@ -176,7 +240,6 @@ export const tablesDB = {
     let rowId = 'unique()';
     let data: any = {};
     let permissions: string[] | undefined = undefined;
-    let transactionId: string | undefined = undefined;
 
     if (typeof arg1 === 'object' && arg1 !== null && !Array.isArray(arg1)) {
       databaseId = arg1.databaseId || DATABASE_ID;
@@ -184,7 +247,6 @@ export const tablesDB = {
       rowId = arg1.rowId || 'unique()';
       data = arg1.data || {};
       permissions = arg1.permissions;
-      transactionId = arg1.transactionId;
     } else {
       databaseId = arg1;
       collId = tableId!;
@@ -192,16 +254,14 @@ export const tablesDB = {
         rowId = rowIdOrData;
         data = dataOrPermissions || {};
         permissions = permissionsOrTx;
-        transactionId = maybeTx;
       } else {
         rowId = 'unique()';
         data = rowIdOrData || {};
         permissions = dataOrPermissions;
-        transactionId = permissionsOrTx;
       }
     }
 
-    return databases.createDocument(databaseId, collId, rowId, sanitizeDocumentPayload(data), permissions);
+    return getDatabases().createDocument(databaseId, collId, rowId, sanitizeDocumentPayload(data), permissions);
   },
 
   getRow: async (arg1: any, tableId?: string, rowId?: string) => {
@@ -217,7 +277,7 @@ export const tablesDB = {
       collId = tableId!;
       docId = rowId!;
     }
-    return databases.getDocument(databaseId, collId, docId);
+    return getDatabases().getDocument(databaseId, collId, docId);
   },
 
   listRows: async (arg1: any, tableId?: string, queries?: string[], ttl?: number) => {
@@ -234,7 +294,7 @@ export const tablesDB = {
       collId = tableId!;
     }
 
-    const res = await databases.listDocuments(databaseId, collId, q);
+    const res = await getDatabases().listDocuments(databaseId, collId, q);
     return {
       rows: res.documents,
       documents: res.documents,
@@ -263,7 +323,7 @@ export const tablesDB = {
       perms = permissions;
     }
 
-    return databases.updateDocument(databaseId, collId, docId, sanitizeDocumentPayload(payload), perms);
+    return getDatabases().updateDocument(databaseId, collId, docId, sanitizeDocumentPayload(payload), perms);
   },
 
   deleteRow: async (arg1: any, tableId?: string, rowId?: string, transactionId?: string) => {
@@ -281,12 +341,11 @@ export const tablesDB = {
       docId = rowId!;
     }
 
-    return databases.deleteDocument(databaseId, collId, docId);
+    return getDatabases().deleteDocument(databaseId, collId, docId);
   },
 
   getPresence: async (presenceId: string) => {
-    // PRESENCES collection/table id is 'presences'
-    return databases.getDocument(DATABASE_ID, 'presences', presenceId);
+    return getDatabases().getDocument(DATABASE_ID, 'presences', presenceId);
   },
 
   upsertRow: async (arg1: any, tableId?: string, rowIdOrData?: any, data?: any, permissions?: string[]) => {
@@ -312,33 +371,18 @@ export const tablesDB = {
 
     if (rowId && rowId !== 'unique()') {
       try {
-        const existing = await databases.getDocument(databaseId, collId, rowId);
+        const existing = await getDatabases().getDocument(databaseId, collId, rowId);
         if (existing) {
-          return databases.updateDocument(databaseId, collId, rowId, sanitizeDocumentPayload(payload), perms);
+          return getDatabases().updateDocument(databaseId, collId, rowId, sanitizeDocumentPayload(payload), perms);
         }
       } catch {
         // Not found, create
       }
     }
 
-    return databases.createDocument(databaseId, collId, rowId, sanitizeDocumentPayload(payload), perms);
+    return getDatabases().createDocument(databaseId, collId, rowId, sanitizeDocumentPayload(payload), perms);
   },
 };
-
-/**
- * Storage service for file uploads and management (avatars, documents, etc.)
- */
-export const storage = new Storage(client);
-
-/**
- * Realtime service for WebSocket subscriptions (multiplayer cursors, live updates)
- */
-export const realtime = new Realtime(client);
-
-/**
- * Teams service for team/organization management and multi-tenancy
- */
-export const teams = new Teams(client);
 
 /**
  * Query utilities for database operations and realtime filtering
@@ -346,16 +390,7 @@ export const teams = new Teams(client);
 export { Query, Permission, Role, ID } from 'appwrite';
 
 /**
- * Core client instance (exported for advanced use cases)
- */
-export { client };
-
-/**
- * Drops both Realtime stacks on the singleton {@link client} (`new Realtime(client)` and the
- * legacy `client.subscribe()` socket) when the auth session ends or changes. Matches Appwrite
- * guidance to avoid delivering events on a subscription created before authentication.
- *
- * Uses runtime-only fields from the SDK; guarded for SSR.
+ * Drops both Realtime stacks on the singleton client when the auth session ends or changes.
  */
 export async function teardownAppwriteRealtimeSockets(): Promise<void> {
   if (typeof window === 'undefined') return;
@@ -369,7 +404,7 @@ export async function teardownAppwriteRealtimeSockets(): Promise<void> {
     closeSocket(): Promise<void>;
   };
 
-  const modern = realtime as unknown as ModernRealtime;
+  const modern = getRealtime() as unknown as ModernRealtime;
 
   modern.reconnect = false;
   try {
@@ -383,44 +418,14 @@ export async function teardownAppwriteRealtimeSockets(): Promise<void> {
   } finally {
     modern.reconnect = true;
   }
-
-  type LegacyInlineRealtime = {
-    reconnect: boolean;
-    subscriptions: Map<number, unknown>;
-    channels: Set<string>;
-    queries: Set<string>;
-    subscriptionIdToSlot?: Map<string, number>;
-    slotToSubscriptionId?: Map<number, string>;
-    socket?: WebSocket;
-  };
-
-  const legacyRt = client as unknown as { realtime: LegacyInlineRealtime };
-  const lr = legacyRt.realtime;
-  if (!lr) return;
-
-  lr.reconnect = false;
-  lr.subscriptions.clear();
-  lr.channels.clear();
-  lr.queries.clear();
-  lr.slotToSubscriptionId?.clear?.();
-  lr.subscriptionIdToSlot?.clear?.();
-  if (lr.socket && lr.socket.readyState < WebSocket.CLOSING) {
-    lr.socket.close();
-  }
-  lr.reconnect = true;
 }
 
 /**
  * Probes Appwrite backend availability.
- * Pings the health endpoint to verify connectivity.
- * 
- * @returns Promise<boolean> True if Appwrite is reachable, false otherwise.
  */
 export const checkConnection = async (): Promise<boolean> => {
     try {
-        // Attempt to get current account (proves backend is reachable)
-        // Will throw if not authenticated, but that's OK - it means backend responded
-        await account.get().catch(() => true); // Swallow auth errors
+        await getAccount().get().catch(() => true);
         console.log('Appwrite Connection: SUCCESS');
         return true;
     } catch (e) {
@@ -430,7 +435,7 @@ export const checkConnection = async (): Promise<boolean> => {
 };
 
 /**
- * Config for the primary database ID and its collections
+ * Config for primary database ID and collections
  */
 export const DATABASE_ID = 
   (import.meta as any).env?.VITE_APPWRITE_DATABASE_ID || 
@@ -440,7 +445,6 @@ export const DATABASE_ID =
   'sovereign';
 
 export const COLLECTIONS = {
-  // Sovereign Ledger
   LEDGER: 'ledger',
   TRANSACTIONS: 'transactions',
   WORKFLOWS: 'workflows',
@@ -449,8 +453,6 @@ export const COLLECTIONS = {
   POLICIES: 'policies',
   AUDIT: 'audit',
   WSCONFIG: 'wsconfig',
-  
-  // Core system collections
   USERS: 'users',
   SYNDICATES: 'syndicates',
   CONNECTIONS: 'connections',
@@ -458,52 +460,32 @@ export const COLLECTIONS = {
   AGENT_TEMPLATES: 'agent_templates',
   WORKFLOW_VERSIONS: 'workflow_versions',
   CHRONICLE_EVENTS: 'chronicle_events',
-  
-  // CRM Module
   CRM_CONTACTS: 'crm_contacts',
   CRM_DEALS: 'crm_deals',
   CRM_ACTIVITIES: 'crm_activities',
-  
-  // Financial/Treasury
   TREASURY_TRANSACTIONS: 'treasury_transactions',
   STRIPE_EVENTS: 'stripe_events',
   TRIBUTE_LOGS: 'tribute_logs',
   PULSE_PROFILES: 'pulse_profiles',
   GLOBAL_ECONOMIC_DIALS: 'global_economic_dials',
   PILLAR_OF_ETERNITY: 'pillar_of_eternity',
-  
-  // Micro Apps
   MICRO_APP_MODULES: 'micro_app_modules',
   MICRO_APP_PATCHES: 'micro_app_patches',
   MICRO_APP_DRAFTS: 'micro_app_drafts',
   PUBLISHED_MICRO_APPS: 'published_micro_apps',
-  
-  // Operations & Procurement
   OPERATIONS_TASKS: 'operations_tasks',
   PROCUREMENT_ORDERS: 'procurement_orders',
-  
-  // Admin/Integration
   ACCESS_KEYS: 'access_keys',
   SYNDICATE_INTEGRATIONS: 'syndicate_integrations',
   NOTES: 'notes',
   CHAT_MESSAGES: 'chat_messages',
-  
-  // Vault
   SECRETS: 'secrets',
   AGENTCREDS: 'agentcreds',
-
-  // Growth Engine — Email Lab (syndicate-scoped; persisted in Appwrite Collections)
   EMAIL_MARKETING_LAB: 'email_marketing_lab',
 };
 
-/**
- * Alias for backward compatibility
- */
 export const TABLES = COLLECTIONS;
 
-/**
- * Storage bucket IDs
- */
 export const BUCKETS = {
   AVATARS: 'avatars',
   DOCUMENTS: 'documents',

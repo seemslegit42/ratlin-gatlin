@@ -167,6 +167,7 @@ export default defineConfig(({ mode }) => {
       resolve: {
         alias: {
           '@': path.resolve(__dirname, '.'),
+          'appwrite': path.resolve(__dirname, 'services/appwritePresencesShim.ts'),
         }
       }
     };

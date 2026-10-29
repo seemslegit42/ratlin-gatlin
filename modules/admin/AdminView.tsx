@@ -21,6 +21,7 @@ import { BrainIcon } from '../../components/icons/BrainIcon';
 import { DemiurgeConsole } from '../../components/admin/DemiurgeConsole';
 import { CrystallineGlyph } from '../../components/icons/CrystallineGlyph';
 import { sounds } from '../../utils/soundEffects';
+import { UsersIcon } from '../../components/icons/QuickActionIcons';
 
 interface AdminViewProps {
   onNavigate: (view: View) => void;
@@ -29,7 +30,7 @@ interface AdminViewProps {
 }
 
 const AdminView: React.FC<AdminViewProps> = ({ onNavigate, agents, connections }) => {
-  const [activeInstrument, setActiveInstrument] = useState<'pantheon' | 'loom' | 'integrations' | 'keys' | 'schema' | 'infra' | 'constitution' | 'llama-cli'>('pantheon');
+  const [activeInstrument, setActiveInstrument] = useState<'pantheon' | 'loom' | 'integrations' | 'keys' | 'schema' | 'infra' | 'constitution' | 'llama-cli' | 'teams'>('pantheon');
   const [isDemiurgeOpen, setIsDemiurgeOpen] = useState(false);
 
   const switchInstrument = (instrument: typeof activeInstrument) => {
@@ -71,6 +72,13 @@ const AdminView: React.FC<AdminViewProps> = ({ onNavigate, agents, connections }
           >
             <CrownIcon className="w-4 h-4" />
             <span>The Pantheon</span>
+          </button>
+          <button
+            onClick={() => switchInstrument('teams')}
+            className={`px-4 py-2 rounded-md text-xs font-bold flex items-center space-x-2 transition-colors whitespace-nowrap ${activeInstrument === 'teams' ? 'bg-white/10 text-white' : 'text-text-secondary hover:text-white'}`}
+          >
+            <UsersIcon className="w-4 h-4 text-roman-aqua" />
+            <span>Teams Tenancy</span>
           </button>
           <button
             onClick={() => switchInstrument('loom')}
@@ -125,6 +133,7 @@ const AdminView: React.FC<AdminViewProps> = ({ onNavigate, agents, connections }
       </header>
 
       {activeInstrument === 'pantheon' && <ThePantheon />}
+      {activeInstrument === 'teams' && <TeamsTenancyPanel />}
       {activeInstrument === 'loom' && <LoomOfFates agents={agents} connections={connections} />}
       {activeInstrument === 'constitution' && <ConstitutionManager />}
       {activeInstrument === 'infra' && <InfraControlPanel />}
