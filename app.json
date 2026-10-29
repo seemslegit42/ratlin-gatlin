@@ -7,7 +7,6 @@
     "icon": "./assets/modelfiles/gemma-4-12b.Modelfile",
     "userInterfaceStyle": "dark",
     "splash": {
-      "image": "./vitalshud-desktop-verify-20260430-145526.png",
       "resizeMode": "contain",
       "backgroundColor": "#000000"
     },

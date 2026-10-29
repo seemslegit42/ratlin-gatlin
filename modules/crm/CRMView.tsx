@@ -25,6 +25,9 @@ import { MailIcon } from '../../components/icons/AetheriumIcons';
 import { MicrophoneIcon } from '../../components/icons/MicrophoneIcon';
 import { StrategicInfluenceHeatmap } from '../../components/crm/StrategicInfluenceHeatmap';
 import { SoulSearch } from '../../components/crm/SoulSearch';
+import { CrystallineGlyph } from '../../components/icons/CrystallineGlyph';
+import { sounds } from '../../utils/soundEffects';
+import { SparkIcon } from '../../components/icons/SparkIcon';
 
 interface CRMViewProps {
     onNavigate: (view: View) => void;
@@ -234,6 +237,7 @@ const CRMView: React.FC<CRMViewProps> = (props) => {
     const [isEditingDeal, setIsEditingDeal] = useState(false);
 
     const handleDealSelect = (dealId: string | number) => {
+        sounds.playGlassThrum();
         const deal = (Object.values(pipeline).flat() as CRMDeal[]).find(d => d.id === dealId || String(d.id) === String(dealId));
         if (deal) {
             setSelectedDeal(deal);
@@ -243,9 +247,10 @@ const CRMView: React.FC<CRMViewProps> = (props) => {
     };
 
     const handleContactSelect = (contact: CRMContact) => {
+        sounds.playCrystallineChime();
         setSelectedContact(contact);
         setSelectedDeal(null);
-    }
+    };
 
     const handleDealUpdateSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -509,9 +514,20 @@ const CRMView: React.FC<CRMViewProps> = (props) => {
                 </div>
             </div>
 
-            <header className="border-b border-white/10 pb-6">
-                <h1 className="text-4xl font-bold font-comfortaa text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-roman-aqua">Relationship Nexus</h1>
-                <p className="text-sm text-text-tertiary font-mono tracking-widest mt-1 uppercase tracking-[0.3em]">Market Dominion // Strategic Influence</p>
+            <header className="border-b border-white/10 pb-6 flex flex-col md:flex-row md:items-end justify-between gap-4">
+                <div>
+                    <div className="flex items-center gap-3">
+                        <CrystallineGlyph glyph="conduit" size="md" glowIntensity="high" />
+                        <h1 className="text-3xl md:text-4xl font-bold font-comfortaa text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-roman-aqua">Relationship Nexus</h1>
+                    </div>
+                    <p className="text-sm text-text-tertiary font-mono tracking-widest mt-1 uppercase tracking-[0.3em]">Market Dominion // Strategic Influence</p>
+                </div>
+                <div className="flex items-center gap-2 px-3 py-1.5 bg-roman-aqua/10 border border-roman-aqua/20 rounded-full">
+                    <SparkIcon className="w-3.5 h-3.5 text-roman-aqua animate-pulse" />
+                    <span className="text-[10px] font-bold text-roman-aqua uppercase tracking-widest">
+                        Network Resonance 96.8% · High Gravitational Mass
+                    </span>
+                </div>
             </header>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-4 gap-6">

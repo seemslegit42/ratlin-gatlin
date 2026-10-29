@@ -30,6 +30,9 @@ import { CEVMCalculator } from '../../components/economy/CEVMCalculator.js';
 import { PricingTiers } from '../../components/economy/PricingTiers.js';
 import PaymentModal from '../../components/payment/PaymentModal.js';
 import { fetchCOGSBreakdown } from '../../services/xiEconomyService.js';
+import BioDigitalFlow from '../../components/beep/BioDigitalFlow.js';
+import BioDigitalVein from '../../components/beep/BioDigitalVein.js';
+import { CrystallineGlyph } from '../../components/icons/CrystallineGlyph.js';
 
 interface XiDashboardProps {
     onNavigate: (view: View) => void;
@@ -190,8 +193,25 @@ const XiDashboard: React.FC<XiDashboardProps> = ({ onNavigate }) => {
                             <div className="lg:col-span-8">
                                 <SankeyFlow data={flowData} />
                             </div>
-                            <div className="lg:col-span-4">
+                            <div className="lg:col-span-4 flex flex-col justify-between gap-4">
                                 <TreasuryWidget balance={currentUser.xiBalance} transactions={[]} />
+                                <div className="p-4 bg-black/40 border border-white/10 rounded-2xl space-y-3">
+                                    <div className="flex items-center gap-2">
+                                        <CrystallineGlyph type="conduit" size="xs" state="active" />
+                                        <span className="font-comfortaa font-bold text-xs text-white">Living Liquidity Conduit</span>
+                                    </div>
+                                    <BioDigitalFlow
+                                        fillPercentage={Math.min(100, Math.max(10, (currentUser.xiBalance / 25000) * 100))}
+                                        payloadSizeMb={Math.round(currentUser.xiBalance / 500)}
+                                        label="Xi Liquid Velocity"
+                                        sublabel="Perpetual Treasury Sync"
+                                    />
+                                    <BioDigitalVein
+                                        systemLoad={44}
+                                        errorRate={0}
+                                        label="Capital Stream Viscosity"
+                                    />
+                                </div>
                             </div>
                         </div>
 

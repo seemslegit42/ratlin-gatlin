@@ -18,6 +18,9 @@ import BackButton from '../../components/shared/BackButton';
 import type { View, Agent, Connection } from '../../types';
 import { LlamaCliPlayground } from '../../components/admin/LlamaCliPlayground';
 import { BrainIcon } from '../../components/icons/BrainIcon';
+import { DemiurgeConsole } from '../../components/admin/DemiurgeConsole';
+import { CrystallineGlyph } from '../../components/icons/CrystallineGlyph';
+import { sounds } from '../../utils/soundEffects';
 
 interface AdminViewProps {
   onNavigate: (view: View) => void;
@@ -27,6 +30,12 @@ interface AdminViewProps {
 
 const AdminView: React.FC<AdminViewProps> = ({ onNavigate, agents, connections }) => {
   const [activeInstrument, setActiveInstrument] = useState<'pantheon' | 'loom' | 'integrations' | 'keys' | 'schema' | 'infra' | 'constitution' | 'llama-cli'>('pantheon');
+  const [isDemiurgeOpen, setIsDemiurgeOpen] = useState(false);
+
+  const switchInstrument = (instrument: typeof activeInstrument) => {
+    sounds.playGlassThrum();
+    setActiveInstrument(instrument);
+  };
 
   return (
     <div className="h-full w-full overflow-y-auto p-3 md:p-5 space-y-4 high-density">
@@ -41,59 +50,72 @@ const AdminView: React.FC<AdminViewProps> = ({ onNavigate, agents, connections }
           <p className="text-sm text-text-tertiary font-mono tracking-widest mt-1">SOVEREIGN COMMAND // SYSTEM ROOT</p>
         </div>
 
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => {
+              sounds.playCrystallineChime();
+              setIsDemiurgeOpen(true);
+            }}
+            className="flex items-center space-x-2 px-3 py-1.5 bg-imperial-purple/20 hover:bg-imperial-purple/40 border border-imperial-purple/40 text-imperial-purple hover:text-white rounded-xl text-xs font-bold transition-all shadow-lg"
+          >
+            <CrystallineGlyph glyph="oracle" size="xs" glowIntensity="high" />
+            <span>Invoke Demiurge</span>
+          </button>
+        </div>
+
         {/* Instrument Switcher */}
         <div className="flex space-x-2 bg-black/30 p-1 rounded-lg border border-white/10 overflow-x-auto max-w-full custom-scrollbar">
           <button
-            onClick={() => setActiveInstrument('pantheon')}
+            onClick={() => switchInstrument('pantheon')}
             className={`px-4 py-2 rounded-md text-xs font-bold flex items-center space-x-2 transition-colors whitespace-nowrap ${activeInstrument === 'pantheon' ? 'bg-white/10 text-white' : 'text-text-secondary hover:text-white'}`}
           >
             <CrownIcon className="w-4 h-4" />
             <span>The Pantheon</span>
           </button>
           <button
-            onClick={() => setActiveInstrument('loom')}
+            onClick={() => switchInstrument('loom')}
             className={`px-4 py-2 rounded-md text-xs font-bold flex items-center space-x-2 transition-colors whitespace-nowrap ${activeInstrument === 'loom' ? 'bg-white/10 text-white' : 'text-text-secondary hover:text-white'}`}
           >
             <LayersIcon className="w-4 h-4" />
             <span>Loom of Fates</span>
           </button>
           <button
-            onClick={() => setActiveInstrument('constitution')}
+            onClick={() => switchInstrument('constitution')}
             className={`px-4 py-2 rounded-md text-xs font-bold flex items-center space-x-2 transition-colors whitespace-nowrap ${activeInstrument === 'constitution' ? 'bg-white/10 text-white' : 'text-text-secondary hover:text-white'}`}
           >
             <ShieldCheckIcon className="w-4 h-4" />
             <span>Constitution</span>
           </button>
           <button
-            onClick={() => setActiveInstrument('infra')}
+            onClick={() => switchInstrument('infra')}
             className={`px-4 py-2 rounded-md text-xs font-bold flex items-center space-x-2 transition-colors whitespace-nowrap ${activeInstrument === 'infra' ? 'bg-white/10 text-white' : 'text-text-secondary hover:text-white'}`}
           >
             <ZapIcon className="w-4 h-4" />
             <span>Infrastructure</span>
           </button>
           <button
-            onClick={() => setActiveInstrument('integrations')}
+            onClick={() => switchInstrument('integrations')}
             className={`px-4 py-2 rounded-md text-xs font-bold flex items-center space-x-2 transition-colors whitespace-nowrap ${activeInstrument === 'integrations' ? 'bg-white/10 text-white' : 'text-text-secondary hover:text-white'}`}
           >
             <PlugIcon className="w-4 h-4" />
             <span>Integrations</span>
           </button>
           <button
-            onClick={() => setActiveInstrument('keys')}
+            onClick={() => switchInstrument('keys')}
             className={`px-4 py-2 rounded-md text-xs font-bold flex items-center space-x-2 transition-colors whitespace-nowrap ${activeInstrument === 'keys' ? 'bg-white/10 text-white' : 'text-text-secondary hover:text-white'}`}
           >
             <KeyIcon className="w-4 h-4" />
             <span>Access Keys</span>
           </button>
           <button
-            onClick={() => setActiveInstrument('schema')}
+            onClick={() => switchInstrument('schema')}
             className={`px-4 py-2 rounded-md text-xs font-bold flex items-center space-x-2 transition-colors whitespace-nowrap ${activeInstrument === 'schema' ? 'bg-white/10 text-white' : 'text-text-secondary hover:text-white'}`}
           >
             <DatabaseIcon className="w-4 h-4" />
             <span>Schema</span>
           </button>
           <button
-            onClick={() => setActiveInstrument('llama-cli')}
+            onClick={() => switchInstrument('llama-cli')}
             className={`px-4 py-2 rounded-md text-xs font-bold flex items-center space-x-2 transition-colors whitespace-nowrap ${activeInstrument === 'llama-cli' ? 'bg-white/10 text-white' : 'text-text-secondary hover:text-white'}`}
           >
             <BrainIcon className="w-4 h-4 text-roman-aqua" />
@@ -110,6 +132,8 @@ const AdminView: React.FC<AdminViewProps> = ({ onNavigate, agents, connections }
       {activeInstrument === 'keys' && <AccessKeysPanel />}
       {activeInstrument === 'schema' && <SchemaManager />}
       {activeInstrument === 'llama-cli' && <LlamaCliPlayground />}
+
+      <DemiurgeConsole isOpen={isDemiurgeOpen} onClose={() => setIsDemiurgeOpen(false)} />
     </div>
   );
 };

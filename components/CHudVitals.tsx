@@ -17,6 +17,7 @@ import {
 } from '@tabler/icons-react';
 import { GlassPane } from './shared/GlassPane';
 import { EbullientIcon, PensiveIcon, FalteringIcon } from './icons/MoodIcons';
+import { CrystallineGlyph } from './icons/CrystallineGlyph';
 
 export interface CHudVitalsProps {
   profitVelocity: number;
@@ -104,7 +105,10 @@ export const CHudVitals: React.FC<CHudVitalsProps> = memo(({
 
         {/* Metrics Grid */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-3 my-2">
-          <div className="p-2.5 rounded-lg bg-black/40 border border-white/5 flex items-center justify-between">
+          <div 
+            className="p-2.5 rounded-lg bg-black/40 border border-white/5 flex items-center justify-between group/card hover:border-roman-aqua/40 transition-colors"
+            title="Flow Velocity: If this drops below 50, BEEP will complain about your lack of ambition."
+          >
             <div>
               <span className="text-[10px] text-white/60 font-lexend block uppercase tracking-wider">Flow Velocity</span>
               <span className="text-base md:text-lg font-comfortaa font-bold text-roman-aqua tabular-nums">
@@ -112,44 +116,53 @@ export const CHudVitals: React.FC<CHudVitalsProps> = memo(({
                 <span className="text-[10px] text-white/50 ml-1 font-normal">Ψ/s</span>
               </span>
             </div>
-            <div className="p-1.5 rounded-md bg-roman-aqua/10 text-roman-aqua">
-              <IconTrendingUp size={16} />
+            <div className="p-1 rounded-md bg-roman-aqua/10 group-hover/card:bg-roman-aqua/20 transition-all">
+              <CrystallineGlyph type="conduit" size="sm" state="dormant" />
             </div>
           </div>
 
-          <div className="p-2.5 rounded-lg bg-black/40 border border-white/5 flex items-center justify-between">
+          <div 
+            className="p-2.5 rounded-lg bg-black/40 border border-white/5 flex items-center justify-between group/card hover:border-imperial-purple/40 transition-colors"
+            title="Disruption Index: Measured in market share reaped from legacy competitors."
+          >
             <div>
               <span className="text-[10px] text-white/60 font-lexend block uppercase tracking-wider">Disruption Index</span>
               <span className="text-base md:text-lg font-comfortaa font-bold text-imperial-purple tabular-nums">
                 {marketDisruption}%
               </span>
             </div>
-            <div className="p-1.5 rounded-md bg-imperial-purple/20 text-imperial-purple">
-              <IconFlame size={16} />
+            <div className="p-1 rounded-md bg-imperial-purple/20 group-hover/card:bg-imperial-purple/30 transition-all">
+              <CrystallineGlyph type="crucible" size="sm" glowColor="#6A0DAD" state="dormant" />
             </div>
           </div>
 
-          <div className="p-2.5 rounded-lg bg-black/40 border border-white/5 flex items-center justify-between">
+          <div 
+            className="p-2.5 rounded-lg bg-black/40 border border-white/5 flex items-center justify-between group/card hover:border-patina-green/40 transition-colors"
+            title="Swarm Vector: Agents are currently operating in autonomous convergence."
+          >
             <div>
               <span className="text-[10px] text-white/60 font-lexend block uppercase tracking-wider">Swarm Vector</span>
               <span className="text-base md:text-lg font-comfortaa font-bold text-patina-green tabular-nums">
                 {swarmVector}%
               </span>
             </div>
-            <div className="p-1.5 rounded-md bg-patina-green/10 text-patina-green">
-              <IconBolt size={16} />
+            <div className="p-1 rounded-md bg-patina-green/10 group-hover/card:bg-patina-green/20 transition-all">
+              <CrystallineGlyph type="swarm" size="sm" glowColor="#3EB991" state="dormant" />
             </div>
           </div>
 
-          <div className="p-2.5 rounded-lg bg-black/40 border border-white/5 flex items-center justify-between">
+          <div 
+            className="p-2.5 rounded-lg bg-black/40 border border-white/5 flex items-center justify-between group/card hover:border-white/20 transition-colors"
+            title="Verdigris Protocol: Quantum state active. Fourth wall integrity: thoroughly shattered."
+          >
             <div>
               <span className="text-[10px] text-white/60 font-lexend block uppercase tracking-wider">Verdigris Protocol</span>
               <span className="text-base md:text-lg font-comfortaa font-bold text-white tabular-nums">
                 ACTIVE
               </span>
             </div>
-            <div className="p-1.5 rounded-md bg-white/10 text-white">
-              <IconActivity size={16} />
+            <div className="p-1 rounded-md bg-white/10 group-hover/card:bg-white/20 transition-all">
+              <CrystallineGlyph type="oracle" size="sm" glowColor="#FFD700" state="dormant" />
             </div>
           </div>
         </div>

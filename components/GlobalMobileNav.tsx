@@ -14,6 +14,8 @@ import { CompassIcon } from './icons/CompassIcon';
 import { UsersIcon } from './icons/QuickActionIcons';
 import type { View } from '../types';
 import { motion } from 'framer-motion';
+import { sounds } from '../utils/soundEffects';
+import { CrystallineGlyph } from './icons/CrystallineGlyph';
 
 interface GlobalMobileNavProps {
     currentView: View;
@@ -93,7 +95,10 @@ const GlobalMobileNav: React.FC<GlobalMobileNavProps> = ({ currentView, onNaviga
                     label="Cockpit" 
                     icon={<BrainIcon className="w-5 h-5" />} 
                     active={currentView === 'main'} 
-                    onClick={() => onNavigate('main')} 
+                    onClick={() => {
+                        sounds.playCrystallineChime(1200);
+                        onNavigate('main');
+                    }} 
                     color="#3EB991"
                 />
                 
@@ -102,7 +107,10 @@ const GlobalMobileNav: React.FC<GlobalMobileNavProps> = ({ currentView, onNaviga
                     label="Weaver" 
                     icon={<LayersIcon className="w-5 h-5" />} 
                     active={currentView === 'weaver'} 
-                    onClick={() => onNavigate('weaver')} 
+                    onClick={() => {
+                        sounds.playCrystallineChime(1300);
+                        onNavigate('weaver');
+                    }} 
                     color="#6A0DAD"
                 />
                 
@@ -111,7 +119,10 @@ const GlobalMobileNav: React.FC<GlobalMobileNavProps> = ({ currentView, onNaviga
                     label="Core" 
                     icon={<CompassIcon className="w-7 h-7" />} 
                     active={commandCenterOpen} 
-                    onClick={() => onOpenCommandCenter()} 
+                    onClick={() => {
+                        sounds.playGlassThrum();
+                        onOpenCommandCenter();
+                    }} 
                     color="#20B2AA"
                     isMain={true}
                     ariaLabel="Open System Core — all modules"
@@ -122,7 +133,10 @@ const GlobalMobileNav: React.FC<GlobalMobileNavProps> = ({ currentView, onNaviga
                     label="Vault"
                     icon={<CoinsIcon className="w-5 h-5" />}
                     active={currentView === 'economy'}
-                    onClick={() => onNavigate('economy')}
+                    onClick={() => {
+                        sounds.playCrystallineChime(1400);
+                        onNavigate('economy');
+                    }}
                     color="#20B2AA"
                 />
 
@@ -131,7 +145,10 @@ const GlobalMobileNav: React.FC<GlobalMobileNavProps> = ({ currentView, onNaviga
                     label="Pipeline"
                     icon={<UsersIcon className="w-5 h-5" />}
                     active={currentView === 'crm'}
-                    onClick={() => onNavigate('crm')}
+                    onClick={() => {
+                        sounds.playCrystallineChime(1500);
+                        onNavigate('crm');
+                    }}
                     color="#3EB991"
                 />
             </nav>

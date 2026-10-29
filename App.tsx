@@ -99,6 +99,7 @@ import { logInteraction, logSystemEvent, logError } from './services/appLogger.j
 import { getPrimaryChatModelId } from './services/llmDefaults.js';
 import { useFileManagement } from './hooks/useFileManagement.js';
 import { PasswordRecovery } from './modules/auth/PasswordRecovery.js';
+import BrandSignature from './components/shared/BrandSignature.js';
 
 // --- Lazy Modules ---
 const MainView = lazy(() => import('./modules/main/MainView.js'));
@@ -617,6 +618,7 @@ const App: React.FC = () => {
 
       <SystemFooter />
       <PerilousLegalStrip />
+      <BrandSignature />
 
       <div className="fixed bottom-24 right-6 z-40 hidden md:block">
           <CommandCenterTrigger isOpen={isCommandCenterOpen} onClick={() => setIsCommandCenterOpen(true)} />

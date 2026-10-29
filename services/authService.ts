@@ -226,10 +226,9 @@ export async function completePasswordRecovery(
                 userId,
                 secret,
                 password,
-                passwordAgain: passwordAgain || password,
             });
         } catch {
-            await (account.updateRecovery as any)(userId, secret, password, passwordAgain || password);
+            await (account.updateRecovery as any)(userId, secret, password);
         }
         return { success: true };
     } catch (error: unknown) {

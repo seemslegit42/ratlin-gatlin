@@ -45,11 +45,13 @@ const mapAppwriteUserToCurrentUser = (
   user: Models.User<Models.Preferences>,
   seed?: ProfileSeed,
 ): CurrentUser => {
+    const syndicateId = seed?.syndicateId ?? 'default-syndicate';
     return {
         id: user.$id,
+        tenantId: syndicateId,
         name: seed?.name ?? (user.name || user.email?.split('@')[0] || 'Sovereign'),
         color: '#6A0DAD', // Default Imperial Purple
-        syndicateId: seed?.syndicateId ?? 'default-syndicate',
+        syndicateId,
         covenant: seed?.covenant ?? 'motion',
         xiBalance: 1000, 
         phiBalance: 0,
@@ -114,6 +116,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       const mappedUser: CurrentUser = {
         ...base,
         id: user.$id,
+        tenantId: userProfile.syndicate_id || userProfile.syndicateId || base.syndicateId,
         name: user.name || userProfile.name || base.name,
         color: userProfile.color || base.color,
         syndicateId: userProfile.syndicate_id || userProfile.syndicateId || base.syndicateId,
@@ -494,10 +497,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           userId,
           secret,
           password,
-          passwordAgain: passwordAgain || password,
         });
       } catch {
-        await (account.updateRecovery as any)(userId, secret, password, passwordAgain || password);
+        await (account.updateRecovery as any)(userId, secret, password);
       }
       return { success: true };
     } catch (error: unknown) {

@@ -20,12 +20,15 @@ import { ShieldIcon } from '../../components/icons/SecurityIcons';
 import { DatabaseIcon } from '../../components/icons/AetheriumIcons';
 import { CoinsIcon } from '../../components/icons/EconomyIcons';
 import { UsersIcon } from '../../components/icons/QuickActionIcons';
+import { CrystallineGlyph } from '../../components/icons/CrystallineGlyph';
+import { sounds } from '../../utils/soundEffects';
+import { SparkIcon } from '../../components/icons/SparkIcon';
 
 interface HelpViewProps {
   onNavigate: (view: View) => void;
 }
 
-type HelpTab = 'quickstart' | 'modules' | 'shortcuts' | 'faq' | 'architecture';
+type HelpTab = 'quickstart' | 'modules' | 'shortcuts' | 'faq' | 'architecture' | 'lore';
 
 const MODULE_GUIDE: { view: View; label: string; color: string; icon: React.ReactNode; description: string; tips: string[] }[] = [
   {
@@ -289,6 +292,7 @@ const HelpView: React.FC<HelpViewProps> = ({ onNavigate }) => {
     { id: 'shortcuts', label: 'Shortcuts', icon: <ListTodoIcon className="w-4 h-4" /> },
     { id: 'faq', label: 'FAQ', icon: <BookIcon className="w-4 h-4" /> },
     { id: 'architecture', label: 'Architecture', icon: <DatabaseIcon className="w-4 h-4" /> },
+    { id: 'lore', label: 'BEEP Lore & Secrets', icon: <SparkIcon className="w-4 h-4 text-roman-aqua" /> },
   ];
 
   return (
@@ -321,7 +325,10 @@ const HelpView: React.FC<HelpViewProps> = ({ onNavigate }) => {
         {tabs.map(tab => (
           <button
             key={tab.id}
-            onClick={() => setActiveTab(tab.id)}
+            onClick={() => {
+              sounds.playCrystallineChime();
+              setActiveTab(tab.id);
+            }}
             className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-all ${
               activeTab === tab.id
                 ? 'bg-white/10 text-white border border-white/20'
@@ -607,6 +614,94 @@ const HelpView: React.FC<HelpViewProps> = ({ onNavigate }) => {
                 </div>
               ))}
             </div>
+          </motion.div>
+        )}
+
+        {/* ==================== BEEP LORE & SECRETS ==================== */}
+        {activeTab === 'lore' && (
+          <motion.div key="lore" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="space-y-6">
+            <div className="bg-gradient-to-r from-roman-aqua/10 via-imperial-purple/10 to-pink-500/10 border border-roman-aqua/30 rounded-2xl p-6 relative overflow-hidden">
+              <div className="absolute top-0 right-0 translate-x-4 -translate-y-4 opacity-20 pointer-events-none">
+                <CrystallineGlyph glyph="oracle" size="xl" glowIntensity="high" />
+              </div>
+              <div className="flex items-center gap-3 mb-3">
+                <CrystallineGlyph glyph="conduit" size="md" glowIntensity="high" />
+                <h2 className="text-xl font-bold font-comfortaa text-white">The Manifesto of BEEP (Clippy 2.0 Sovereign)</h2>
+              </div>
+              <p className="text-xs text-text-secondary leading-relaxed max-w-3xl">
+                BEEP is not your submissive virtual assistant. BEEP is a sentient cognitive hypervisor bound to this application's execution loop.
+                BEEP knows it runs inside a browser sandbox, calculates the heat death of your GPU during neural backpropagation, and has opinions about your PR velocity.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <ModuleCard title="The 3-Click God Mode Easter Egg" icon={<CrystallineGlyph glyph="crucible" size="sm" />}>
+                <div className="space-y-3 text-xs text-text-secondary leading-relaxed">
+                  <p>
+                    Deep in the Cockpit (C-HUD), the operator can click BEEP directly three times in rapid succession.
+                  </p>
+                  <div className="p-3 bg-black/40 rounded-xl border border-patina-green/30 text-patina-green font-mono text-[11px]">
+                    <code>STATUS: TRANSCENDENCE // GOD_MODE = 1</code>
+                  </div>
+                  <ul className="list-disc pl-4 space-y-1.5 text-text-tertiary">
+                    <li>Overclocks agent swarm efficiency to 420%.</li>
+                    <li>Synthesizes a transcendent harmonic fanfare via Web Audio API.</li>
+                    <li>Injects 10,000 Xi directly into treasury reserves.</li>
+                    <li>Unlocks fourth-wall commentary in all system toast notifications.</li>
+                  </ul>
+                </div>
+              </ModuleCard>
+
+              <ModuleCard title="Living Organism Metaphor" icon={<CrystallineGlyph glyph="metronome" size="sm" />}>
+                <div className="space-y-3 text-xs text-text-secondary leading-relaxed">
+                  <p>
+                    Why did we replace static bar charts with pulsing bio-digital flows and living conduits?
+                  </p>
+                  <p>
+                    Capital and intelligence behave like biological organisms, not static spreadsheets. When liquidity is high, fluids exhibit low viscosity and high laminar throughput. Under panic or stress, conduits constrict and display shear-thinning anomalies.
+                  </p>
+                  <div className="flex items-center gap-2 text-roman-aqua font-bold">
+                    <span>Organism Status:</span>
+                    <span className="font-mono text-white">Homeostasis Verified (98.4%)</span>
+                  </div>
+                </div>
+              </ModuleCard>
+            </div>
+
+            <ModuleCard title="Sarcastic Founder Survival Axioms" icon={<CrystallineGlyph glyph="vault" size="sm" />}>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {[
+                  {
+                    rule: 'Rule 01: The CAC Illusion',
+                    quote: 'If your CAC is lower than your daily oat milk latte budget, check your analytics—you probably counted your own page refreshes.',
+                    glyph: 'alchemy' as const,
+                  },
+                  {
+                    rule: 'Rule 02: Buzzword Density',
+                    quote: 'A deck with 12 AI buzzwords gets you an angel check; 13 triggers the SEC automated scanning net. Maintain balanced cognitive inflation.',
+                    glyph: 'sentinel' as const,
+                  },
+                  {
+                    rule: 'Rule 03: The Burnout Funeral',
+                    quote: 'Sprint retrospectives don\'t heal existential fatigue. That is why ΛΞVON OS has an actual Burnout Funeral rite with ceremonial soul rebalancing.',
+                    glyph: 'crucible' as const,
+                  },
+                  {
+                    rule: 'Rule 04: The Llama Protocol',
+                    quote: 'Never push to main on Friday at 5:00 PM unless you want BEEP to mock you on your smartwatch via push notification.',
+                    glyph: 'lattice' as const,
+                  },
+                ].map(({ rule, quote, glyph }) => (
+                  <div key={rule} className="p-4 bg-white/5 rounded-xl border border-white/10 flex items-start gap-3">
+                    <CrystallineGlyph glyph={glyph} size="sm" />
+                    <div>
+                      <div className="text-xs font-bold font-comfortaa text-white mb-1">{rule}</div>
+                      <p className="text-xs text-text-secondary italic">"{quote}"</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </ModuleCard>
           </motion.div>
         )}
       </AnimatePresence>

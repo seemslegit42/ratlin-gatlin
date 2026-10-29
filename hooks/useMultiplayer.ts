@@ -28,6 +28,7 @@ export const useMultiplayer = (currentUser: CurrentUser | null) => {
       ...prev,
       [currentUser.id]: {
         id: currentUser.id,
+        tenantId: currentUser.tenantId || currentUser.syndicateId,
         name: currentUser.name,
         color: currentUser.color,
         syndicateId: currentUser.syndicateId,

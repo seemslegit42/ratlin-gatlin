@@ -35,6 +35,8 @@ import { useLocalStorage } from '../../hooks/useLocalStorage';
 import { useAuth } from '../../contexts/AuthContext';
 import { MailIcon } from '../../components/icons/AetheriumIcons';
 import { EmailMarketingLab } from '../../components/marketing/email/EmailMarketingLab';
+import { CrystallineGlyph } from '../../components/icons/CrystallineGlyph';
+import { sounds } from '../../utils/soundEffects';
 
 interface MarketingViewProps {
     onNavigate: (view: View) => void;
@@ -113,7 +115,10 @@ const MarketingView: React.FC<MarketingViewProps> = ({
                         {tabs.map((tab) => (
                             <button
                                 key={tab.id}
-                                onClick={() => setActiveTab(tab.id)}
+                                onClick={() => {
+                                    sounds.playCrystallineChime();
+                                    setActiveTab(tab.id);
+                                }}
                                 className={`relative flex items-center space-x-2 px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-all whitespace-nowrap ${
                                     activeTab === tab.id ? 'text-white' : 'text-text-secondary hover:text-white hover:bg-white/5'
                                 }`}

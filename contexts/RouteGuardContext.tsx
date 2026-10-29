@@ -74,11 +74,13 @@ export const RouteGuardProvider: React.FC<RouteGuardProviderProps> = ({
           appwriteUser.$id
         );
 
+        const syndId = userProfile.syndicate_id || `syn-${appwriteUser.$id}`;
         verifiedUser = {
           id: appwriteUser.$id,
+          tenantId: syndId,
           name: appwriteUser.name || userProfile.name || appwriteUser.email?.split('@')[0] || 'Sovereign',
           color: userProfile.color || '#6A0DAD',
-          syndicateId: userProfile.syndicate_id || `syn-${appwriteUser.$id}`,
+          syndicateId: syndId,
           covenant: userProfile.covenant || 'motion',
           xiBalance: userProfile.xi_balance ?? 1000,
           phiBalance: userProfile.phi_balance ?? 0,
@@ -94,11 +96,13 @@ export const RouteGuardProvider: React.FC<RouteGuardProviderProps> = ({
         };
       } catch {
         // Fallback to base Appwrite account identity
+        const syndId = `syn-${appwriteUser.$id}`;
         verifiedUser = {
           id: appwriteUser.$id,
+          tenantId: syndId,
           name: appwriteUser.name || appwriteUser.email?.split('@')[0] || 'Sovereign',
           color: '#6A0DAD',
-          syndicateId: `syn-${appwriteUser.$id}`,
+          syndicateId: syndId,
           covenant: 'motion',
           xiBalance: 1000,
           phiBalance: 0,

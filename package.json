@@ -13,6 +13,7 @@
     "dev:mcp": "bun run backend/postman-mcp-server.ts",
     "build": "bunx --bun vite build",
     "preview": "bunx --bun vite preview",
+    "lint": "tsc --noEmit -p tsconfig.app.json",
     "typecheck": "tsc --noEmit -p tsconfig.app.json",
     "test": "bun test",
     "test:watch": "bun test --watch",

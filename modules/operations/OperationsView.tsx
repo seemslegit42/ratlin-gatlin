@@ -26,6 +26,8 @@ import { SearchIcon } from '../../components/icons/CommandPaletteIcons';
 import { FilterIcon } from '../../components/icons/FilterIcon';
 import { ClockIcon } from '../../components/icons/AetheriumIcons';
 import { EyeIcon } from '../../components/icons/SecurityIcons';
+import { CrystallineGlyph } from '../../components/icons/CrystallineGlyph';
+import { sounds } from '../../utils/soundEffects';
 
 interface OperationsViewProps {
     onNavigate: (view: View) => void;
@@ -94,7 +96,7 @@ const TacticalHUD: React.FC<{ tasks: OperationTask[]; activeAgents: number }> = 
 };
 
 const BattleDrills: React.FC<{ onAction: (label: string) => void }> = ({ onAction }) => (
-    <ModuleCard title="Battle Drills" icon={<ZapIcon className="w-5 h-5 text-yellow-400" />}>
+    <ModuleCard title="Battle Drills" icon={<CrystallineGlyph type="crucible" size="xs" state="active" />}>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             {[
                 { label: 'Redistribute Load', sub: 'Balance agent utilization', icon: <TrendingUpIcon className="w-4 h-4" /> },
@@ -104,14 +106,17 @@ const BattleDrills: React.FC<{ onAction: (label: string) => void }> = ({ onActio
             ].map((drill) => (
                 <button 
                     key={drill.label}
-                    onClick={() => onAction(drill.label)}
-                    className="p-3 bg-white/5 border border-white/10 rounded-xl text-left hover:bg-white/10 hover:border-white/20 transition-all group flex items-center space-x-3"
+                    onClick={() => {
+                        sounds.playGlassThrum();
+                        onAction(drill.label);
+                    }}
+                    className="p-3 bg-white/5 border border-white/10 rounded-xl text-left hover:bg-white/10 hover:border-roman-aqua/40 transition-all group flex items-center space-x-3 active:scale-95"
                 >
                     <div className="p-2 rounded-lg bg-black/40 text-text-tertiary group-hover:text-roman-aqua transition-colors">
                         {drill.icon}
                     </div>
                     <div>
-                        <div className="text-xs font-bold text-white group-hover:text-roman-aqua">{drill.label}</div>
+                        <div className="text-xs font-bold text-white group-hover:text-roman-aqua font-comfortaa">{drill.label}</div>
                         <div className="text-[9px] text-text-tertiary">{drill.sub}</div>
                     </div>
                 </button>
