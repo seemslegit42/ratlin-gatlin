@@ -12,7 +12,6 @@ import type { Agent, View, GossipLogEntry } from '../../types';
 import { AgentStatus } from '../../types';
 import SimulacrumBackground from '../../components/simulacrum/SimulacrumBackground';
 import BackButton from '../../components/shared/BackButton';
-import { SwarmHUD } from '../../components/simulacrum/SwarmHUD';
 import GossipTicker from '../../components/simulacrum/GossipTicker';
 import SimulacrumEntity from '../../components/simulacrum/SimulacrumEntity';
 import TetherLayer from '../../components/simulacrum/TetherLayer';
@@ -97,16 +96,6 @@ const SimulacrumView: React.FC<SimulacrumViewProps> = ({
         return filtered.length > 0 ? filtered : allAgentList;
     }, [allAgentList, selectedRoom]);
 
-    // ── Real telemetry derived from live agent data (spec §4.2) ─────────────
-    const telemetry = useMemo(() => {
-        const total   = roomAgents.length;
-        const running = roomAgents.filter(a => a.status === AgentStatus.Running).length;
-        const errors  = roomAgents.filter(a => a.status === AgentStatus.Error).length;
-        const coherence = total > 0 ? Math.round(((total - errors) / total) * 100) : 100;
-        const entropy   = total > 0 ? Math.round((errors / total) * 100) : 0;
-        return { coherence, entropy };
-    }, [roomAgents]);
-
     // ── Centroid offset ──────────────────────────────────────────────────────
     const { offsetX, offsetY } = useMemo(() => {
         if (roomAgents.length === 0) return { offsetX: 0, offsetY: 0 };
@@ -182,13 +171,9 @@ const SimulacrumView: React.FC<SimulacrumViewProps> = ({
                     <BackButton onClick={() => onNavigate('main')} label="C-HUD" />
                 </div>
                 
-                {/* Real-data SwarmHUD */}
-                <SwarmHUD 
-                    agentCount={roomAgents.length} 
-                    totalTethers={activeTethers.length}
-                    coherence={telemetry.coherence}
-                    entropy={telemetry.entropy}
-                />
+                <div className="absolute top-16 left-4 z-40 text-[10px] font-mono text-text-tertiary uppercase tracking-wider bg-black/40 px-2 py-1 rounded border border-white/5">
+                    Agents: {roomAgents.length} · Tethers: {activeTethers.length}
+                </div>
 
                 {/* ── Room Selector (spec §4.2 department nodes) ─────────── */}
                 <div className="absolute top-4 right-4 z-40 flex flex-col items-end gap-1.5">

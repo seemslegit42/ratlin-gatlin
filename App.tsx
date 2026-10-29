@@ -1,7 +1,7 @@
 /**
  * @file App.tsx
  * @description The root application component for the ΛΞVON OS.
- * Implements the Unified Workspace, merging Live and Architect modes via the "Veil-Peel" protocol.
+ * Unified workspace on `/`: **Live** and **Architect** only (see docs/unified-workspace-architecture.md).
  * Now includes the Rites of Ascension Layer.
  */
 
@@ -41,7 +41,6 @@ import Background from './components/ambient/Background.js';
 import ActionBar from './components/ActionBar.js';
 import CommandStream from './components/CommandStream.js';
 import AiChatDock from './components/AiChatDock.js';
-import LiveTicker from './components/LiveTicker.js';
 import DraggableWidget from './components/dashboard/DraggableWidget.js';
 import CommandCenter from './components/shared/CommandCenter.js'; 
 import CommandCenterTrigger from './components/shared/CommandCenterTrigger.js';
@@ -76,7 +75,6 @@ import { DatabaseIcon } from './components/icons/AetheriumIcons.js';
 import { ZapIcon } from './components/icons/VitalsIcons.js'; // For manual trigger
 
 // Widget Content
-import SwarmIntegrity from './components/vitalshud/SwarmIntegrity.js';
 import FinancialPulse from './components/vitalshud/FinancialPulse.js';
 import SystemResources from './components/vitalshud/SystemResources.js';
 import { DesktopWidgetType } from './types.js';
@@ -102,7 +100,7 @@ import { PasswordRecovery } from './modules/auth/PasswordRecovery.js';
 import BrandSignature from './components/shared/BrandSignature.js';
 
 // --- Lazy Modules ---
-const MainView = lazy(() => import('./modules/main/MainView.js'));
+const MainView = lazy(() => import('./modules/main/main-view.js'));
 const Weaver = lazy(() => import('./modules/weaver/Weaver.js'));
 const SimulacrumView = lazy(() => import('./modules/simulacrum/SimulacrumView.js'));
 const MicroAppForgeView = lazy(() => import('./components/MicroAppForgeView.js'));
@@ -137,7 +135,12 @@ const LoadingSpinner: React.FC = () => (
 
 /** Contextual BEEP suggestion chips — shown per active view (spec §2.3 Contextual Action). */
 const VIEW_SUGGESTIONS: Partial<Record<View, string[]>> = {
-  main:       ['Morning briefing', 'Run the swarm', 'Show cash flow', 'Task status'],
+  main: [
+    "What's our current cash flow situation?",
+    'Show strategic overview',
+    'BEEP, scaffold a workflow for new employee onboarding',
+    'Morning briefing',
+  ],
   weaver:     ['Create onboarding workflow', 'Scaffold email sequence', 'Debug last run', 'Show node errors'],
   crm:        ['Show pipeline summary', 'Top open deals', 'Log a call', 'Score leads'],
   operations: ['Overdue tasks', 'Assign to agent', 'Create task', 'Team workload'],
@@ -210,6 +213,8 @@ const App: React.FC = () => {
     else if (target === 'weaver') { setMode('architect'); navigate('/'); }
     else navigate(`/${target}`);
   }, [navigate]);
+
+  const isUnifiedHome = location.pathname === '/' || location.pathname === '';
 
   const currentView = useMemo(() => {
     const p = location.pathname.substring(1);
@@ -394,19 +399,21 @@ const App: React.FC = () => {
         onOpenSettings={() => setIsSettingsOpen(true)}
         mode={mode}
         setMode={setMode}
+        showWorkspaceModes={isUnifiedHome}
         onSummonDemiurge={() => setIsDemiurgeOpen(true)}
         onLogout={logout}
         onQuickCommand={(cmd) => {
           setBeepPrefill(cmd);
           void processStreamingCommand(cmd, currentView);
         }}
-        agents={workflowState.agents}
-        economyData={economyData}
-        klepsydra={klepsydra}
       />
 
       {/* Mobile bottom padding: nav (5rem) + safe-area + dock peek composer (~4.5rem) */}
-      <main id="main-content" className="h-full w-full pt-16 relative max-md:pb-[calc(5rem+env(safe-area-inset-bottom,0px)+4.5rem)] md:pb-0 high-density">
+      <main id="main-content" className={`h-full w-full pt-16 relative md:pb-0 high-density ${
+        isUnifiedHome && mode === 'architect'
+          ? 'max-md:pb-[calc(5rem+env(safe-area-inset-bottom,0px))]'
+          : 'max-md:pb-[calc(5rem+env(safe-area-inset-bottom,0px)+4.5rem)]'
+      }`}>
           <Suspense fallback={<LoadingSpinner />}>
             <AnimatePresence mode="wait">
               <Routes location={location} key={location.pathname}>
@@ -420,32 +427,15 @@ const App: React.FC = () => {
                         className="w-full h-full"
                       >
                         {mode === 'live' ? (
-                            <MainView 
-                              agents={workflowState.agents} 
-                              currentUser={currentUser} 
-                              onNavigate={handleNavigate} 
+                            <MainView
+                              agents={workflowState.agents}
+                              onNavigate={handleNavigate}
                               klepsydra={klepsydra}
-                              economyData={economyData}
-                              pipeline={crmState.pipeline}
-                              crmActivities={crmState.activities}
                               messages={messages}
-                              isProcessing={isProcessing}
-                              isLive={isLive}
-                              isSpeaking={isSpeaking}
-                              volume={volume}
-                              isTtsMuted={isTtsMuted}
-                              onToggleTtsMute={() => setIsTtsMuted((prev) => !prev)}
                               onSendCommand={(cmd, attach) => {
                                 setBeepPrefill(undefined);
                                 void processStreamingCommand(cmd, currentView, attach);
                               }}
-                              onToggleLive={isLive ? stopLiveSession : startLiveSession}
-                              onOpenAgentCreator={() => setIsGlobalCreatorOpen(true)}
-                              onSpawnWidget={handleSpawnWidget}
-                              onOpenCommandCenter={() => setIsCommandCenterOpen(true)}
-                              onStopGeneration={cancelActiveGeneration}
-                              onTogglePresence={() => addNotification("Presence logs toggled", "info")}
-                              beepPrefill={beepPrefill}
                             />
                         ) : (
                             <Weaver 
@@ -533,8 +523,8 @@ const App: React.FC = () => {
             </AnimatePresence>
           </Suspense>
           
-           {/* Desktop Widgets Layer */}
-           {activeWidgets.map(widget => (
+           {/* Live-mode shards (home workspace only) */}
+           {isUnifiedHome && mode === 'live' && activeWidgets.map(widget => (
                <DraggableWidget 
                    key={widget.id} 
                    id={widget.id} 
@@ -544,8 +534,11 @@ const App: React.FC = () => {
                    onDragEnd={(id, x, y) => setActiveWidgets(prev => prev.map(w => w.id === id ? { ...w, position: { x, y } } : w))} 
                    onFocus={(id) => setActiveWidgets(prev => prev.map(w => w.id === id ? { ...w, zIndex: Math.max(...prev.map(p => p.zIndex)) + 1 } : w))} 
                    onClose={(id) => setActiveWidgets(prev => prev.filter(w => w.id !== id))}
+                   onPeel={() => {
+                     setMode('architect');
+                     addNotification('Veil-Peel — Weaver orchestration view', 'info');
+                   }}
                >
-                   {widget.type === DesktopWidgetType.SwarmIntegrity && <SwarmIntegrity agents={workflowState.agents} onNavigate={handleNavigate} />}
                    {widget.type === DesktopWidgetType.FinancialPulse && <FinancialPulse data={economyData} onNavigate={() => handleNavigate('economy')} />}
                    {widget.type === DesktopWidgetType.SystemResources && <SystemResources agents={workflowState.agents} />}
                    {widget.type === DesktopWidgetType.SyndicateOverview && <SyndicateOverview onNavigate={handleNavigate} />}
@@ -554,8 +547,10 @@ const App: React.FC = () => {
            ))}
       </main>
 
-      {/* --- BEEP unified console (global) --- */}
+      {/* BEEP dock: Live home = composer only; Architect home = hidden; modules = full dock */}
+      {!(isUnifiedHome && mode === 'architect') && (
       <AiChatDock
+        composerOnly={isUnifiedHome && mode === 'live'}
         transcript={
           <CommandStream
             messages={messages}
@@ -591,19 +586,8 @@ const App: React.FC = () => {
         lastMessagePreview={messages.length > 0 ? messages[messages.length - 1].text : undefined}
         lastMessageSource={messages.length > 0 ? (messages[messages.length - 1].source as 'BEEP' | 'USER' | 'SYSTEM' | 'AEGIS') : undefined}
       />
+      )}
 
-      {/* LiveTicker — KPI metrics tappable for touch-to-fill (spec §2.1) */}
-      <LiveTicker
-        agents={workflowState.agents}
-        economy={economyData}
-        klepsydra={klepsydra}
-        onMetricTap={(prompt) => {
-          setBeepPrefill(prompt);
-          // Open dock to half so user sees the pre-filled input
-          const el = document.getElementById('beep-chat-input') as HTMLTextAreaElement | null;
-          if (el) { el.focus(); el.setSelectionRange(el.value.length, el.value.length); }
-        }}
-      />
 
       <GlobalMobileNav 
           currentView={currentView} 

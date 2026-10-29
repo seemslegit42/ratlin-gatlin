@@ -144,11 +144,6 @@ const CommandCenterContent: React.FC<Pick<CommandCenterProps, 'onNavigate' | 'on
                     </div>
                     <div className="flex flex-col gap-2 sm:grid sm:grid-cols-2 lg:grid-cols-3 sm:gap-2">
                         <WidgetButton 
-                            icon={<ZapIcon className="w-5 h-5" />} 
-                            label="Swarm Pulse" 
-                            onClick={() => onSpawnWidget(DesktopWidgetType.SwarmIntegrity)} 
-                        />
-                        <WidgetButton 
                             icon={<TrendingUpIcon className="w-5 h-5" />} 
                             label="Financial Flow" 
                             onClick={() => onSpawnWidget(DesktopWidgetType.FinancialPulse)} 

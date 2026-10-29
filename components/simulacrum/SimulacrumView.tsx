@@ -11,7 +11,6 @@ import SimulacrumEntity from './SimulacrumEntity';
 import SimulacrumBackground from './SimulacrumBackground';
 import TetherLayer from './TetherLayer';
 import { DirectorTray } from './DirectorTray';
-import { SwarmHUD } from './SwarmHUD';
 
 interface SimulacrumViewProps {
     agents: Record<string, Agent>;
@@ -30,13 +29,6 @@ const SimulacrumView: React.FC<SimulacrumViewProps> = ({ agents, onSelectAgent, 
             
             {/* Main Visual Substrate */}
             <div className="flex-grow relative">
-                <SwarmHUD 
-                    agentCount={agentList.length} 
-                    totalTethers={0} 
-                    coherence={92} 
-                    entropy={14} 
-                />
-
                 <div className="absolute top-4 right-4 z-40">
                     <span className="text-[10px] font-bold text-text-tertiary uppercase tracking-widest bg-black/40 px-2 py-1 rounded border border-white/5">
                         Sector: {selectedRoom}

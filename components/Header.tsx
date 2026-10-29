@@ -12,11 +12,9 @@
  * subtly pulsing green when all systems are nominal.
  */
 
-import React, { useState, useRef, useCallback, useEffect, useMemo } from 'react';
+import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { View, CurrentUser, WeaverMode, AgentStatus } from '../types.js';
-import type { Agent, KlepsydraMetric } from '../types.js';
-import type { XiFlowData } from '../services/xiEconomyService.js';
+import { View, CurrentUser, WeaverMode } from '../types.js';
 import { LevonLogoIcon } from './icons/LevonLogoIcon.js';
 import { BrainIcon } from './icons/BrainIcon.js';
 import { LayersIcon } from './icons/LayersIcon.js';
@@ -31,16 +29,12 @@ interface HeaderProps {
     onOpenSettings: () => void;
     mode?: WeaverMode;
     setMode?: (mode: WeaverMode) => void;
+    /** Live / Architect toggle — only on unified home `/` */
+    showWorkspaceModes?: boolean;
     onSummonDemiurge: () => void;
     onLogout: () => void;
     /** Optional: fires when user submits a quick command from the TopBar altar. */
     onQuickCommand?: (cmd: string) => void;
-    /** Live agent map for Executive Telemetry Header (spec §2.1). */
-    agents?: Record<string, Agent>;
-    /** Economy snapshot for KPI ticker. */
-    economyData?: XiFlowData | null;
-    /** Klepsydra flow metrics for health indicator. */
-    klepsydra?: KlepsydraMetric;
     /** Connected syndicate team members for avatar stack. */
     users?: Record<string, any>;
 }
@@ -71,54 +65,10 @@ const VIEW_NAMES: Record<View, string> = {
 
 const Header: React.FC<HeaderProps> = ({
     currentView, onNavigate, currentUser, onOpenSettings,
-    mode, setMode, onSummonDemiurge, onLogout, onQuickCommand,
-    agents = {}, economyData, klepsydra, users = {},
+    mode, setMode, showWorkspaceModes = false, onSummonDemiurge, onLogout, onQuickCommand,
+    users = {},
 }) => {
     const zoneLabel = VIEW_REGISTRY[currentView]?.label || VIEW_NAMES[currentView] || 'UNKNOWN SECTOR';
-
-    // ── Executive Telemetry KPI items (spec §2.1) ─────────────────
-    const kpiItems = useMemo(() => {
-        const agentList = Object.values(agents);
-        const activeCount = agentList.filter(a => a.status === AgentStatus.Running).length;
-        const errorCount  = agentList.filter(a => a.status === AgentStatus.Error).length;
-        const balance = economyData?.treasury?.balance?.toLocaleString() ?? '—';
-        const flowState = klepsydra?.state ?? 'INIT';
-        const flowScore = klepsydra?.flowScore?.toFixed(0) ?? '0';
-
-        return [
-            {
-                label: 'SWARM',
-                value: `${activeCount}/${agentList.length}`,
-                accent: errorCount > 0 ? 'text-red-400' : 'text-roman-aqua',
-                dot: errorCount > 0 ? 'bg-red-400' : 'bg-roman-aqua',
-                prompt: errorCount > 0
-                    ? `Diagnose ${errorCount} agent errors in the swarm and recommend recovery steps.`
-                    : `Show swarm diagnostic: ${activeCount} of ${agentList.length} agents active.`,
-            },
-            {
-                label: 'FLOW',
-                value: `${flowState} ${flowScore}%`,
-                accent: flowState === 'Flow' ? 'text-patina-green' : 'text-yellow-400',
-                dot: flowState === 'Flow' ? 'bg-patina-green' : 'bg-yellow-400',
-                prompt: `Analyse my Klepsydra flow state (${flowState}, ${flowScore}%). What actions will improve it?`,
-            },
-            {
-                label: 'Ξ',
-                value: balance,
-                accent: 'text-yellow-300',
-                dot: 'bg-yellow-300',
-                prompt: 'Generate a Xi treasury status report including balance, tithe rate, and recent transactions.',
-            },
-        ];
-    }, [agents, economyData, klepsydra]);
-
-    const [kpiIndex, setKpiIndex] = useState(0);
-
-    // Auto-cycle KPI every 5 s
-    useEffect(() => {
-        const t = setInterval(() => setKpiIndex(i => (i + 1) % kpiItems.length), 5000);
-        return () => clearInterval(t);
-    }, [kpiItems.length]);
 
     // ── Command State (Book III §3.1) ─────────────────────────
     // When active, central elements slide out and a BEEP altar input expands.
@@ -159,11 +109,10 @@ const Header: React.FC<HeaderProps> = ({
 
     // Architect mode toggle
     const handleToggleMode = (targetMode: WeaverMode) => {
-        if (setMode && mode !== targetMode) {
-            setMode(targetMode);
-            if (currentView !== 'main' && currentView !== 'weaver') {
-                onNavigate(targetMode === 'live' ? 'main' : 'weaver');
-            }
+        if (!setMode || mode === targetMode) return;
+        setMode(targetMode);
+        if (!showWorkspaceModes) {
+            onNavigate(targetMode === 'live' ? 'main' : 'weaver');
         }
     };
 
@@ -250,7 +199,7 @@ const Header: React.FC<HeaderProps> = ({
                         </div>
                     </motion.div>
                 ) : (
-                    /* ── 2b. AMBIENT STATE — Executive Telemetry Header (spec §2.1) ── */
+                    /* ── 2b. AMBIENT STATE — Cmd+K altar only (vitals live in MainView) ── */
                     <motion.div
                         key="ambient"
                         initial={{ opacity: 0 }}
@@ -259,57 +208,13 @@ const Header: React.FC<HeaderProps> = ({
                         transition={{ duration: 0.2 }}
                         className="hidden md:flex flex-1 items-center justify-center gap-3"
                     >
-                        {/* Cross-fading KPI ticker — tap any metric to pre-fill BEEP */}
-                        <div className="flex items-center gap-2">
-                            <AnimatePresence mode="wait">
-                                {kpiItems.map((kpi, i) =>
-                                    i === kpiIndex ? (
-                                        <motion.button
-                                            key={kpi.label}
-                                            initial={{ opacity: 0, y: 3 }}
-                                            animate={{ opacity: 1, y: 0 }}
-                                            exit={{ opacity: 0, y: -3 }}
-                                            transition={{ duration: 0.3 }}
-                                            onClick={() => {
-                                                onQuickCommand?.(kpi.prompt);
-                                                enterCommandMode();
-                                            }}
-                                            title="Tap to query BEEP"
-                                            className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-black/20 border border-white/8 hover:border-white/20 hover:bg-white/5 transition-all group/kpi cursor-pointer"
-                                            aria-label={`${kpi.label}: ${kpi.value} — tap to query BEEP`}
-                                        >
-                                            <div className={`w-1 h-1 rounded-full ${kpi.dot} animate-pulse flex-shrink-0`} />
-                                            <span className="text-[8px] font-mono text-text-tertiary uppercase tracking-widest">
-                                                {kpi.label}
-                                            </span>
-                                            <span className={`text-[10px] font-bold font-comfortaa ${kpi.accent}`}>
-                                                {kpi.value}
-                                            </span>
-                                            <span className="text-[8px] text-text-tertiary opacity-0 group-hover/kpi:opacity-60 transition-opacity">⌁</span>
-                                        </motion.button>
-                                    ) : null,
-                                )}
-                            </AnimatePresence>
-                            {/* Pagination dots */}
-                            <div className="flex gap-0.5">
-                                {kpiItems.map((_, i) => (
-                                    <button
-                                        key={i}
-                                        onClick={() => setKpiIndex(i)}
-                                        aria-label={`KPI ${i + 1}`}
-                                        className={`w-1 h-1 rounded-full transition-all ${i === kpiIndex ? 'bg-roman-aqua' : 'bg-white/15 hover:bg-white/30'}`}
-                                    />
-                                ))}
-                            </div>
-                        </div>
-
-                        {/* Cmd+K altar trigger */}
                         <button
                             onClick={enterCommandMode}
                             title="Open BEEP Altar (Cmd+K)"
                             className="flex items-center gap-1 px-2 py-1 rounded-full bg-black/10 border border-white/5 hover:border-imperial-purple/30 hover:bg-imperial-purple/5 transition-all group/pill"
                         >
                             <kbd className="text-[8px] font-mono text-text-tertiary bg-white/5 px-1.5 py-0.5 rounded border border-white/10">⌘K</kbd>
+                            <span className="text-[10px] text-text-tertiary group-hover/pill:text-white transition-colors">Whisper to BEEP</span>
                         </button>
                     </motion.div>
                 )}
@@ -318,8 +223,8 @@ const Header: React.FC<HeaderProps> = ({
             {/* ── 3. COMMAND DECK — right, always visible ──────── */}
             <div className="flex items-center space-x-3 flex-shrink-0 z-10 topbar-slide-right">
 
-                {/* Mode Switcher — visible on all screen sizes when on home views */}
-                {(currentView === 'weaver' || currentView === 'main') && setMode && mode && !isCommandMode && (
+                {/* Live ↔ Architect — unified home `/` only */}
+                {showWorkspaceModes && setMode && mode && !isCommandMode && (
                     <div className="flex bg-black/40 p-1 rounded-lg border border-white/10 relative">
                         <motion.div
                             className="absolute top-1 bottom-1 w-[50%] bg-white/10 rounded shadow-sm border border-white/5"

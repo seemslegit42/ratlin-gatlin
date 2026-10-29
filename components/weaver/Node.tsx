@@ -21,7 +21,7 @@ interface NodeProps {
     isHoveredAsTarget?: boolean;
     isHighlighted: boolean;
     isDimmed: boolean;
-    mode: 'live' | 'architect';
+    mode: 'founder' | 'architect';
     onVeilPeel: (id: string) => void;
     currentGossip?: string;
     isConflict?: boolean;
@@ -129,7 +129,7 @@ const Node: React.FC<NodeProps> = ({
   const [peelProgress, setPeelProgress] = useState(0);
 
   const startPress = useCallback(() => {
-    if (mode !== 'live') return;
+    if (mode !== 'founder') return;
 
     const start = Date.now();
 
@@ -193,7 +193,7 @@ const Node: React.FC<NodeProps> = ({
       onPointerUp={cancelPress}
       onPointerLeave={cancelPress}
       onContextMenu={handleContextMenu}
-      className={`absolute ${mode === 'live' ? 'w-80 h-auto' : 'w-64 min-h-[140px]'} ${isPeeling ? 'node-peel-elevated' : ''}`}
+      className={`absolute ${mode === 'founder' ? 'w-80 h-auto' : 'w-64 min-h-[140px]'} ${isPeeling ? 'node-peel-elevated' : ''}`}
     >
         {/* ── VEIL-PEEL PROGRESS RING ─────────────────────────── */}
         <AnimatePresence>
@@ -232,12 +232,12 @@ const Node: React.FC<NodeProps> = ({
 
         {/*
           ── COMPONENT DUALITY SHELL (Book II Table 2) ──────────
-          Live Mode  : glass-live  → backdrop-filter blur(24px), bg rgba(30,30,30,0.6)
+          Founder Mode: glass-live → backdrop-filter blur(24px), bg rgba(30,30,30,0.6)
           Architect  : glass-architect → backdrop-filter blur(12px), bg rgba(30,30,30,0.3)
           Transition : 300ms cross-fade via CSS (--duration-moderate on .glass-live/.glass-architect)
         */}
         <div className={`relative w-full h-full rounded-2xl overflow-hidden luminous-imperfection ${
-            mode === 'live' ? 'glass-live' : 'glass-architect'
+            mode === 'founder' ? 'glass-live' : 'glass-architect'
         } ${agent.isVeiled ? 'veil-glow' : ''}`}>
 
             {/* ── VEILED OVERLAY (curtain-lift clip-path) ─────── */}
@@ -263,13 +263,13 @@ const Node: React.FC<NodeProps> = ({
             </AnimatePresence>
             
             <AnimatePresence mode="wait">
-            {mode === 'live' ? (
+            {mode === 'founder' ? (
                 /* ──────────────────────────────────────────────────────
                    LIVE MODE (THE SHARD) — Table 2:
                    Full micro-app UI, Comfortaa heading, connectors hidden.
                    ────────────────────────────────────────────────────── */
                 <motion.div
-                    key="live"
+                    key="founder"
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}

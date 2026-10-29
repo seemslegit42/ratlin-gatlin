@@ -91,6 +91,8 @@ export interface AiChatDockProps {
   transcript: React.ReactNode;
   composer: React.ReactNode;
   onClearTranscript?: () => void;
+  /** When true, transcript lives elsewhere (C-HUD main); dock is composer-only. */
+  composerOnly?: boolean;
   /** Passed from App to light the sigil during BEEP processing. */
   isProcessing?: boolean;
   /** Total message count — used to auto-promote to 'half' on new messages. */
@@ -107,6 +109,7 @@ const AiChatDock: React.FC<AiChatDockProps> = ({
   transcript,
   composer,
   onClearTranscript,
+  composerOnly = false,
   isProcessing = false,
   messageCount = 0,
   lastMessagePreview,
@@ -173,6 +176,29 @@ const AiChatDock: React.FC<AiChatDockProps> = ({
     const idx = SNAP_ORDER.indexOf(snap);
     setSnap(SNAP_ORDER[(idx + 1) % SNAP_ORDER.length]);
   }, [snap, setSnap]);
+
+  /** Stream lives in the home shell; dock is composer-only (mic, input, attach, command core). */
+  if (composerOnly) {
+    return (
+      <div
+        className="fixed left-0 right-0 z-[110] pointer-events-none high-density"
+        style={{
+          bottom: isMobile
+            ? 'calc(var(--mobile-nav-h, 4rem) + env(safe-area-inset-bottom, 0px))'
+            : '0',
+        }}
+        aria-label="Command composer"
+      >
+        <div className="pointer-events-auto mx-auto w-full max-w-3xl px-3 pb-3 md:px-4 md:pb-5">
+          <div className="glass-live rounded-2xl border border-roman-aqua/20 shadow-[0_0_32px_rgba(32,178,170,0.1)] overflow-hidden relative">
+            <div className="wabi-grain rounded-2xl" />
+            <div className="scanlines absolute inset-0 opacity-[0.03] pointer-events-none rounded-2xl" />
+            <div className="relative p-2 md:p-2.5 border-t border-white/5">{composer}</div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   // ════════════════════════════════════════════════════════════════════════════
   // MOBILE LAYOUT — bottom sheet with drag handle

@@ -1,7 +1,6 @@
-
 /**
  * @file modules/weaver/Weaver.tsx
- * @description The Architect's Loom.
+ * @description Agent orchestration canvas (Architect mode). Former product name: Loom Studio.
  */
 
 import React, { useRef, useState } from 'react';

@@ -401,7 +401,6 @@ export interface DesktopWidget {
 }
 
 export enum DesktopWidgetType {
-  SwarmIntegrity = 'SwarmIntegrity',
   FinancialPulse = 'FinancialPulse',
   SystemResources = 'SystemResources',
   SyndicateOverview = 'SyndicateOverview',

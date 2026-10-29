@@ -4,7 +4,7 @@
  * @description Visualizes network connectivity statuses for various subsystems.
  */
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useMemo } from 'react';
 import { WifiIcon } from '../icons/WifiIcon';
 import { BrainIcon } from '../icons/BrainIcon';
 
@@ -30,21 +30,13 @@ const LinkNode: React.FC<{ label: string; icon: React.ReactNode; color: string; 
 
 interface NetworkUplinksProps {
     hasEconomyFeed?: boolean;
-    /** Swarm coherence (0–100); drives NEURAL lane independently of treasury feed. */
-    swarmHealthPercent?: number;
+    /** Agent coherence (0–100); drives NEURAL lane independently of treasury feed. */
+    coherencePercent?: number;
 }
 
-const NetworkUplinks: React.FC<NetworkUplinksProps> = ({ hasEconomyFeed = true, swarmHealthPercent = 100 }) => {
-    const [netLatency, setNetLatency] = useState(12);
-    const [neuralLatency, setNeuralLatency] = useState(45);
-
-    useEffect(() => {
-        const interval = setInterval(() => {
-            setNetLatency(prev => Math.max(5, Math.min(55, prev + Math.floor((Math.random() - 0.5) * 3))));
-            setNeuralLatency(prev => Math.max(20, Math.min(110, prev + Math.floor((Math.random() - 0.5) * 6))));
-        }, 1800);
-        return () => clearInterval(interval);
-    }, []);
+const NetworkUplinks: React.FC<NetworkUplinksProps> = ({ hasEconomyFeed = true, coherencePercent = 100 }) => {
+    const netLatency = hasEconomyFeed ? 12 : 48;
+    const neuralLatency = coherencePercent >= 35 ? 45 : 92;
 
     const netStatus = useMemo(() => {
         if (!hasEconomyFeed) return 'DEGRADED';
@@ -53,11 +45,11 @@ const NetworkUplinks: React.FC<NetworkUplinksProps> = ({ hasEconomyFeed = true, 
     }, [hasEconomyFeed, netLatency]);
 
     const neuralStatus = useMemo(() => {
-        const health = Number.isFinite(swarmHealthPercent) ? swarmHealthPercent : 100;
+        const health = Number.isFinite(coherencePercent) ? coherencePercent : 100;
         if (health < 35) return 'DEGRADED';
         if (neuralLatency > 85) return 'DEGRADED';
         return 'CONNECTED';
-    }, [swarmHealthPercent, neuralLatency]);
+    }, [coherencePercent, neuralLatency]);
 
     return (
         <div className="min-w-[50vw] md:min-w-0 snap-center md:col-span-2 flex flex-col space-y-1.5 justify-center h-full">

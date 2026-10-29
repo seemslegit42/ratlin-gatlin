@@ -8,11 +8,11 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { GlassPane } from '../shared/GlassPane';
 import type { Agent } from '../../types.js';
-import type { SwarmVitalsSnapshot } from '../../hooks/useSwarmVitals.js';
-import { useSwarmVitals } from '../../hooks/useSwarmVitals.js';
+import type { AgentResourceSnapshot } from '../../utils/agentResourceMetrics.js';
+import { computeAgentResourceMetrics } from '../../utils/agentResourceMetrics.js';
 
 export interface SystemResourcesPanelProps {
-    vitals: SwarmVitalsSnapshot;
+    vitals: AgentResourceSnapshot;
 }
 
 interface SystemResourcesProps {
@@ -70,7 +70,7 @@ export const SystemResourcesPanel: React.FC<SystemResourcesPanelProps> = ({ vita
 };
 
 const SystemResources: React.FC<SystemResourcesProps> = ({ agents = {} }) => {
-    const vitals = useSwarmVitals(agents);
+    const vitals = computeAgentResourceMetrics(agents);
     return <SystemResourcesPanel vitals={vitals} />;
 };
 

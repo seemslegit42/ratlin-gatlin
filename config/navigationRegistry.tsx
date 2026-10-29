@@ -24,11 +24,11 @@ export interface ViewConfig {
 
 export const VIEW_REGISTRY: Record<View, ViewConfig> = {
     main: {
-        label: 'COCKPIT',
+        label: 'LIVE',
         icon: <BrainIcon className="w-6 h-6" />
     },
     weaver: {
-        label: 'WEAVER STUDIO',
+        label: 'ARCHITECT',
         icon: <WeaverIcon className="w-6 h-6" />
     },
     simulacrum: {

@@ -34,7 +34,7 @@ describe('High-Density Layout & Spacing Protocol', () => {
 
   it('should apply the high-density layout class across all core modules and views', () => {
     const views = [
-      'modules/main/MainView.tsx',
+      'modules/main/main-view.tsx',
       'modules/economy/XiDashboard.tsx',
       'modules/crm/CRMView.tsx',
       'modules/operations/OperationsView.tsx',
@@ -68,7 +68,7 @@ describe('High-Density Layout & Spacing Protocol', () => {
       'components/switchboard/Toolbar.tsx',
       'components/shared/GlassPane.tsx',
       'components/MicroAppForgeView.tsx',
-      'components/VitalsHUD.tsx',
+      'components/vitals/vitals-strip.tsx',
       'components/shared/CommandCenter.tsx',
       'components/shared/Modal.tsx',
       'components/shared/Sheet.tsx',
