@@ -5,13 +5,13 @@
 
 import { nanoid } from 'nanoid';
 import { PillarOfEternity, RiteType, PsycheMatrixState } from '../types';
-// TODO: Migrate all Supabase calls to Appwrite Databases API
+// TODO: Persist pillar/rite state via Appwrite Databases API
 
 /**
  * Fetches the current state of the Sovereign's Soul (Pillar of Eternity).
  */
 export const fetchPillarState = async (userId: string): Promise<PillarOfEternity | null> => {
-    // TODO: Migrate to Appwrite Databases API
+    // TODO: Load from Appwrite Databases API
     // Return default state pending Appwrite integration
     return {
         userId,
@@ -27,7 +27,7 @@ export const fetchPillarState = async (userId: string): Promise<PillarOfEternity
  * Logs the event and checks if the Sovereign has earned the right to proceed.
  */
 export const judgeFolly = async (userId: string, durationSeconds: number): Promise<{ unlockedBurnout: boolean }> => {
-    // TODO: Migrate to Appwrite Databases API
+    // TODO: Load from Appwrite Databases API
     const transactionId = nanoid();
     console.log('[RITES] Folly judgment logged:', {
         transactionId,
@@ -43,7 +43,7 @@ export const judgeFolly = async (userId: string, durationSeconds: number): Promi
  * Performs the "Grand Transmutation" (Burnout Funeral Completion).
  */
 export const completeBurnoutFuneral = async (userId: string): Promise<void> => {
-    // TODO: Migrate to Appwrite Databases API
+    // TODO: Load from Appwrite Databases API
     const transactionId = nanoid();
     console.log('[RITES] Burnout funeral completed:', {
         transactionId,

@@ -32,7 +32,7 @@ import { storage, BUCKETS } from '../../services/appwriteClient';
 import { WizardIcon } from '../icons/WizardIcon';
 import { SparkIcon } from '../icons/SparkIcon';
 import { CodeExecutionTerminal } from './CodeExecutionTerminal';
-// TODO: Migrate persistence to Appwrite Databases API
+// TODO: Persist inspector edits via Appwrite Databases API
 
 // --- Types ---
 

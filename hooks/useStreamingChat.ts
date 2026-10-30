@@ -56,7 +56,7 @@ export const useStreamingChat = (
   const { activePersona } = useRites(); 
 
   // Sync History on Initialization
-  // TODO: Migrate to Appwrite Databases API
+  // TODO: Persist chat transcript via Appwrite Databases API
   useEffect(() => {
     if (!currentUser?.syndicateId) return;
 
@@ -70,7 +70,7 @@ export const useStreamingChat = (
 
   const saveMessageToDB = async (msg: ChatMessage) => {
       if (!currentUser?.syndicateId) return;
-      // TODO: Migrate to Appwrite Databases API
+      // TODO: Persist chat transcript via Appwrite Databases API
       // Message persistence will be handled by Appwrite once integration is complete
   };
 

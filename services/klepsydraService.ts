@@ -11,14 +11,14 @@
 import { nanoid } from 'nanoid';
 import type { KlepsydraOutcome, PulseProfile, ChaosCard, CurrentUser } from '../types';
 import { ChaosCardClass, BoonType } from '../types';
-// TODO: Migrate all Supabase calls to Appwrite Databases API
+// TODO: Persist pulse profiles and outcomes via Appwrite Databases API
 
 /**
  * Ensures the user has a valid PulseProfile. Creates one if missing.
  */
 export const ensurePulseProfile = async (userId: string, archetype: string = 'initiate'): Promise<PulseProfile | null> => {
     try {
-        // TODO: Migrate to Appwrite Databases API
+        // TODO: Load/save pulse profile via Appwrite Databases API
         // For now, return a default profile
         const defaultProfile: PulseProfile = {
             userId,
@@ -56,7 +56,7 @@ export const calculateOutcome = async (user: CurrentUser, instrumentId: string, 
     const profile = await ensurePulseProfile(user.id);
     if (!profile) throw new Error("Profile synchronization failure.");
 
-    // TODO: Migrate to Appwrite Databases API
+    // TODO: Load economy dials from Appwrite Databases API
     const dials: Record<string, number> = {
         pity_boon_threshold: 7 // Default value pending Appwrite integration
     };
@@ -149,7 +149,7 @@ export const calculateOutcome = async (user: CurrentUser, instrumentId: string, 
     };
 
     // PERSISTENCE: Transaction Logging
-    // TODO: Migrate to Appwrite Databases API for persistence
+    // TODO: Persist outcome via Appwrite Databases API
     const aegisSignature = `AEGIS-ENLIGHTENED-${nanoid(16)}`;
     console.log('[KLEPSYDRA] Transaction logged:', {
         transactionId: outcome.transactionId,
