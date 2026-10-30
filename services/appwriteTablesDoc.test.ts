@@ -78,12 +78,12 @@ describe('Appwrite Tables Architecture & Schema Specification', () => {
     expect(content).not.toMatch(/if\s*\(\s*collections\.length\s*<\s*limit\s*\)/);
   });
 
-  it('should have authoritative Appwrite Tables documentation available in docs/appwrite-tables.md', () => {
-    const docPath = path.join(rootDir, 'docs/appwrite-tables.md');
+  it('should document TablesDB schema commands in docs/appwrite/tables.md', () => {
+    const docPath = path.join(rootDir, 'docs/appwrite/tables.md');
     expect(fs.existsSync(docPath)).toBe(true);
     const content = fs.readFileSync(docPath, 'utf8');
-    expect(content).toContain('Appwrite Tables');
-    expect(content).toContain('TablesDB');
+    expect(content).toContain('DATABASE_ID');
+    expect(content).toContain('types:generate');
     expect(content).toContain('varchar');
     expect(content).toContain('mediumtext');
     expect(content).toContain('longtext');

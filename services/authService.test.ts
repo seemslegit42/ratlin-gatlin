@@ -53,15 +53,14 @@ describe('Appwrite Authentication Service - Core Contracts', () => {
     expect(typeof loader).toBe('function');
   });
 
-  it('has authoritative Appwrite Authentication documentation in docs/appwrite-authentication.md', () => {
-    const docPath = path.resolve(process.cwd(), 'docs/appwrite-authentication.md');
+  it('has Appwrite authentication snippets in docs/appwrite/authentication.md', () => {
+    const docPath = path.resolve(process.cwd(), 'docs/appwrite/authentication.md');
     expect(fs.existsSync(docPath)).toBe(true);
     const content = fs.readFileSync(docPath, 'utf8');
-    expect(content).toContain('title: Start with Authentication');
     expect(content).toContain('account.create');
     expect(content).toContain('account.createEmailPasswordSession');
     expect(content).toContain('account.get()');
-    expect(content).toContain('React router');
+    expect(content).toContain('createReactRouterAuthLoader');
   });
 
   it('validates parameters in completePasswordRecovery', async () => {
@@ -125,12 +124,12 @@ describe('Appwrite Authentication Service - Core Contracts', () => {
     expect(content).toContain('/recovery');
   });
 
-  it('documents Section 4 Password Recovery with SDK examples in docs/appwrite-authentication.md', () => {
-    const docPath = path.resolve(process.cwd(), 'docs/appwrite-authentication.md');
+  it('documents password recovery SDK calls in docs/appwrite/authentication.md', () => {
+    const docPath = path.resolve(process.cwd(), 'docs/appwrite/authentication.md');
     const content = fs.readFileSync(docPath, 'utf8');
-    expect(content).toContain('## 4. Password Recovery (Forgot Password Flow)');
     expect(content).toContain('account.createRecovery');
     expect(content).toContain('account.updateRecovery');
+    expect(content).toContain('completePasswordRecovery');
   });
 
   it('exports NotificationContext and useNotification hook', () => {

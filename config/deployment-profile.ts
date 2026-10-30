@@ -4,7 +4,7 @@
  * **Contract only** — documentation, agents, and tests. Do not import this
  * module from runtime services, hooks, or UI logic; it must not change behavior.
  *
- * @see docs/edge-deployment-assumptions.md
+ * @see docs/edge/deployment-profile.md
  */
 
 export const DEPLOYMENT_PROFILE = {

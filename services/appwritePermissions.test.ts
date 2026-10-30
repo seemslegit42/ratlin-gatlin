@@ -7,27 +7,22 @@ import { buildSovereignTables } from '../scripts/generate-appwrite-types';
 describe('Appwrite Database Permissions & Row Security Architecture', () => {
   const rootDir = process.cwd();
 
-  it('should have authoritative Database Permissions article in docs/database-permissions.md', () => {
-    const docPath = path.join(rootDir, 'docs/database-permissions.md');
+  it('should document permission helpers in docs/appwrite/permissions.md', () => {
+    const docPath = path.join(rootDir, 'docs/appwrite/permissions.md');
     expect(fs.existsSync(docPath)).toBe(true);
 
     const content = fs.readFileSync(docPath, 'utf8');
-    expect(content).toContain('title: Database permissions');
-    expect(content).toContain('Permissions define who can access rows in a table');
-    expect(content).toContain('By default **no permissions** are granted to any users');
-    expect(content).toContain('# Table level');
-    expect(content).toContain('# Row level');
-    expect(content).toContain('Row security');
-    expect(content).toContain('# Common use cases');
+    expect(content).toContain('AppwritePermission.read(AppwriteRole.users())');
+    expect(content).toContain('rowSecurity: true');
   });
 
-  it('should cross-reference Database Permissions in docs/appwrite-tables.md', () => {
-    const tablesDocPath = path.join(rootDir, 'docs/appwrite-tables.md');
+  it('should cross-reference permissions in docs/appwrite/tables.md', () => {
+    const tablesDocPath = path.join(rootDir, 'docs/appwrite/tables.md');
     expect(fs.existsSync(tablesDocPath)).toBe(true);
 
     const content = fs.readFileSync(tablesDocPath, 'utf8');
-    expect(content).toContain('Database Permissions');
-    expect(content).toContain('Row Security');
+    expect(content).toContain('permissions.md');
+    expect(content).toContain("DATABASE_ID = 'sovereign'");
   });
 
   it('should support rowSecurity and permissions in TableSpec within appwrite-schema.ts', () => {

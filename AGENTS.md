@@ -20,7 +20,7 @@ Logs for support: `.local/operator.log` — not shown to operators.
 
 ## Deployment assumptions
 
-Edge / constrained — reference **NVIDIA Jetson Nano, 4 GB RAM**. See `config/deployment-profile.ts`, `docs/edge-deployment-assumptions.md`.
+Edge / constrained — reference **NVIDIA Jetson Nano, 4 GB RAM**. See `config/deployment-profile.ts`, `docs/edge/deployment-profile.md`.
 
 ## Maintainers
 

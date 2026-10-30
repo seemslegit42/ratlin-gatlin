@@ -3,9 +3,11 @@ import { isPostmanConfigured, loadPostmanConfig } from './config';
 
 describe('postman config', () => {
   const originalKey = process.env.POSTMAN_API_KEY;
+  const originalBase = process.env.POSTMAN_API_BASE_URL;
 
   beforeEach(() => {
     delete process.env.POSTMAN_API_KEY;
+    delete process.env.POSTMAN_API_BASE_URL;
   });
 
   afterEach(() => {
@@ -13,6 +15,11 @@ describe('postman config', () => {
       process.env.POSTMAN_API_KEY = originalKey;
     } else {
       delete process.env.POSTMAN_API_KEY;
+    }
+    if (originalBase !== undefined) {
+      process.env.POSTMAN_API_BASE_URL = originalBase;
+    } else {
+      delete process.env.POSTMAN_API_BASE_URL;
     }
   });
 

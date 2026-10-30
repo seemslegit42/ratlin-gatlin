@@ -4,7 +4,7 @@
 #   1. bun run appwrite:bootstrap  (wizard → writes ./appwrite/docker-compose.yml + .env)
 #   2. docker compose -f docker-compose.sovereign.yml config
 #
-# Appwrite is the BaaS plane (auth, TablesDB, Sites, Functions). Inference stays host-managed per docs/edge-deployment-assumptions.md.
+# Appwrite is the BaaS plane (auth, TablesDB, Sites, Functions). Inference stays host-managed per docs/edge/deployment-profile.md.
 
 name: beep-sovereign
 
